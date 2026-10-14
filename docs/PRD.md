@@ -252,6 +252,8 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R46 | Access requests made offline are queued on device and sent when online | F1, F8 | 002 |
 | R47 | Email is mandatory and is the username for requests and login | F1 | 001 |
 | R48 | Keep this PRD complete so nothing is skipped | §13, P9 | ongoing |
+| R49 | Styling: Tailwind v4 + clsx/cva + base-ui, critiqued with the installed skills; guardrails enforced by theme tokens and lint | spec 000 §3.3, ADR 0002 | 000 |
+| R50 | No physical Android device for now: emulator only; hardware-only checks listed as pending in each PR | C3, spec 000 A10 | 000+ |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.
