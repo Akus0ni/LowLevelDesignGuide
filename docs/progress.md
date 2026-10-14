@@ -11,14 +11,14 @@ _Last updated: 2026-10-14_
 | PRD | v0.2 merged (PR #1) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
-| Spec 000 Foundation | **Done, in review: [PR #2](https://github.com/Akus0ni/LowLevelDesignGuide/pull/2)** (branch `spec/000-foundation`). Owner reviews and merges |
-| Next | Spec 001 Auth & access (after PR #2 is merged) |
+| Spec 000 Foundation | ✅ Merged (PR #2) |
+| Spec 001 Auth & access | 🟡 In progress on `spec/001-auth`: case-study interview done, `spec.md` drafted, awaiting owner approval |
 
 ## Spec roadmap status
 | # | Spec | Status |
 |---|---|---|
-| 000 | Foundation | ✅ built + verified; PR #2 awaiting owner merge |
-| 001 | Auth & access (Case Study #1) + admin console | ⏭ next |
+| 000 | Foundation | ✅ merged (PR #2) |
+| 001 | Auth & access (Case Study #1) + admin console | 🟡 spec drafted |
 | 002 | Self-hosting & server status (ngrok, ntfy) | planned |
 | 003 | Content engine (reader) | planned |
 | 004 | OOP & SOLID content | planned |

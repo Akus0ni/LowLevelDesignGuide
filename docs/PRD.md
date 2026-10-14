@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft v0.2, awaiting review |
+| **Status** | v0.3 |
 | **Owner** | Akus0ni |
 | **Last updated** | 2026-10-14 |
 | **Platforms** | Android · iOS · Windows · macOS |
@@ -15,6 +15,7 @@
 |---|---|---|
 | v0.1 | 2026-10-14 | First draft: vision, MVP features F1–F7, architecture, data model |
 | v0.2 | 2026-10-14 | Content bundled in app; self-hosting on owner's PC via ngrok (F8); access by request + admin console (F9); email as username; server status via signed ntfy.sh topic; development process requirements; full requirements register (§13) |
+| v0.3 | 2026-10-14 | Spec 001 decisions: lockout, sign out of all devices, roles, audit log, token storage and lifetimes, password policy (R53–R60) |
 
 ---
 
@@ -76,9 +77,11 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
   - A request moves through **Pending → Approved | Rejected**. Duplicate pending requests for the same email are merged.
 - **Admin approval** happens in the admin console (F9). Approving creates the user with a **temporary password**, which the console prints and the admin **shares with the user manually** (no email is sent by the system).
 - **First login with a temporary password** forces a "Set new password" screen before anything else. The temporary password stops working once changed.
-- Log in, log out, refresh session, change password.
-- ASP.NET Core Identity for the user store; **custom** `TokenService` issuing short-lived JWT access tokens and **rotating refresh tokens** persisted as entities.
-- Tokens stored in MAUI `SecureStorage` on device; browser dev mode storage (memory vs httpOnly cookie) decided in spec 001.
+- Log in, log out, refresh session, change password, **sign out of all devices**.
+- **Account lockout** after 5 failed logins (15 minutes). **Roles:** Admin and Learner. **Audit log** of security events.
+- Password policy: at least 12 characters, no composition rules, not equal to the email.
+- ASP.NET Core Identity for the user store; **custom** `TokenService` issuing JWT access tokens (**60 minutes**) and **rotating refresh tokens** (30 days) persisted as entities; reusing a revoked refresh token revokes the whole token family.
+- Tokens stored in MAUI `SecureStorage` on device; in browser dev mode the access token stays in memory and the refresh token in an httpOnly cookie.
 - **Acceptance:** a request made offline reaches the server once it is online; the admin approves it from the console and gets a temporary password; the user logs in with it, is forced to set a new password, and continues; access tokens expire and refresh silently; logout revokes the refresh token; a reused refresh token revokes the whole token family.
 - **Learning output:** `content/case-studies/auth/{lesson.md, cheatsheet.md}`, written from this repo's real classes (request state machine, token rotation, password policy, admin console as a second client of the same application layer).
 
@@ -256,6 +259,14 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R50 | No physical Android device for now: emulator only; hardware-only checks listed as pending in each PR | C3, spec 000 A10 | 000+ |
 | R51 | Apple CI disabled for now (manual-only workflow); fixing and re-enabling it is Phase 2, with all findings kept in the plan | §8, plan §8 | P2 |
 | R52 | README has a "Local setup" section listing every manual dependency so any developer can build and run the app | README | 000 |
+| R53 | Account lockout: 15 minutes after 5 failed logins | F1 | 001 |
+| R54 | Users can sign out of all devices (revoke every session) | F1 | 001 |
+| R55 | Roles Admin and Learner, carried in the access token; first admin created from the console | F1, F9 | 001 |
+| R56 | Audit log of security events, readable from the admin console | F1, F9 | 001 |
+| R57 | Browser dev mode: access token in memory, refresh token in an httpOnly cookie; app uses SecureStorage | F1 | 001 |
+| R58 | Lifetimes: access token 60 min; refresh token 30 days, rotating, reuse revokes the family | F1 | 001 |
+| R59 | Password policy: at least 12 characters, no composition rules, not equal to the email | F1 | 001 |
+| R60 | Auth case study: self-referential, deep-dive lesson + interview cheat sheet, showcasing State, Strategy, Repository + Unit of Work, Result + domain events | §7 | 001 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.
@@ -265,8 +276,7 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 - Real users can request access, be approved and sync through the self-hosted API, staying within the ngrok free limits.
 
 ## 15. Open questions
-1. Browser dev-mode token storage (cookie vs memory). Decided in spec 001.
-2. Which case studies come after Auth. Asked one at a time via the `lld-case-study` skill.
+1. Which case studies come after Auth. Asked one at a time via the `lld-case-study` skill.
 
 ## 16. Glossary
 | Term | Meaning |
