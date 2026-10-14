@@ -109,7 +109,7 @@ dependencies; `App` depends on `Contracts` (+ its own local infrastructure).
 
 | # | Spec | Scope | Done when |
 |---|---|---|---|
-| **000** | Foundation | Solution skeleton (.NET 10), Aspire AppHost, ServiceDefaults, empty API with health endpoint, React shell (routing, layout, `DataSource`), MAUI app hosting the React build, GitHub Actions CI | `aspire run` shows api + web + app (Windows) healthy; Android emulator loads the UI; CI green on all targets |
+| **000** | Foundation | Solution skeleton (.NET 10), Aspire AppHost, ServiceDefaults, empty API with health endpoint, React shell (routing, layout, `DataSource`), MAUI app hosting the React build, GitHub Actions CI | `aspire run` shows api + web + app (Windows) healthy; Android emulator loads the UI; CI green on all targets and added as required checks on `main` |
 | **001** | Auth (Case Study #1) | Identity, custom JWT + rotating refresh tokens, register/login/logout UI, SecureStorage | Integration test register → login → refresh → logout passes; Auth lesson + cheat sheet written from real code |
 | **002** | Content engine | Markdown seeder, modules/lessons API, reader (C# highlighting, Mermaid), cheat-sheet "Revise" view | Dropping a `.md` file into `content/` shows it in the app |
 | **003** | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
@@ -125,12 +125,23 @@ dependencies; `App` depends on `Contracts` (+ its own local infrastructure).
 Content specs (007–009) can be interleaved with feature specs if preferred.
 
 ## 4. Per-spec workflow
-1. Write `specs/NNN-name/spec.md`: goal, user stories, acceptance criteria, out of scope, open questions.
-2. **Owner reviews the spec.** Open questions get answered; nothing is assumed.
-3. Write `plan.md` (design, classes, diagrams) and `tasks.md` (checklist).
-4. Implement task by task; tests alongside.
-5. Verify (see §5), then commit as `spec-NNN: ...` and push.
-6. Owner OK → next spec.
+1. Branch from latest `main`: `spec/NNN-short-name`.
+2. Write `specs/NNN-name/spec.md`: goal, user stories, acceptance criteria, out of scope, open questions.
+3. **Owner reviews the spec.** Open questions get answered; nothing is assumed.
+4. Write `plan.md` (design, classes, diagrams) and `tasks.md` (checklist).
+5. Implement task by task; tests alongside; commits as `spec-NNN: ...` on the branch.
+6. Verify (see §5), push the branch, and **open a PR to `main`** (spec link, summary, verification).
+7. CI must pass. **Owner reviews and squash-merges.** The branch is auto-deleted.
+8. Owner OK → next spec, branched from the updated `main`.
+
+### Main branch protection (GitHub ruleset "Protect main")
+| Rule | Setting |
+|---|---|
+| Direct push / force-push / deletion | Blocked for everyone |
+| Pull request required | Yes, 1 approval, stale approvals dismissed, conversations resolved |
+| Merge method | Squash only, linear history |
+| Bypass | Repo admin, **only via PR** (lets the solo owner merge their own PR) |
+| Required status checks | Added in spec 000 once CI exists |
 
 ## 5. Testing strategy
 | Layer | Tool | What |

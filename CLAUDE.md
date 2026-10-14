@@ -14,6 +14,18 @@ built spec by spec. The app's own code is lesson material. See `docs/PRD.md` and
   user *before* designing. The user may contribute their own real-work versions.
 - One logical change per commit; commit messages reference the spec (`spec-001: ...`).
 
+## Git & PR workflow (main is protected)
+- **Never commit or push to `main`.** A ruleset blocks direct pushes, force-pushes
+  and deletion. Every change, including docs, goes through a PR.
+- One branch + one PR per spec: `spec/NNN-short-name` (e.g. `spec/001-auth`).
+  Non-spec changes use `chore/...`, `docs/...` or `fix/...`.
+- Open the PR to `main` with `gh pr create`; the body links the spec, lists what
+  changed and how it was verified (tests and manual checks).
+- PRs are **squash-merged** (only allowed method); the branch is deleted on merge.
+- **The owner reviews and merges.** Claude opens the PR and stops; it never merges.
+- 1 approval is required; the admin may bypass it only inside a PR.
+- From spec 000 on, CI checks are added as required status checks on `main`.
+
 ## Stack
 - .NET 10 (LTS), C# 14, Aspire 13 (`src/Lld.AppHost`) for local orchestration.
 - `src/Lld.App`: .NET MAUI with `HybridWebView` hosting the React build.
