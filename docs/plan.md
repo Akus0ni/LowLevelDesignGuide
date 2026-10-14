@@ -107,22 +107,24 @@ dependencies; `App` depends on `Contracts` (+ its own local infrastructure).
 
 ## 3. Spec roadmap
 
-| # | Spec | Scope | Done when |
-|---|---|---|---|
-| **000** | Foundation | Solution skeleton (.NET 10), Aspire AppHost, ServiceDefaults, empty API with health endpoint, React shell (routing, layout, `DataSource`), MAUI app hosting the React build, GitHub Actions CI | `aspire run` shows api + web + app (Windows) healthy; Android emulator loads the UI; CI green on all targets and added as required checks on `main` |
-| **001** | Auth (Case Study #1) | Identity, custom JWT + rotating refresh tokens, register/login/logout UI, SecureStorage | Integration test register → login → refresh → logout passes; Auth lesson + cheat sheet written from real code |
-| **002** | Content engine | Markdown seeder, modules/lessons API, reader (C# highlighting, Mermaid), cheat-sheet "Revise" view | Dropping a `.md` file into `content/` shows it in the app |
-| **003** | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
-| **004** | Notes & bookmarks | Per-lesson notes, bookmarks, list view | CRUD works offline on device |
-| **005** | Search | FTS5 on API + device, highlighted results | Query → results under 200 ms on device |
-| **006** | Offline sync | Device ↔ API sync, LWW conflict rule | Airplane-mode scenario passes |
-| **007** | OOP & SOLID content | Lessons + cheat sheets | Module complete |
-| **008** | GoF patterns content | 23 patterns, C# samples, cheat sheets | Module complete |
-| **009** | UML content | Class / sequence / state / activity with Mermaid | Module complete |
-| **010+** | Case studies | One spec per case study; **each starts by asking the owner** (`lld-case-study` skill) | Lesson + cheat sheet + compiling code |
-| **P2** | Phase 2 | Admin UI, iOS/macOS verification on a Mac, deployment decision | — |
+Build order is **interleaved** (decided 2026-10-14): once the reader exists (002),
+feature specs and content specs alternate, so the app is useful for learning early
+and every feature is tested with real lessons. Spec numbers follow build order.
 
-Content specs (007–009) can be interleaved with feature specs if preferred.
+| # | Kind | Spec | Scope | Done when |
+|---|---|---|---|---|
+| **000** | Feature | Foundation | Solution skeleton (.NET 10), Aspire AppHost, ServiceDefaults, empty API with health endpoint, React shell (routing, layout, `DataSource`), MAUI app hosting the React build, GitHub Actions CI | `aspire run` shows api + web + app (Windows) healthy; Android emulator loads the UI; CI green on all targets and added as required checks on `main` |
+| **001** | Feature + Content | Auth (Case Study #1) | Identity, custom JWT + rotating refresh tokens, register/login/logout UI, SecureStorage | Integration test register → login → refresh → logout passes; Auth lesson + cheat sheet written from real code |
+| **002** | Feature | Content engine (reader) | Markdown seeder, modules/lessons API, reader (C# highlighting, Mermaid), cheat-sheet "Revise" view | Dropping a `.md` file into `content/` shows it in the app |
+| **003** | Content | OOP & SOLID | Lessons + cheat sheets | Module complete and readable in the app |
+| **004** | Feature | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
+| **005** | Content | GoF design patterns | 23 patterns, C# samples, cheat sheets | Module complete; samples compile |
+| **006** | Feature | Notes & bookmarks | Per-lesson notes, bookmarks, list view | CRUD works offline on device |
+| **007** | Content | UML | Class / sequence / state / activity with Mermaid | Module complete |
+| **008** | Feature | Search | FTS5 on API + device, highlighted results | Query → results under 200 ms on device |
+| **009** | Feature | Offline sync | Device ↔ API sync, LWW conflict rule | Airplane-mode scenario passes |
+| **010+** | Content | Case studies | One spec per case study; **each starts by asking the owner** (`lld-case-study` skill) | Lesson + cheat sheet + compiling code |
+| **P2** | — | Phase 2 | Admin UI, iOS/macOS verification on a Mac, deployment decision | — |
 
 ## 4. Per-spec workflow
 1. Branch from latest `main`: `spec/NNN-short-name`.
@@ -164,7 +166,10 @@ Content specs (007–009) can be interleaved with feature specs if preferred.
 - `ask-sonner`: toasts.
 - `lld-case-study`: every case study (asks the owner first).
 
-## 7. Open questions (to confirm before spec 000)
-1. License: MIT?
-2. App display name and bundle ID: "LLD Guide" / `com.akus0ni.lldguide`?
-3. Order of content specs vs feature specs: strictly sequential, or interleave?
+## 7. Decisions log
+| Date | Decision |
+|---|---|
+| 2026-10-14 | License: **MIT** |
+| 2026-10-14 | App display name **"LLD Guide"**, app/bundle ID **`com.akus0ni.lldguide`** |
+| 2026-10-14 | Build order: **interleaved** feature + content specs after the reader (see §3) |
+| 2026-10-14 | Every change goes through a PR; `main` protected by ruleset (see §4) |

@@ -6,6 +6,8 @@
 | **Owner** | Akus0ni |
 | **Date** | 2026-10-14 |
 | **Platforms** | Android · iOS · Windows · macOS |
+| **App name / ID** | LLD Guide · `com.akus0ni.lldguide` |
+| **License** | MIT |
 
 ## 1. Problem
 Low-Level Design is learned from scattered blog posts, videos and repos. None of
@@ -124,7 +126,7 @@ See `docs/plan.md` for diagrams and the solution layout.
 - App runs on Windows + Android via `aspire run`; iOS/macOS compile in CI.
 
 ## 11. Open questions
-1. License for the public repo (MIT?).
-2. App display name and bundle ID (proposal: "LLD Guide", `com.akus0ni.lldguide`).
-3. Browser dev-mode token storage (cookie vs memory). Decided in spec 001.
-4. Which case studies come after Auth. Asked one at a time via the `lld-case-study` skill.
+1. Browser dev-mode token storage (cookie vs memory). Decided in spec 001.
+2. Which case studies come after Auth. Asked one at a time via the `lld-case-study` skill.
+
+Resolved 2026-10-14: license (MIT), app name and ID (LLD Guide / `com.akus0ni.lldguide`), build order (interleaved, see `plan.md` §3).

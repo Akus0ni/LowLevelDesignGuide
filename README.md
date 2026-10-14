@@ -16,3 +16,6 @@ using the principles it teaches.
 
 ## Status
 Planning. Spec 000 (Foundation) starts once the PRD and plan are approved.
+
+## License
+[MIT](LICENSE)
