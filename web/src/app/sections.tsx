@@ -4,8 +4,8 @@ import { Icon } from '../ui/Icon';
 export interface Section {
   path: string;
   label: string;
-  /** Which spec delivers the real screen; shown on the placeholder. */
-  comingIn: string;
+  /** Which spec delivers the real screen; shown on the placeholder (none once it exists). */
+  comingIn?: string;
   summary: string;
   icon: ReactNode;
 }
@@ -42,7 +42,6 @@ export const SECTIONS: Section[] = [
   {
     path: 'profile',
     label: 'Profile',
-    comingIn: 'Spec 001',
     summary: 'Sign in, request access and manage your account.',
     icon: <Icon d={['M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z', 'M4 20a8 8 0 0 1 16 0']} />,
   },
