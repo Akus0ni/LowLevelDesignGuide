@@ -18,7 +18,8 @@ public sealed class ApiTests : IAsyncLifetime
     {
         var cancellationToken = TestContext.Current.CancellationToken;
         var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.Lld_AppHost>(
-            ["--Lld:ApiOnly=true"], cancellationToken);
+            ["--Lld:ApiOnly=true", $"--Lld:DatabasePath={Path.Combine(Path.GetTempPath(), "lld-it", $"{Guid.NewGuid():N}.db")}"],
+            cancellationToken);
 
         _app = await builder.BuildAsync(cancellationToken);
         await _app.StartAsync(cancellationToken);
