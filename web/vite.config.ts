@@ -24,9 +24,10 @@ export default defineConfig(({ mode }) => ({
   base: mode === 'maui' ? './' : '/',
   server: {
     proxy: {
-      // Aspire injects the API endpoint; the proxy avoids CORS in browser dev mode.
+      // Aspire injects the API endpoints; the proxy avoids CORS in browser dev mode.
+      // Prefer http: this is local-only, and it works without a trusted dev certificate.
       '/api': {
-        target: process.env.API_HTTPS || process.env.API_HTTP,
+        target: process.env.API_HTTP || process.env.API_HTTPS,
         changeOrigin: true,
       },
     },

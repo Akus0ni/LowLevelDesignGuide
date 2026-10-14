@@ -82,6 +82,17 @@ if (!builder.Configuration.GetValue<bool>("Lld:ApiOnly"))
 | Android WebView doesn't report `env(safe-area-inset-*)` | Fallback: `SafeAreaEdges="Container"` on Android; record the outcome |
 | Aspire integration test needs a dev certificate on Linux CI | Use the API's `http` endpoint in tests |
 
-## 4. Outcomes (filled in during implementation)
-- Safe areas per platform: _TBD_
-- Aspire API deviations: _TBD_
+## 4. Outcomes (2026-10-14)
+| Topic | Outcome |
+|---|---|
+| Windows (WinUI WebView2) | Shell renders; bridge verified over CDP: About shows  |
+| Browser via Vite proxy | Real API data on phone + desktop layouts |
+| Android | **Pending**: needs the  workload and the Dev Tunnels CLI () on the dev machine |
+| Safe areas | Windows: not applicable. Android: pending with A4 |
+| MAUI device resources | Not auto-started; start  /  from the dashboard or . The Windows launcher shows *Finished* once the app window is open |
+| Dev certificate | Untrusted cert broke HTTPS health checks and the Vite proxy. Health check now uses the  endpoint; the Vite proxy prefers .  recommended for the dashboard |
+| Web bundle in MAUI | Included directly from  as  MAUI assets inside a target (no copy step); evaluation-time globs miss build outputs |
+| Bridge script | Injected only by  |
+| Test runner | .NET 10 requires opting in to Microsoft.Testing.Platform ( "test.runner") |
+| Apple targets | Only on macOS hosts (owner decision);  for Windows-only builds |
+| Driving the app in tests | Launch with  and attach Playwright with  (useful for later app-level e2e) |
