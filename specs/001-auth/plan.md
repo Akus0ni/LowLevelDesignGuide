@@ -107,5 +107,35 @@ Audit/    AuditEntry, AuditEventType
 | SQLite file locked by API + console at the same time | WAL mode; short transactions |
 | Dev Tunnel for API needs anonymous access | Use the tunnel only for the Android resource; document in README |
 
-## 4. Outcomes (filled in during implementation)
-_TBD_
+## 4. Outcomes (2026-10-15)
+
+### Verification
+| Check | Result |
+|---|---|
+| Tests | 23 domain, 27 application, 12 API, 4 admin console, 3 Aspire integration, 31 Vitest, 3 Playwright (× phone/desktop) |
+| Browser (real API via Vite proxy) | Request access → `lld-admin requests approve` → temporary-password sign-in → forced change → signed in; session survives reload |
+| Browser cookie | `lld_rt`: HttpOnly, Secure, SameSite=Strict, Path=/api/auth; not visible in `document.cookie` |
+| Windows app | Sign-in through the bridge (React → `SessionService` → API); session restored from SecureStorage after an app restart |
+| Android emulator | Sign-in through the Dev Tunnel (https); bridge reports `Android` |
+| Audit log | `lld-admin audit list` shows AccessRequested → AccessApproved → UserCreated → LoginSucceeded → PasswordChanged → LoginSucceeded |
+| Case study | `content/case-studies/auth/{lesson,cheatsheet}.md`; 5 Mermaid diagrams validated; 17 code links resolve |
+
+### Deviations from the spec / plan
+| Planned | Actual | Why |
+|---|---|---|
+| `IClock` port | .NET `TimeProvider` | Built into .NET; `FakeTimeProvider` for tests |
+| Events dispatched after commit | Dispatched inside `EfUnitOfWork`, before the single `SaveChanges` | Audit rows commit in the same transaction; none can be lost |
+| `IDomainEventHandler` | `IDomainEventObserver` | Analyzer CA1711 forbids the `EventHandler` suffix; the name also matches the Observer pattern |
+| MAUI `AuthHttpHandler` (DelegatingHandler) | `SessionService` with `WithAccessTokenAsync` (single-flight refresh, one retry) | Simpler than a handler that must call the refresh endpoint through its own pipeline |
+| API base address `https+http://api` | `http+https://api` | Windows app would reject the untrusted dev certificate on https; Android falls back to the https tunnel |
+| Dev Tunnel for all API endpoints | Only the API's **https** endpoint is tunnelled | The tunnel's http port answered 502 |
+
+### Findings worth remembering
+- **Retries vs. rotation:** the standard resilience handler retries POSTs; a retried refresh presents an already-rotated
+  token and trips reuse detection. MAUI service defaults now use `Retry.DisableForUnsafeHttpMethods()`.
+- **Identity saves on its own:** `UserManager` commits outside the unit of work, so `ApproveAccessRequest` creates the account last.
+- **JWT key:** an Aspire secret parameter (`jwt-signing-key`, generated once, persisted to the AppHost's user secrets).
+  The issuer loads it lazily, so the admin console never needs it.
+- **SQLite + DateTimeOffset:** stored via `DateTimeOffsetToBinaryConverter` so comparisons and ordering translate to SQL.
+- **EF migrations** are marked `generated_code` in `.editorconfig` (analyzers otherwise fail the build on them).
+

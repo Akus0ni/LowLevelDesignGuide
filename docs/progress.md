@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-14_
+_Last updated: 2026-10-15_
 
 ## Where we are
 | Item | Status |
@@ -12,14 +12,14 @@ _Last updated: 2026-10-14_
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
-| Spec 001 Auth & access | 🟡 In progress on `spec/001-auth`: case-study interview done, `spec.md` drafted, awaiting owner approval |
+| Spec 001 Auth & access | ✅ Built + verified on browser, Windows and Android; PR open for owner review (branch `spec/001-auth`) |
 
 ## Spec roadmap status
 | # | Spec | Status |
 |---|---|---|
 | 000 | Foundation | ✅ merged (PR #2) |
-| 001 | Auth & access (Case Study #1) + admin console | 🟡 spec drafted |
-| 002 | Self-hosting & server status (ngrok, ntfy) | planned |
+| 001 | Auth & access (Case Study #1) + admin console | ✅ built; PR awaiting owner merge |
+| 002 | Self-hosting & server status (ngrok, ntfy) | ⏭ next |
 | 003 | Content engine (reader) | planned |
 | 004 | OOP & SOLID content | planned |
 | 005 | Progress | planned |
@@ -54,11 +54,20 @@ _Last updated: 2026-10-14_
 Android SDK + AVD `PaisaPlan_Pixel_API35`, Dev Tunnels CLI (logged in), Playwright Chromium.
 Pending: `aspire certs trust` (optional, for the dashboard over HTTPS).
 
+## Spec 001: what was delivered
+- Domain: `EmailAddress`, `AccessRequest` (State pattern), `RefreshToken` (rotation + families), `AuditEntry`, `Result`.
+- Application: 15 single-purpose use cases behind ports; `SessionManager`; audit trail as an event observer.
+- Infrastructure: EF Core + SQLite + ASP.NET Identity (lockout 5/15 min, 12-char policy), JWT issuer, hashed refresh tokens.
+- API: request access, login, refresh, logout, logout-all, change-password, me; forced-change policy; cookie vs body token transport.
+- `lld-admin` console: requests, users, audit (no admin web endpoints).
+- Web + MAUI: sign in, request access, forced password change, account panel; SecureStorage on device.
+- Case study #1: `content/case-studies/auth/lesson.md` + `cheatsheet.md`.
+- Details, deviations and findings: `specs/001-auth/plan.md` §4.
+
 ## How to resume (next session)
-1. Confirm PR #2 is merged: `gh pr view 2 --json state`.
-2. `git switch main && git pull`, then `git switch -c spec/001-auth`.
-3. Spec 001 is also **Case Study #1**: run the `lld-case-study` skill interview with the owner first.
-4. Draft `specs/001-auth/spec.md` from PRD F1 + F9 (request access with email as username, admin console,
-   temporary password + forced change, JWT + rotating refresh tokens). Ask the open questions before coding,
-   including PRD §15 Q1 (browser dev-mode token storage: memory vs httpOnly cookie).
-5. Follow the per-spec workflow in `docs/plan.md` §4 (spec → owner review → plan + tasks → build → PR; owner merges).
+1. Confirm the Spec 001 PR is merged: `gh pr list --state merged --limit 3`.
+2. `git switch main && git pull`, then `git switch -c spec/002-self-hosting`.
+3. Draft `specs/002-self-hosting/spec.md` from PRD F8 (ngrok + Dev Tunnels fallback, Windows services, signed ntfy.sh
+   status, offline request queue, request budget, backups). Ask the open questions before coding (e.g. ngrok
+   account/domain, ntfy topic name, signing key handling for status messages, backup folder).
+4. Follow the per-spec workflow in `docs/plan.md` §4 (spec → owner review → plan + tasks → build → PR; owner merges).
