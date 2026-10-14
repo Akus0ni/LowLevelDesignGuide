@@ -2,12 +2,21 @@
 
 | | |
 |---|---|
-| **Status** | Draft v0.1, awaiting review |
+| **Status** | Draft v0.2, awaiting review |
 | **Owner** | Akus0ni |
-| **Date** | 2026-10-14 |
+| **Last updated** | 2026-10-14 |
 | **Platforms** | Android · iOS · Windows · macOS |
 | **App name / ID** | LLD Guide · `com.akus0ni.lldguide` |
 | **License** | MIT |
+| **Repo** | https://github.com/Akus0ni/LowLevelDesignGuide (public) |
+
+### Changelog
+| Version | Date | Change |
+|---|---|---|
+| v0.1 | 2026-10-14 | First draft: vision, MVP features F1–F7, architecture, data model |
+| v0.2 | 2026-10-14 | Content bundled in app; self-hosting on owner's PC via ngrok (F8); access by request + admin console (F9); email as username; server status via signed ntfy.sh topic; development process requirements; full requirements register (§13) |
+
+---
 
 ## 1. Problem
 Low-Level Design is learned from scattered blog posts, videos and repos. None of
@@ -20,52 +29,69 @@ means re-reading long articles.
 The app teaches OOP, SOLID, design patterns, UML and LLD case studies. The app
 itself is designed with those same principles and built one spec at a time, so
 every feature (starting with authentication) becomes a worked example drawn
-from real code.
+from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 
 ## 3. Goals and non-goals
 ### Goals
 1. Learn LLD end to end: concepts → patterns → diagrams → case studies.
 2. Deepen .NET/C#: Aspire, ASP.NET Core, EF Core, Identity, MAUI, testing.
-3. Fast revision: a **cheat sheet for every concept**, readable in under 2 minutes.
+3. Fast revision: a **cheat sheet for every concept**, readable in under 2 minutes, for pre-interview review.
 4. Personal touch: case studies can come from the owner's 6.5 years of real work.
 5. One codebase that runs on Android, iOS, Windows and macOS, online and offline.
+6. Learn by building: the app is built **by applying the LLD concepts it teaches**, and its own code is used as lesson material.
 
 ### Non-goals (MVP)
 - Quizzes or gamification.
 - In-app content editor (Phase 2).
 - Social features, comments, sharing.
-- Cloud production hosting. MVP targets local dev via Aspire; deployment is a later decision.
+- Cloud hosting. The API is **self-hosted on the owner's PC** and exposed through a tunnel (F8).
+- Open self-registration. Access is **by request and admin approval** (F1, F9).
+- Paid services of any kind (see constraints).
 - High-level / distributed system design (only as "extensions" inside case studies).
 
 ## 4. Personas
 | Persona | Need |
 |---|---|
-| **Owner (primary)**: .NET engineer, 6.5 yrs | Structured LLD learning, interview revision, a place to record their own case studies |
-| **Other learners (secondary)** | Sign up, follow the same curriculum, track their own progress and notes |
+| **Owner (primary learner)**: .NET engineer, 6.5 yrs | Structured LLD learning, interview revision, a place to record their own case studies, hands-on .NET practice |
+| **Other learners (100–500)** | Request access, follow the same curriculum, track their own progress and notes on any device |
+| **Admin (the owner)** | Approve access requests, create users, reset passwords, from a console on their PC |
 
-## 5. Scope: MVP features
+## 5. Constraints
+| # | Constraint |
+|---|---|
+| C1 | **Free only.** No paid hosting, database, auth or notification services. |
+| C2 | Server runs on the **owner's PC**, which is on **only during the day**. Downtime is normal. |
+| C3 | **No Mac for now.** Windows + Android are developed and verified first; iOS/macOS compile in CI and are verified in Phase 2. |
+| C4 | Solo developer; public GitHub repo; `main` is protected and changes go through PRs. |
+| C5 | Stack fixed: .NET 10, Aspire 13, .NET MAUI (HybridWebView), React + Vite + TypeScript, SQLite. |
+| C6 | Not Cloudflare for tunnelling (owner's choice). |
+| C7 | ngrok free limits: 20,000 HTTP requests and 1 GB data per month, 1 fixed dev domain. |
 
-### F1. Authentication (also Case Study #1)
-- Register, log in, log out, refresh session, all multi-user.
-- ASP.NET Core Identity for the user store; **custom** `TokenService` issuing
-  short-lived JWT access tokens and **rotating refresh tokens** persisted as entities.
-- Tokens stored in MAUI `SecureStorage` on device; in memory + httpOnly cookie for the browser dev mode (to confirm in spec 001).
-- **Acceptance:** a new user can register and log in on Windows and Android; access
-  tokens expire and refresh silently; logout revokes the refresh token; a reused
-  refresh token revokes the token family.
-- **Learning output:** `content/case-studies/auth/{lesson.md, cheatsheet.md}`,
-  written from this repo's real classes.
+## 6. Scope: MVP features
+
+### F1. Authentication and access (also Case Study #1)
+- **Email is the username** everywhere (request access, login). It is mandatory and unique.
+- **No self-registration.** A "Request access" page collects **email (required)**, name and an optional note.
+  - If the server is offline, the request is **saved on the device** and sent automatically when the server is back online. The user sees "Request saved, will be sent when the server is online".
+  - A request moves through **Pending → Approved | Rejected**. Duplicate pending requests for the same email are merged.
+- **Admin approval** happens in the admin console (F9). Approving creates the user with a **temporary password**, which the console prints and the admin **shares with the user manually** (no email is sent by the system).
+- **First login with a temporary password** forces a "Set new password" screen before anything else. The temporary password stops working once changed.
+- Log in, log out, refresh session, change password.
+- ASP.NET Core Identity for the user store; **custom** `TokenService` issuing short-lived JWT access tokens and **rotating refresh tokens** persisted as entities.
+- Tokens stored in MAUI `SecureStorage` on device; browser dev mode storage (memory vs httpOnly cookie) decided in spec 001.
+- **Acceptance:** a request made offline reaches the server once it is online; the admin approves it from the console and gets a temporary password; the user logs in with it, is forced to set a new password, and continues; access tokens expire and refresh silently; logout revokes the refresh token; a reused refresh token revokes the whole token family.
+- **Learning output:** `content/case-studies/auth/{lesson.md, cheatsheet.md}`, written from this repo's real classes (request state machine, token rotation, password policy, admin console as a second client of the same application layer).
 
 ### F2. Content library
 - Modules: **OOP & SOLID**, **GoF Design Patterns**, **UML**, **Case Studies**.
-- Lessons authored as Markdown with YAML front-matter in `/content`.
+- Lessons authored as Markdown with YAML front-matter in `/content` (Phase 1). An in-app admin editor comes in Phase 2.
 - **Content ships inside the app** (packaged as MAUI assets). On first launch, or when the bundled content version changes, the app loads it into **local SQLite**. Reading never needs the network.
-- The API exposes the same content **read-only**, parsed from the same folder by a shared library. It is used only by browser dev mode and tests; devices never depend on it.
+- The API exposes the same content **read-only**, parsed from the same folder by a shared library (`Lld.Content`). It is used only by browser dev mode and tests; devices never depend on it.
 - Reader: code highlighting (C#), Mermaid diagrams (class / sequence / state), table of contents.
 - **Acceptance:** a fresh install in airplane mode shows all lessons; adding a `.md` file and rebuilding the app makes it appear.
 
 ### F3. Cheat sheets
-- Every concept/lesson has a companion `cheatsheet.md`.
+- **Every concept/lesson has a companion `cheatsheet.md`** for quick revision before interviews.
 - Dedicated "Revise" view listing all cheat sheets, filterable by module.
 - **Acceptance:** each lesson links to its cheat sheet in one tap; a cheat sheet fits one phone screen with at most 2 scrolls.
 
@@ -84,30 +110,64 @@ from real code.
 ### F7. Offline-first sync
 - Device SQLite is the **source of truth for the UI**: every read and write is local.
 - Only **user data** syncs (progress, notes, bookmarks). Content is bundled, not synced.
-- A background `SyncService` pushes local changes and pulls remote ones when online; last-write-wins per record using `UpdatedAt`, plus a device ID.
+- `SyncService` pushes local changes and pulls remote ones in **one combined call**; last-write-wins per record using `UpdatedAt`, plus a device ID.
+- Sync runs on app open (if the last sync was over 15 minutes ago), on "Sync now", when the app goes to the background with pending changes, and automatically when the server comes back online (F8). There is **no timer-based polling**.
 - First login needs the network; afterwards the session is kept in `SecureStorage` and the app works offline.
 - **Acceptance:** airplane mode → edit notes and progress → reconnect → data is on the server and other devices.
 
-## 6. Phase 2 (post-MVP)
-- Admin UI to create and edit lessons in-app (Markdown remains the source of truth or gets imported; decide then).
+### F8. Self-hosting and server status
+- The API runs on the **owner's PC**, only while it is on. Downtime is expected and handled.
+- Exposed to the internet through **ngrok** (free fixed `*.ngrok-free.dev` domain, HTTPS, no open router ports). **Microsoft Dev Tunnels** is the documented fallback (no published request cap, 5 GB/month; generated URL; deleted after 30 idle days).
+- The API address is an **app setting**, so switching tunnels is a configuration change, not a code change.
+- Every API request from the app sends the `ngrok-skip-browser-warning` header (avoids ngrok's browser warning page).
+- **Server status signal** (replaces a webhook, because devices cannot receive inbound calls):
+  - The PC publishes **signed** `online` / `offline` messages to a secret **ntfy.sh** topic on startup and graceful shutdown.
+  - Open apps receive the message live; newly opened apps read the latest message. Checking status uses **no ngrok quota**.
+  - The app verifies the signature with the server's public key; unsigned or invalid messages are ignored.
+  - A failed sync also marks the server offline (covers crashes and power loss, where no `offline` message is sent).
+- **While offline:** every app shows "Server offline", the **Sync button is disabled for everyone**, reading/notes/progress keep working locally, and access requests are queued.
+- **When back online:** the Sync button is re-enabled, and pending changes and queued access requests are sent automatically.
+- **Request budget:** the app must stay under ngrok's free limits (C7) at 500 users. Means: bundled content, one combined sync call, no polling, ~1-hour access tokens, API rate limiting, client retry with back-off. If a limit is hit, the app behaves as "server offline" until the monthly reset.
+- **Operations:** API and ngrok run as **Windows services** (start at boot, no login needed); nightly SQLite backup to a synced folder; health endpoint; sleep disabled while plugged in.
+- **Acceptance:** stopping the API flips all open apps to "Server offline" with Sync disabled; starting it flips them back and pending changes sync without user action; a spoofed ntfy message has no effect.
+
+### F9. Admin console (`Lld.Admin`)
+- A .NET console app that runs **on the owner's PC only**. It uses the same application and database code as the API directly; **no admin endpoints are exposed** over the tunnel.
+- Commands: `requests list`, `requests approve <id>` (prints a temporary password), `requests reject <id>`, `users create <email>` (prints a temporary password), `users reset-password <email>`, `users list`, `users disable <email>`.
+- Temporary passwords are random, meet the password policy, are shown once, and only their hash is stored. The user must change it on first login.
+- **Acceptance:** each command works against the live database while the API is running, and every action is logged.
+
+## 7. Content requirements
+- **Modules (MVP):** OOP & SOLID · GoF design patterns · UML (Mermaid) · LLD case studies.
+- **Every lesson has a cheat sheet** (F3).
+- **Case Study #1 is Auth**, explained using this app's real code (F1).
+- **Every other case study starts by asking the owner** whether to use their own real-work version, plus scope, scale and emphasis. Enforced by the project skill `.claude/skills/lld-case-study`. Nothing is designed silently.
+- Case study template: problem → requirements → entities → class diagram → sequence/state diagrams → patterns and why → SOLID mapping → C# code → trade-offs → interview follow-ups, plus a one-screen cheat sheet.
+- C# samples must compile (real `src/` code or `samples/`).
+
+## 8. Phase 2 (post-MVP)
+- Admin UI to create and edit lessons in-app (Markdown stays the source of truth or gets imported; decide then).
 - iOS and macOS run/verification on real Mac hardware.
 - More case studies, many from the owner's own work.
-- Optional: deployment target (Azure Container Apps via Aspire, or self-host).
+- Optional: move from the PC + ngrok to cloud hosting if usage outgrows the free tunnel.
 
-## 7. Architecture overview
+## 9. Architecture overview
 - **UI:** React + Vite + TypeScript, one UI for all platforms.
 - **Native shell:** .NET MAUI `HybridWebView` hosts the React build; a C# `BridgeService` is called from JS via `HybridWebView.InvokeDotNet`.
-- **Device data:** EF Core + SQLite in the MAUI app. It holds the bundled content plus the user's progress, notes and bookmarks.
-- **Backend:** ASP.NET Core Minimal API + EF Core + SQLite + Identity + JWT. It owns accounts and is the sync hub for user data; content is read-only, for browser dev mode.
-- **Local dev:** Aspire 13 AppHost orchestrating the API, the Vite dev server and the MAUI app (Windows device, Android emulator via Dev Tunnel), with OpenTelemetry in the Aspire dashboard.
-- **Data access in UI:** `DataSource` interface. `HttpDataSource` (browser) or `BridgeDataSource` (MAUI) is chosen at startup (Strategy + Adapter).
+- **Device data:** EF Core + SQLite in the MAUI app, holding bundled content plus the user's progress, notes, bookmarks and queued access requests.
+- **Backend:** ASP.NET Core Minimal API + EF Core + SQLite + Identity + JWT. It owns accounts and access requests and is the sync hub for user data; content is read-only, for browser dev mode.
+- **Hosting:** owner's PC (Windows services) exposed through ngrok (Dev Tunnels fallback); server status published to a signed ntfy.sh topic.
+- **Admin:** `Lld.Admin` console on the PC, sharing the application layer with the API.
+- **Local dev:** Aspire 13 AppHost orchestrating the API, the Vite dev server and the MAUI app (Windows device; Android emulator via Dev Tunnel), with OpenTelemetry in the Aspire dashboard.
+- **Data access in UI:** `DataSource` interface; `HttpDataSource` (browser) or `BridgeDataSource` (MAUI) chosen at startup (Strategy + Adapter).
 
-See `docs/plan.md` for diagrams and the solution layout.
+See `docs/plan.md` for diagrams, solution layout and the spec roadmap.
 
-## 8. Data model (initial, refined per spec)
+## 10. Data model (initial, refined per spec)
 | Entity | Key fields | Where |
 |---|---|---|
-| `User` (Identity) | Id, Email, DisplayName | API |
+| `User` (Identity) | Id, Email (= username), DisplayName, MustChangePassword, IsDisabled | API |
+| `AccessRequest` | Id, Email, Name, Note, Status (Pending/Approved/Rejected), CreatedAt, DecidedAt | API (queued on device while offline) |
 | `RefreshToken` | Id, UserId, TokenHash, FamilyId, ExpiresAt, RevokedAt, ReplacedById | API |
 | `Module` | Id, Slug, Title, Order | Device (bundled); API read-only for dev |
 | `Lesson` | Id, ModuleId, Slug, Title, Order, BodyMd, CheatSheetMd, Tags, ContentHash | Device (bundled); API read-only for dev |
@@ -116,21 +176,100 @@ See `docs/plan.md` for diagrams and the solution layout.
 | `Bookmark` | UserId, LessonId, CreatedAt, DeletedAt | API + device |
 | `LessonSearch` (FTS5) | Title, Body, CheatSheet, user notes | Device (API copy for browser dev only) |
 
-## 9. Non-functional requirements
+## 11. Non-functional requirements
 - **Offline:** all reading, progress and notes work without network.
-- **Security:** passwords via Identity hashing; refresh tokens stored hashed; HTTPS in dev via Aspire; no secrets in the repo (user-secrets).
+- **Availability:** the server is up only while the owner's PC is on. The app must be fully usable offline and recover automatically when the server returns.
+- **Security:** Identity password hashing; refresh tokens and temporary passwords stored hashed; HTTPS via Aspire in dev and via ngrok when hosted; no admin endpoints exposed; API rate limiting; signed server-status messages; no secrets in the repo (user-secrets).
+- **Request budget:** stay under 20,000 requests and 1 GB per month at 500 users.
+- **Backups:** nightly SQLite backup.
 - **Performance:** app cold start under 3 s on a mid-range Android; lesson open under 300 ms.
 - **Accessibility:** WCAG 2.1 AA contrast, keyboard navigation on desktop, respects reduced motion.
 - **Quality:** each spec ships with unit tests plus at least one end-to-end test through Aspire; CI builds all four platform targets.
 
-## 10. Success metrics (personal)
+## 12. Development process requirements
+| # | Requirement |
+|---|---|
+| P1 | **Ask when in doubt; never assume.** Ambiguities are resolved with the owner before acting. |
+| P2 | **Plan before code.** PRD and `docs/plan.md` are approved before implementation starts. |
+| P3 | **Spec-wise build.** Each feature has `specs/NNN-name/{spec.md, plan.md, tasks.md}`; the spec is reviewed by the owner before implementation. |
+| P4 | **One branch + one PR per spec** (`spec/NNN-name`); nothing is pushed to `main` directly. |
+| P5 | `main` protected by the "Protect main" ruleset: no direct push, force-push or deletion; PR with 1 approval (admin may bypass only inside a PR); squash merge only; linear history; branch deleted on merge; CI checks required from spec 000. |
+| P6 | **The owner reviews and merges every PR.** Claude opens PRs and never merges. |
+| P7 | Local end-to-end dev and testing run under **Aspire**. |
+| P8 | All 15 **emilkowalski/skills** are installed project-scoped and used for UI work; the custom `lld-case-study` skill is used for every case study; `clean-code-csharp` for C#. |
+| P9 | Every decision is recorded in this PRD (§13) and in `docs/plan.md` (decisions log). |
+
+## 13. Requirements register
+Every requirement and decision gathered so far, so none is skipped. "Covered by" points at the section or feature; "Spec" is where it gets built (numbering per `docs/plan.md` §3).
+
+| ID | Requirement / decision | Covered by | Spec |
+|---|---|---|---|
+| R01 | A self-help guide to learn LLD, supporting .NET/C# learning | §2, §3 | all |
+| R02 | Build it spec by spec | P3 | all |
+| R03 | Apps for Android, iOS, Windows and macOS | §9, C3 | 000 |
+| R04 | React frontend | §9 | 000 |
+| R05 | .NET MAUI shell (HybridWebView hosting React) | §9 | 000 |
+| R06 | SQLite database (device and server) | §9, §10 | 000+ |
+| R07 | Aspire for local dev and end-to-end testing | P7 | 000 |
+| R08 | Write a PRD with a small, incremental approach first | this doc | — |
+| R09 | Install all 15 emilkowalski skills in this repo and use them | P8 | done |
+| R10 | Initialise as a public GitHub repo | header | done |
+| R11 | Ask when in doubt; do not assume | P1 | all |
+| R12 | Product = learning app + spec-wise build (repo is the course) | §2 | all |
+| R13 | Offline-first device SQLite plus an API with sync | F7, §9 | 010 |
+| R14 | No Mac now: Windows + Android first; iOS/macOS later | C3, §8 | 000, P2 |
+| R15 | Content: OOP & SOLID, GoF patterns, UML, LLD case studies | F2, §7 | 004, 006, 008, 011+ |
+| R16 | Owner's own work in case studies; ask before designing each one; a spec skill for case studies | §7 | 011+ |
+| R17 | Progress tracking | F4 | 005 |
+| R18 | Personal notes (and bookmarks) | F5 | 007 |
+| R19 | Search | F6 | 009 |
+| R20 | Cheat sheet for every concept, for pre-interview revision | F3 | 003 |
+| R21 | No quizzes | §3 | — |
+| R22 | Multi-user with login | F1 | 001 |
+| R23 | Auth is Case Study #1, explained with this app's own code | F1, §7 | 001 |
+| R24 | Build the app by applying LLD concepts; use its code in lessons | §3 goal 6 | all |
+| R25 | Content authored as Markdown first; admin UI in a later phase | F2, §8 | 003, P2 |
+| R26 | ASP.NET Core Identity + custom JWT and refresh tokens | F1 | 001 |
+| R27 | Lightweight `/specs` folder process | P3 | all |
+| R28 | `plan.md` before implementing | P2 | done |
+| R29 | A PR to `main` for every spec; keep `main` safe | P4, P5 | all |
+| R30 | 1 approval with admin bypass; squash merge; owner merges | P5, P6 | all |
+| R31 | MIT license | header | done |
+| R32 | App name "LLD Guide", ID `com.akus0ni.lldguide` | header | 000 |
+| R33 | Interleaved build order (features and content alternate) | plan §3 | — |
+| R34 | Lessons bundled in the app; API only for accounts and user-data sync | F2, F7 | 003, 010 |
+| R35 | Free hosting for 100–500 users | C1, F8 | 002 |
+| R36 | Host on the owner's PC; no Cloudflare; ngrok with Dev Tunnels fallback | F8, C6 | 002 |
+| R37 | Deployment built early, right after Auth | plan §3 | 002 |
+| R38 | PC on only during the day; downtime accepted | C2, F8 | 002 |
+| R39 | "Request access" page instead of open sign-up | F1 | 001 |
+| R40 | Admin console app creates users with a temporary password | F9 | 001 |
+| R41 | Temporary password must be changed after first login | F1 | 001 |
+| R42 | Temporary password shared manually by the admin | F1, F9 | 001 |
+| R43 | Admin console runs directly on the PC; no admin API | F9 | 001 |
+| R44 | Server offline → "Server offline" shown, Sync button disabled for everyone | F8 | 002, 010 |
+| R45 | Server back online → all subscribed devices are notified and sync is re-enabled (signed ntfy.sh topic instead of a webhook) | F8 | 002, 010 |
+| R46 | Access requests made offline are queued on device and sent when online | F1, F8 | 002 |
+| R47 | Email is mandatory and is the username for requests and login | F1 | 001 |
+| R48 | Keep this PRD complete so nothing is skipped | §13, P9 | ongoing |
+
+## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.
 - At least 3 case studies, at least 1 of them from the owner's own work.
 - Owner can explain the Auth case study purely from the cheat sheet.
 - App runs on Windows + Android via `aspire run`; iOS/macOS compile in CI.
+- Real users can request access, be approved and sync through the self-hosted API, staying within the ngrok free limits.
 
-## 11. Open questions
+## 15. Open questions
 1. Browser dev-mode token storage (cookie vs memory). Decided in spec 001.
 2. Which case studies come after Auth. Asked one at a time via the `lld-case-study` skill.
 
-Resolved 2026-10-14: license (MIT), app name and ID (LLD Guide / `com.akus0ni.lldguide`), build order (interleaved, see `plan.md` §3), data setup (content bundled in app; API for accounts + user-data sync).
+## 16. Glossary
+| Term | Meaning |
+|---|---|
+| LLD | Low-Level Design: class-level design of a system (entities, relationships, patterns) |
+| HybridWebView | .NET MAUI control that hosts a web app (here React) and lets JS call C# |
+| Aspire | .NET tooling that runs and observes all parts of the app together in local dev |
+| ngrok / Dev Tunnels | Services that give a PC a public HTTPS address without opening router ports |
+| ntfy.sh | Free publish/subscribe notification service; used here to broadcast the server's online/offline status |
+| Temporary password | One-time password created by the admin; the user must replace it at first login |

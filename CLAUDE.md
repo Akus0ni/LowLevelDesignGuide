@@ -32,7 +32,11 @@ built spec by spec. The app's own code is lesson material. See `docs/PRD.md` and
 - `web/`: React + Vite + TypeScript. One UI; data access goes through the
   `DataSource` abstraction (`HttpDataSource` in browser, `BridgeDataSource` in MAUI).
 - SQLite everywhere: EF Core on the API and on device.
-- Auth: ASP.NET Core Identity + custom JWT access / rotating refresh tokens.
+- Auth: ASP.NET Core Identity (email = username) + custom JWT access / rotating refresh tokens.
+  No self-registration: Request access → `Lld.Admin` console approves → temporary password → forced change.
+- Hosting: owner's PC (daytime only) behind ngrok (Dev Tunnels fallback); server status via signed ntfy.sh topic.
+  The app must stay usable offline and within ngrok free limits (20k requests, 1 GB / month).
+- Requirements register: `docs/PRD.md` §13. Add every new requirement or decision there.
 
 ## Code style
 - C#: follow the `clean-code-csharp` skill (SOLID, small classes, no magic values).
