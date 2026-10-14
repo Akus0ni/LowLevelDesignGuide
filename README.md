@@ -12,6 +12,7 @@ using the principles it teaches.
 ## Docs
 - [Product Requirements (PRD)](docs/PRD.md)
 - [Implementation plan](docs/plan.md)
+- [Progress log](docs/progress.md): current status and how to resume
 - Specs: [`specs/`](specs/)
 - Decisions: [`docs/adr/`](docs/adr/)
 

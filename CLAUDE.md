@@ -5,6 +5,7 @@ built spec by spec. The app's own code is lesson material. See `docs/PRD.md` and
 `docs/plan.md`.
 
 ## Working rules
+- **Start every session by reading `docs/progress.md`** (status + how to resume); update it at the end of each spec or session.
 - **Ask when in doubt. Do not assume.** Any ambiguity in requirements, naming,
   scope or design → ask the user before acting.
 - **Spec first.** No feature code without an approved `specs/NNN-name/spec.md`.
