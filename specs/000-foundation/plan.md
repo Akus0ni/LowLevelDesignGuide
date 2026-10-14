@@ -85,14 +85,14 @@ if (!builder.Configuration.GetValue<bool>("Lld:ApiOnly"))
 ## 4. Outcomes (2026-10-14)
 | Topic | Outcome |
 |---|---|
-| Windows (WinUI WebView2) | Shell renders; bridge verified over CDP: About shows  |
+| Windows (WinUI WebView2) | Shell renders; bridge verified over CDP: About shows `Native bridge · LLD Guide · 0.1.0.1 · WinUI` |
 | Browser via Vite proxy | Real API data on phone + desktop layouts |
-| Android | **Pending**: needs the  workload and the Dev Tunnels CLI () on the dev machine |
+| Android | **Pending**: needs the `maui-android` workload and the Dev Tunnels CLI (`devtunnel user login`) on the dev machine |
 | Safe areas | Windows: not applicable. Android: pending with A4 |
-| MAUI device resources | Not auto-started; start  /  from the dashboard or . The Windows launcher shows *Finished* once the app window is open |
-| Dev certificate | Untrusted cert broke HTTPS health checks and the Vite proxy. Health check now uses the  endpoint; the Vite proxy prefers .  recommended for the dashboard |
-| Web bundle in MAUI | Included directly from  as  MAUI assets inside a target (no copy step); evaluation-time globs miss build outputs |
-| Bridge script | Injected only by  |
-| Test runner | .NET 10 requires opting in to Microsoft.Testing.Platform ( "test.runner") |
-| Apple targets | Only on macOS hosts (owner decision);  for Windows-only builds |
-| Driving the app in tests | Launch with  and attach Playwright with  (useful for later app-level e2e) |
+| MAUI device resources | Not auto-started; start `app-windows` / `app-android` from the dashboard or with `aspire resource <name> start`. The Windows launcher shows *Finished* once the app window is open |
+| Dev certificate | Untrusted cert broke HTTPS health checks and the Vite proxy. Health check now uses the `http` endpoint; the Vite proxy prefers `API_HTTP`. `aspire certs trust` recommended for the dashboard |
+| Web bundle in MAUI | Included directly from `web/dist-app` as `wwwroot/**` MAUI assets inside a target (no copy step); evaluation-time globs miss build outputs |
+| Bridge script | Injected only by `vite build --mode maui` |
+| Test runner | .NET 10 requires opting in to Microsoft.Testing.Platform (`global.json` → `test.runner`) |
+| Apple targets | Only on macOS hosts (owner decision); `-p:SkipAndroid=true` for Windows-only builds |
+| Driving the app in tests | Launch with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9333` and attach Playwright with `connectOverCDP` (useful for later app-level e2e) |
