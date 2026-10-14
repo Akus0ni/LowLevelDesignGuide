@@ -58,9 +58,11 @@ from real code.
 
 ### F2. Content library
 - Modules: **OOP & SOLID**, **GoF Design Patterns**, **UML**, **Case Studies**.
-- Lessons authored as Markdown with YAML front-matter in `/content`; seeded into SQLite by the API.
+- Lessons authored as Markdown with YAML front-matter in `/content`.
+- **Content ships inside the app** (packaged as MAUI assets). On first launch, or when the bundled content version changes, the app loads it into **local SQLite**. Reading never needs the network.
+- The API exposes the same content **read-only**, parsed from the same folder by a shared library. It is used only by browser dev mode and tests; devices never depend on it.
 - Reader: code highlighting (C#), Mermaid diagrams (class / sequence / state), table of contents.
-- **Acceptance:** adding a `.md` file and restarting the API makes it appear in the app.
+- **Acceptance:** a fresh install in airplane mode shows all lessons; adding a `.md` file and rebuilding the app makes it appear.
 
 ### F3. Cheat sheets
 - Every concept/lesson has a companion `cheatsheet.md`.
@@ -80,8 +82,10 @@ from real code.
 - **Acceptance:** results return in under 200 ms on device for the MVP content set; matches are highlighted.
 
 ### F7. Offline-first sync
-- Device keeps a local SQLite copy of content, progress and notes.
-- Sync with the API when online; last-write-wins per record using `UpdatedAt`, plus a device ID.
+- Device SQLite is the **source of truth for the UI**: every read and write is local.
+- Only **user data** syncs (progress, notes, bookmarks). Content is bundled, not synced.
+- A background `SyncService` pushes local changes and pulls remote ones when online; last-write-wins per record using `UpdatedAt`, plus a device ID.
+- First login needs the network; afterwards the session is kept in `SecureStorage` and the app works offline.
 - **Acceptance:** airplane mode → edit notes and progress → reconnect → data is on the server and other devices.
 
 ## 6. Phase 2 (post-MVP)
@@ -93,8 +97,8 @@ from real code.
 ## 7. Architecture overview
 - **UI:** React + Vite + TypeScript, one UI for all platforms.
 - **Native shell:** .NET MAUI `HybridWebView` hosts the React build; a C# `BridgeService` is called from JS via `HybridWebView.InvokeDotNet`.
-- **Device data:** EF Core + SQLite in the MAUI app.
-- **Backend:** ASP.NET Core Minimal API + EF Core + SQLite + Identity + JWT.
+- **Device data:** EF Core + SQLite in the MAUI app. It holds the bundled content plus the user's progress, notes and bookmarks.
+- **Backend:** ASP.NET Core Minimal API + EF Core + SQLite + Identity + JWT. It owns accounts and is the sync hub for user data; content is read-only, for browser dev mode.
 - **Local dev:** Aspire 13 AppHost orchestrating the API, the Vite dev server and the MAUI app (Windows device, Android emulator via Dev Tunnel), with OpenTelemetry in the Aspire dashboard.
 - **Data access in UI:** `DataSource` interface. `HttpDataSource` (browser) or `BridgeDataSource` (MAUI) is chosen at startup (Strategy + Adapter).
 
@@ -105,12 +109,12 @@ See `docs/plan.md` for diagrams and the solution layout.
 |---|---|---|
 | `User` (Identity) | Id, Email, DisplayName | API |
 | `RefreshToken` | Id, UserId, TokenHash, FamilyId, ExpiresAt, RevokedAt, ReplacedById | API |
-| `Module` | Id, Slug, Title, Order | API + device |
-| `Lesson` | Id, ModuleId, Slug, Title, Order, BodyMd, CheatSheetMd, Tags, ContentHash | API + device |
+| `Module` | Id, Slug, Title, Order | Device (bundled); API read-only for dev |
+| `Lesson` | Id, ModuleId, Slug, Title, Order, BodyMd, CheatSheetMd, Tags, ContentHash | Device (bundled); API read-only for dev |
 | `LessonProgress` | UserId, LessonId, Status, CompletedAt, UpdatedAt, DeviceId | API + device |
 | `Note` | Id, UserId, LessonId, BodyMd, UpdatedAt, DeletedAt, DeviceId | API + device |
 | `Bookmark` | UserId, LessonId, CreatedAt, DeletedAt | API + device |
-| `LessonSearch` (FTS5) | Title, Body, CheatSheet | API + device |
+| `LessonSearch` (FTS5) | Title, Body, CheatSheet, user notes | Device (API copy for browser dev only) |
 
 ## 9. Non-functional requirements
 - **Offline:** all reading, progress and notes work without network.
@@ -129,4 +133,4 @@ See `docs/plan.md` for diagrams and the solution layout.
 1. Browser dev-mode token storage (cookie vs memory). Decided in spec 001.
 2. Which case studies come after Auth. Asked one at a time via the `lld-case-study` skill.
 
-Resolved 2026-10-14: license (MIT), app name and ID (LLD Guide / `com.akus0ni.lldguide`), build order (interleaved, see `plan.md` §3).
+Resolved 2026-10-14: license (MIT), app name and ID (LLD Guide / `com.akus0ni.lldguide`), build order (interleaved, see `plan.md` §3), data setup (content bundled in app; API for accounts + user-data sync).

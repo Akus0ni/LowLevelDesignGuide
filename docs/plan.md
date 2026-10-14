@@ -9,7 +9,8 @@ solution layout, spec roadmap, workflow and testing.
 flowchart LR
     subgraph Device["MAUI app (Android / iOS / Windows / macOS)"]
         UI["React UI<br/>(HybridWebView)"] -- "InvokeDotNet" --> Bridge["BridgeService (C#)"]
-        Bridge --> LocalDb[("SQLite<br/>EF Core")]
+        Bridge --> LocalDb[("SQLite<br/>content + user data")]
+        Bundled[/"bundled content/*.md"/] --> LocalSeeder["ContentLoader"] --> LocalDb
         Bridge --> Sync["SyncService"]
         Bridge --> Secure["SecureStorage<br/>(tokens)"]
     end
@@ -19,12 +20,13 @@ flowchart LR
     end
 
     subgraph Server["ASP.NET Core API"]
-        Api["Minimal API<br/>JWT auth"] --> ServerDb[("SQLite<br/>EF Core + Identity")]
-        Seeder["Markdown seeder"] --> ServerDb
+        Api["Minimal API<br/>JWT auth + sync"] --> ServerDb[("SQLite<br/>accounts + user data")]
+        Api -. "read-only content<br/>(browser dev)" .-> DevContent["ContentLoader"]
     end
 
-    Content[/"content/*.md"/] --> Seeder
-    Sync -- "HTTPS" --> Api
+    Content[/"content/*.md<br/>(repo)"/] -. "packaged at build" .-> Bundled
+    Content -.-> DevContent
+    Sync -- "HTTPS, when online<br/>(progress, notes, bookmarks)" --> Api
     WebUI -- "HTTP (HttpDataSource)" --> Api
 
     subgraph Aspire["Aspire 13 AppHost (local dev)"]
@@ -60,6 +62,17 @@ classDiagram
 `createDataSource()` picks the implementation at startup based on whether
 `window.HybridWebView` exists. This is the Strategy + Adapter pattern and becomes lesson material.
 
+### Who owns which data
+| Data | Lives on | Synced? | Notes |
+|---|---|---|---|
+| Lessons + cheat sheets | **Device** (bundled with the app → local SQLite) | No | Updated by app updates; Phase 2 admin UI may add server-delivered lessons |
+| Progress, notes, bookmarks | **Device** (local SQLite) | Yes, via API | Saved locally first; `SyncService` pushes/pulls when online |
+| Accounts, refresh tokens | **API** | — | Device keeps only its tokens in `SecureStorage` |
+| Content (copy) | API, read-only | — | Only for the browser dev mode and Playwright tests |
+
+The UI **never waits on the network**. In MAUI, React → `BridgeService` → local SQLite.
+In the browser (dev only) there is no local DB, so `HttpDataSource` calls the API.
+
 ### Aspire AppHost (sketch)
 ```csharp
 var builder = DistributedApplication.CreateBuilder(args);
@@ -85,7 +98,7 @@ LowLevelDesignGuide/
 ├─ .claude/skills/            # emilkowalski skills + lld-case-study
 ├─ docs/                      # PRD.md, plan.md, adr/
 ├─ specs/NNN-name/            # spec.md, plan.md, tasks.md
-├─ content/                   # lessons + cheat sheets (Markdown + front-matter)
+├─ content/                   # lessons + cheat sheets (Markdown + front-matter); packaged into the app
 │  ├─ oop-solid/  patterns/  uml/  case-studies/
 ├─ web/                       # React + Vite + TS
 ├─ src/
@@ -96,6 +109,7 @@ LowLevelDesignGuide/
 │  ├─ Lld.Infrastructure/     # EF Core SQLite, Identity, repositories, seeder
 │  ├─ Lld.Api/                # Minimal API endpoints
 │  ├─ Lld.Contracts/          # DTOs shared by Api + App
+│  ├─ Lld.Content/            # Markdown + front-matter parser (ContentLoader), shared by App + Api
 │  └─ Lld.App/                # MAUI: HybridWebView shell, BridgeService, local DB, sync
 ├─ tests/
 │  ├─ Lld.Domain.Tests/  Lld.Application.Tests/  Lld.Api.Tests/
@@ -115,7 +129,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 |---|---|---|---|---|
 | **000** | Feature | Foundation | Solution skeleton (.NET 10), Aspire AppHost, ServiceDefaults, empty API with health endpoint, React shell (routing, layout, `DataSource`), MAUI app hosting the React build, GitHub Actions CI | `aspire run` shows api + web + app (Windows) healthy; Android emulator loads the UI; CI green on all targets and added as required checks on `main` |
 | **001** | Feature + Content | Auth (Case Study #1) | Identity, custom JWT + rotating refresh tokens, register/login/logout UI, SecureStorage | Integration test register → login → refresh → logout passes; Auth lesson + cheat sheet written from real code |
-| **002** | Feature | Content engine (reader) | Markdown seeder, modules/lessons API, reader (C# highlighting, Mermaid), cheat-sheet "Revise" view | Dropping a `.md` file into `content/` shows it in the app |
+| **002** | Feature | Content engine (reader) | `Lld.Content` parser, content packaged into the app + loaded into local SQLite, read-only content API for browser dev, reader (C# highlighting, Mermaid), cheat-sheet "Revise" view | Fresh install in airplane mode shows lessons; a new `.md` file appears after rebuild |
 | **003** | Content | OOP & SOLID | Lessons + cheat sheets | Module complete and readable in the app |
 | **004** | Feature | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
 | **005** | Content | GoF design patterns | 23 patterns, C# samples, cheat sheets | Module complete; samples compile |
@@ -173,3 +187,4 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | 2026-10-14 | App display name **"LLD Guide"**, app/bundle ID **`com.akus0ni.lldguide`** |
 | 2026-10-14 | Build order: **interleaved** feature + content specs after the reader (see §3) |
 | 2026-10-14 | Every change goes through a PR; `main` protected by ruleset (see §4) |
+| 2026-10-14 | Data: **content bundled in the app** → local SQLite; device is the UI's source of truth; API = accounts + sync hub for user data (+ read-only content for browser dev) |
