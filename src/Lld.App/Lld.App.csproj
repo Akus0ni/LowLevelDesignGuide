@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- -p:SkipAndroid=true builds without the maui-android workload (e.g. Windows-only builds). -->
+    <TargetFrameworks Condition="'$(SkipAndroid)' != 'true'">net10.0-android</TargetFrameworks>
+    <!-- Apple targets build only on macOS (no Mac is paired with the Windows dev machine; CI builds them). -->
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks.TrimStart(';'))</TargetFrameworks>
+
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Lld.App</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <MauiXamlInflator>SourceGen</MauiXamlInflator>
+
+    <ApplicationTitle>LLD Guide</ApplicationTitle>
+    <ApplicationId>com.akus0ni.lldguide</ApplicationId>
+    <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+
+    <WindowsPackageType>None</WindowsPackageType>
+
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#4F46E5" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#4F46E5" BaseSize="128,128" />
+    <MauiFont Include="Resources\Fonts\*" />
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="CommunityToolkit.Maui" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lld.Contracts\Lld.Contracts.csproj" />
+    <ProjectReference Include="..\Lld.Content\Lld.Content.csproj" />
+    <ProjectReference Include="..\Lld.App.ServiceDefaults\Lld.App.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <!--
+    Build the React app (vite mode "maui") and package it as the HybridWebView root ("wwwroot").
+    Skip with -p:SkipWebBuild=true when the bundle in web/dist-app is already built (e.g. in CI).
+    Incremental: reruns only when web sources change. Build one target framework at a time (-f)
+    so parallel inner builds never run npm concurrently.
+  -->
+  <PropertyGroup>
+    <WebProjectDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\web\'))</WebProjectDir>
+    <WebAppOutputDir>$(WebProjectDir)dist-app\</WebAppOutputDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <WebAppSource Include="$(WebProjectDir)src\**;$(WebProjectDir)index.html;$(WebProjectDir)package.json;$(WebProjectDir)vite.config.ts" />
+  </ItemGroup>
+
+  <Target Name="BuildWebApp" BeforeTargets="BeforeBuild" Condition="'$(SkipWebBuild)' != 'true'"
+          Inputs="@(WebAppSource)" Outputs="$(WebAppOutputDir)index.html">
+    <Exec Command="npm ci --no-fund --no-audit" WorkingDirectory="$(WebProjectDir)" Condition="!Exists('$(WebProjectDir)node_modules')" />
+    <Exec Command="npm run build:app" WorkingDirectory="$(WebProjectDir)" />
+  </Target>
+
+  <!-- Files produced during the build are not seen by evaluation-time globs, so add them here. -->
+  <Target Name="IncludeWebApp" AfterTargets="BuildWebApp" BeforeTargets="BeforeBuild">
+    <Error Condition="!Exists('$(WebAppOutputDir)index.html')"
+           Text="Web bundle not found in $(WebAppOutputDir). Run 'npm run build:app' in web/ or build without SkipWebBuild." />
+    <ItemGroup>
+      <_WebAppFile Include="$(WebAppOutputDir)**" />
+      <MauiAsset Include="@(_WebAppFile)" LogicalName="wwwroot\%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
