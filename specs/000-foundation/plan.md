@@ -72,13 +72,13 @@ if (!builder.Configuration.GetValue<bool>("Lld:ApiOnly"))
 - Status bar: `CommunityToolkit.Maui` `StatusBarBehavior` with `AppThemeBinding` colours matching the header token.
 
 ### 2.6 CI
-`.github/workflows/ci.yml`, triggered on PRs and pushes to `main`; four jobs as in spec §3.6. MAUI jobs run `dotnet workload restore`. The `web` job installs Playwright Chromium.
+`.github/workflows/ci.yml`, triggered on PRs and pushes to `main`; three jobs as in spec §3.6 (Apple: manual-only `ci-apple.yml` until Phase 2). The `web` job installs Playwright Chromium.
 
 ## 3. Risks
 | Risk | Mitigation |
 |---|---|
 | `Aspire.Hosting.Maui` is preview | Pin the version; record API differences here |
-| `macos-latest` Xcode doesn't match the iOS workload | Pin `macos-26` runner / select an Xcode version in the job |
+| `macos-latest` Xcode doesn't match the iOS workload | Happened: Apple CI deferred to Phase 2 (`docs/plan.md` §8) |
 | Android WebView doesn't report `env(safe-area-inset-*)` | Fallback: `SafeAreaEdges="Container"` on Android; record the outcome |
 | Aspire integration test needs a dev certificate on Linux CI | Use the API's `http` endpoint in tests |
 

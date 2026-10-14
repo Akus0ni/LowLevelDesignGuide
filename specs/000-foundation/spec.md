@@ -82,8 +82,8 @@ no lessons, no sync.
 | `backend` | `ubuntu-latest` | restore, build, `dotnet test` (unit + Aspire integration) |
 | `web` | `ubuntu-latest` | `npm ci`, lint (incl. guardrails), typecheck, Vitest, build |
 | `maui-windows-android` | `windows-latest` | build `Lld.App` for `net10.0-windows` and `net10.0-android` |
-| `maui-apple` | `macos-latest` | build `Lld.App` for `net10.0-ios` (simulator) and `net10.0-maccatalyst`; compile only, no signing |
-- After the first green run, all four jobs become **required status checks** in the "Protect main" ruleset.
+| ~~`maui-apple`~~ | — | **Deferred to Phase 2** (owner decision): moved to the manual-only `ci-apple.yml`; see `docs/plan.md` §8 |
+- After the first green run, `backend`, `web` and `maui-windows-android` become **required status checks** in the "Protect main" ruleset.
 
 ### 3.7 Docs
 - `README.md`: prerequisites and "how to run" (`aspire run`, browser URL, Android emulator).
@@ -102,7 +102,7 @@ Auth, content, database schema, sync, hosting/ngrok, real visual design beyond t
 | A4 | Android emulator runs the app: shell, bottom tabs, status bar colour, no content under system bars | Manual + screenshot |
 | A5 | `dotnet test` passes, including an Aspire integration test calling `/health` and `/api/info` | CI `backend` |
 | A6 | Vitest covers `createDataSource()` choosing the right implementation | CI `web` |
-| A7 | All 4 CI jobs pass on the PR and are then required on `main` | GitHub checks + ruleset |
+| A7 | The 3 CI jobs (`backend`, `web`, `maui-windows-android`) pass on the PR and are then required on `main` (Apple: Phase 2) | GitHub checks + ruleset |
 | A8 | Zero build warnings (warnings as errors) | CI |
 | A9 | Guardrail lint fails on `transition-all`, `h-screen`, `ease-in`, zoom-disabling viewport (proved by a test fixture) | CI `web` |
 | A10 | Hardware-only checks (tap feel, sticky hover, keyboard, real safe areas) are listed in the PR as **"to verify on a device"** | PR description |
