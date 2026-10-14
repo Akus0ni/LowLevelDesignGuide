@@ -181,7 +181,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | Pull request required | Yes, 1 approval, stale approvals dismissed, conversations resolved |
 | Merge method | Squash only, linear history |
 | Bypass | Repo admin, **only via PR** (lets the solo owner merge their own PR) |
-| Required status checks | Added in spec 000 once CI exists |
+| Required status checks | `backend`, `web`, `maui-windows-android` (strict: branch must be up to date). `maui-apple` joins in Phase 2 |
 
 ## 5. Testing strategy
 | Layer | Tool | What |

@@ -13,6 +13,6 @@
 - [x] T11 `Lld.AppHost`: api + web + MAUI (Windows device, Android emulator), `Lld:ApiOnly`
 - [x] T12 `Lld.IntegrationTests` (Aspire.Hosting.Testing: `/health`, `/api/info`)
 - [x] T13 Manual run: `aspire run` → dashboard, browser, Windows app, Android emulator (screenshots)
-- [ ] T14 CI workflow, green on PR; add required checks to ruleset
+- [x] T14 CI workflow, green on PR; add required checks to ruleset
 - [x] T15 Docs: README "how to run", ADR 0001, ADR 0002; fill plan §4 outcomes
-- [ ] T16 Open PR with screenshots + "to verify on a device" list (A10)
+- [x] T16 Open PR with screenshots + "to verify on a device" list (A10)
