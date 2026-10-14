@@ -1,0 +1,114 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens and guardrails (spec 000 §3.3, ADR 0002).
+ * Sources: emil-design-eng, mobile-native, apple-design skills.
+ */
+
+/* Hover only for precise pointers: touch devices otherwise keep hover "stuck" after a tap. */
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
+@theme {
+  /* Strong custom curves; the built-in ones are too weak. The accelerating curve is removed on purpose. */
+  --ease-in: initial;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Semantic colours. The header/background colour is mirrored by the native status bar (Lld.App). */
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #6b7280;
+  --chrome: rgb(255 255 255 / 0.72);
+  --surface: #f4f4f5;
+  --accent: #4f46e5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a0a0a;
+    --fg: #fafafa;
+    --muted: #a1a1aa;
+    --chrome: rgb(10 10 10 / 0.72);
+    --surface: #18181b;
+    --accent: #818cf8;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-chrome: var(--chrome);
+  --color-surface: var(--surface);
+  --color-accent: var(--accent);
+}
+
+/* Safe-area padding; needs viewport-fit=cover in index.html or the values are 0. */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@utility pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+@utility pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* mobile-native baseline */
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
+    color-scheme: light dark;
+  }
+
+  body {
+    overscroll-behavior: none;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  /* iOS zooms into inputs smaller than 16px; fix the cause, never disable zoom. */
+  @media (pointer: coarse) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
+  }
+
+  /* Controls are not content: no text selection, no long-press callout, no double-tap delay. */
+  button,
+  [role='button'],
+  nav a {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Size-specific tracking: tighten large headings, leave body text at 0. */
+  h1 {
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    letter-spacing: -0.01em;
+  }
+}
