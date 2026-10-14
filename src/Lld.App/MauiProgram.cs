@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui;
+using Lld.App.Auth;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +18,10 @@ public static class MauiProgram
 
         builder.Services.AddSingleton(AppInfo.Current);
         builder.Services.AddSingleton(DeviceInfo.Current);
+        builder.Services.AddSingleton(SecureStorage.Default);
+        builder.Services.AddSingleton<ITokenStore, SecureTokenStore>();
+        builder.Services.AddHttpClient<ApiClient>(http => http.BaseAddress = new Uri(ApiClient.ServiceAddress));
+        builder.Services.AddSingleton<SessionService>();
         builder.Services.AddSingleton<BridgeService>();
         builder.Services.AddTransient<MainPage>();
 
