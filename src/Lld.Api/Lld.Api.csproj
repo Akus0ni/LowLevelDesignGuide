@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lld.Infrastructure\Lld.Infrastructure.csproj" />
+    <ProjectReference Include="..\Lld.Contracts\Lld.Contracts.csproj" />
+    <ProjectReference Include="..\Lld.ServiceDefaults\Lld.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>

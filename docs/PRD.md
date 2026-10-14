@@ -61,7 +61,7 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 |---|---|
 | C1 | **Free only.** No paid hosting, database, auth or notification services. |
 | C2 | Server runs on the **owner's PC**, which is on **only during the day**. Downtime is normal. |
-| C3 | **No Mac for now.** Windows + Android are developed and verified first; iOS/macOS compile in CI and are verified in Phase 2. |
+| C3 | **No Mac for now.** Windows + Android are developed and verified first. iOS/macOS builds (CI and devices) are **Phase 2**. |
 | C4 | Solo developer; public GitHub repo; `main` is protected and changes go through PRs. |
 | C5 | Stack fixed: .NET 10, Aspire 13, .NET MAUI (HybridWebView), React + Vite + TypeScript, SQLite. |
 | C6 | Not Cloudflare for tunnelling (owner's choice). |
@@ -147,7 +147,7 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 
 ## 8. Phase 2 (post-MVP)
 - Admin UI to create and edit lessons in-app (Markdown stays the source of truth or gets imported; decide then).
-- iOS and macOS run/verification on real Mac hardware.
+- **Apple builds:** re-enable Apple CI (currently manual-only) and run/verify iOS + macOS on a Mac. Findings and to-dos: `docs/plan.md` §8.
 - More case studies, many from the owner's own work.
 - Optional: move from the PC + ngrok to cloud hosting if usage outgrows the free tunnel.
 
@@ -184,7 +184,7 @@ See `docs/plan.md` for diagrams, solution layout and the spec roadmap.
 - **Backups:** nightly SQLite backup.
 - **Performance:** app cold start under 3 s on a mid-range Android; lesson open under 300 ms.
 - **Accessibility:** WCAG 2.1 AA contrast, keyboard navigation on desktop, respects reduced motion.
-- **Quality:** each spec ships with unit tests plus at least one end-to-end test through Aspire; CI builds all four platform targets.
+- **Quality:** each spec ships with unit tests plus at least one end-to-end test through Aspire; CI builds Windows + Android (Apple builds join in Phase 2).
 
 ## 12. Development process requirements
 | # | Requirement |
@@ -252,12 +252,16 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R46 | Access requests made offline are queued on device and sent when online | F1, F8 | 002 |
 | R47 | Email is mandatory and is the username for requests and login | F1 | 001 |
 | R48 | Keep this PRD complete so nothing is skipped | §13, P9 | ongoing |
+| R49 | Styling: Tailwind v4 + clsx/cva + base-ui, critiqued with the installed skills; guardrails enforced by theme tokens and lint | spec 000 §3.3, ADR 0002 | 000 |
+| R50 | No physical Android device for now: emulator only; hardware-only checks listed as pending in each PR | C3, spec 000 A10 | 000+ |
+| R51 | Apple CI disabled for now (manual-only workflow); fixing and re-enabling it is Phase 2, with all findings kept in the plan | §8, plan §8 | P2 |
+| R52 | README has a "Local setup" section listing every manual dependency so any developer can build and run the app | README | 000 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.
 - At least 3 case studies, at least 1 of them from the owner's own work.
 - Owner can explain the Auth case study purely from the cheat sheet.
-- App runs on Windows + Android via `aspire run`; iOS/macOS compile in CI.
+- App runs on Windows + Android via `aspire run`; iOS/macOS build and run in Phase 2.
 - Real users can request access, be approved and sync through the self-hosted API, staying within the ngrok free limits.
 
 ## 15. Open questions

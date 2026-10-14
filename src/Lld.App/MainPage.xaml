@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Lld.App.MainPage"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#0A0A0A}"
+             SafeAreaEdges="None">
+
+    <!-- The status bar mirrors the web background token (bg in web/src/styles/index.css);
+         the web theme-color meta has no effect inside a WebView. -->
+    <ContentPage.Behaviors>
+        <toolkit:StatusBarBehavior StatusBarColor="{AppThemeBinding Light=#FFFFFF, Dark=#0A0A0A}"
+                                   StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </ContentPage.Behaviors>
+
+    <!-- Full-bleed: the React app pads itself with env(safe-area-inset-*). Android overrides this in code-behind. -->
+    <HybridWebView x:Name="hybridWebView" HybridRoot="wwwroot" DefaultFile="index.html" />
+
+</ContentPage>

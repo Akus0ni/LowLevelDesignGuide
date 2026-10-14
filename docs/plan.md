@@ -162,7 +162,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | **009** | Feature | Search | FTS5 on device (API copy for browser dev), highlighted results | Query → results under 200 ms on device |
 | **010** | Feature | Offline sync | One combined `/sync` call, LWW conflict rule, sync triggers, **Sync button disabled while server offline**, auto-sync when status → online | Airplane-mode scenario passes; offline → online auto-sync passes; monthly request estimate under budget |
 | **011+** | Content | Case studies | One spec per case study; **each starts by asking the owner** (`lld-case-study` skill) | Lesson + cheat sheet + compiling code |
-| **P2** | — | Phase 2 | Admin UI for content, iOS/macOS verification on a Mac, optional cloud hosting | — |
+| **P2** | — | Phase 2 | Admin UI for content; **Apple builds** (re-enable Apple CI, iOS/macOS on a Mac, see §8); optional cloud hosting | — |
 
 ## 4. Per-spec workflow
 1. Branch from latest `main`: `spec/NNN-short-name`.
@@ -181,7 +181,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | Pull request required | Yes, 1 approval, stale approvals dismissed, conversations resolved |
 | Merge method | Squash only, linear history |
 | Bypass | Repo admin, **only via PR** (lets the solo owner merge their own PR) |
-| Required status checks | Added in spec 000 once CI exists |
+| Required status checks | `backend`, `web`, `maui-windows-android` (strict: branch must be up to date). `maui-apple` joins in Phase 2 |
 
 ## 5. Testing strategy
 | Layer | Tool | What |
@@ -194,7 +194,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | Admin console | xUnit (command handlers) + integration test against a temp SQLite DB | Approve/reject, temporary password, reset |
 | Server status | xUnit | Signature verification, spoofed/expired messages rejected, offline/online state transitions |
 | MAUI | Manual checklist per spec (Windows + Android) | HybridWebView loads, bridge calls work, SecureStorage |
-| CI | GitHub Actions | `windows-latest`: build + test + Windows/Android MAUI build; `macos-latest`: iOS + MacCatalyst compile |
+| CI | GitHub Actions | `ubuntu-latest`: backend + web; `windows-latest`: Windows/Android MAUI build. Apple build is manual-only until Phase 2 (§8) |
 
 ## 6. Skills used during the build
 - `clean-code-csharp`: all C# code and reviews.
@@ -220,3 +220,26 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | 2026-10-14 | **No self-registration**: Request access (email required, queued offline) → admin approves in **`Lld.Admin`** (direct DB, no admin API) → temporary password shared manually → forced change at first login |
 | 2026-10-14 | **Email is the username** for requests and login |
 | 2026-10-14 | PRD v0.2 keeps a full requirements register (PRD §13) |
+| 2026-10-14 | **Apple CI deferred to Phase 2**: the `maui-apple` job moved to a manual-only workflow; required checks are `backend`, `web`, `maui-windows-android` (see §8) |
+
+## 8. Phase 2: Apple builds (deferred 2026-10-14)
+Owner decision: Apple CI does not block PRs until Phase 2. The job is kept, ready to run, in
+`.github/workflows/ci-apple.yml` (**manual trigger only**: Actions → "CI (Apple, manual)" → Run workflow).
+
+### What we learned in spec 000
+| Topic | Finding |
+|---|---|
+| Xcode requirement | Each .NET for iOS workload needs an exact Xcode. iOS **27.0.10722** (workload sets `10.0.401.1`, `10.0.402`) requires **Xcode 27**; no GitHub runner had it on 2026-10-14 (`macos-26` image: up to Xcode 26.5; `macos-latest`: up to 26.6) |
+| Pinned combination | Workload set **`10.0.401`** = iOS/Mac Catalyst **26.5.10318**, which requires **Xcode 26.6** (`macos-latest` + `setup-xcode` `'26.6'`). With this, the Xcode check passed |
+| Analyzer fixes | Template bootstrap code failed warnings-as-errors: `Program` made `static` (iOS + Mac Catalyst); CA1711 (`AppDelegate` name) disabled for `src/Lld.App/Platforms/**` in `.editorconfig`. A full green Apple build was **not yet confirmed** |
+| Version drift | The pinned set ships MAUI workload 10.0.20 while packages use 10.0.110; watch for mismatches when re-enabling |
+| Target frameworks | iOS/Mac Catalyst TFMs are only added on macOS hosts (`Lld.App.csproj`); use `-p:SkipAndroid=true` there to avoid needing the Android workload |
+| Signing | Builds are simulator/unsigned only. Device builds and TestFlight need an Apple Developer account (paid) |
+
+### To do in Phase 2
+- [ ] Re-run `ci-apple.yml` manually; fix any remaining build errors.
+- [ ] When runners ship Xcode 27, drop the `--version 10.0.401` pin and use the current workload set + matching Xcode.
+- [ ] Move the job back into `ci.yml` and add `maui-apple` as a required check on `main`.
+- [ ] On a Mac: run iOS simulator + Mac Catalyst via Aspire (`AddiOSSimulator` needs Dev Tunnels; `AddMacCatalystDevice` uses localhost).
+- [ ] Verify iOS safe areas (WKWebView should report `env(safe-area-inset-*)`; Android needed a native fallback) and the status bar colour.
+- [ ] Decide on signing / distribution (Apple Developer Program).

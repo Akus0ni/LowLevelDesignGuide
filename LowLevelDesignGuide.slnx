@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Lld.Api/Lld.Api.csproj" />
+    <Project Path="src/Lld.App.ServiceDefaults/Lld.App.ServiceDefaults.csproj" />
+    <Project Path="src/Lld.App/Lld.App.csproj" />
+    <Project Path="src/Lld.AppHost/Lld.AppHost.csproj" />
+    <Project Path="src/Lld.Application/Lld.Application.csproj" />
+    <Project Path="src/Lld.Content/Lld.Content.csproj" />
+    <Project Path="src/Lld.Contracts/Lld.Contracts.csproj" />
+    <Project Path="src/Lld.Domain/Lld.Domain.csproj" />
+    <Project Path="src/Lld.Infrastructure/Lld.Infrastructure.csproj" />
+    <Project Path="src/Lld.ServiceDefaults/Lld.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Lld.Api.Tests/Lld.Api.Tests.csproj" />
+    <Project Path="tests/Lld.IntegrationTests/Lld.IntegrationTests.csproj" />
+  </Folder>
+</Solution>
