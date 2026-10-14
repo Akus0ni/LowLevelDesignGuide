@@ -2,12 +2,10 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Lld.Contracts;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Lld.Api.Tests;
 
-public sealed class InfoEndpointTests(WebApplicationFactory<Program> factory)
-    : IClassFixture<WebApplicationFactory<Program>>
+public sealed class InfoEndpointTests(LldApiFactory factory) : IClassFixture<LldApiFactory>
 {
     [Fact]
     public async Task GetInfo_ReturnsApiIdentity()
