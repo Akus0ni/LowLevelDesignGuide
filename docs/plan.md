@@ -9,32 +9,41 @@ solution layout, spec roadmap, workflow and testing.
 flowchart LR
     subgraph Device["MAUI app (Android / iOS / Windows / macOS)"]
         UI["React UI<br/>(HybridWebView)"] -- "InvokeDotNet" --> Bridge["BridgeService (C#)"]
-        Bridge --> LocalDb[("SQLite<br/>EF Core")]
+        Bridge --> LocalDb[("SQLite<br/>content + user data<br/>+ queued requests")]
+        Bundled[/"bundled content/*.md"/] --> LocalSeeder["ContentLoader"] --> LocalDb
         Bridge --> Sync["SyncService"]
         Bridge --> Secure["SecureStorage<br/>(tokens)"]
+        Status["ServerStatusMonitor"] --> Bridge
     end
+
+    subgraph PC["Owner's PC (on during the day)"]
+        Api["ASP.NET Core API<br/>JWT auth + sync<br/>(Windows service)"] --> ServerDb[("SQLite<br/>accounts, requests,<br/>user data")]
+        Admin["Lld.Admin console"] --> ServerDb
+        Api -. "read-only content<br/>(browser dev)" .-> DevContent["ContentLoader"]
+        Ngrok["ngrok agent<br/>(Windows service)"] --> Api
+        Backup["Nightly backup"] --> ServerDb
+    end
+
+    subgraph Cloud["Free third-party services"]
+        Edge["ngrok edge<br/>*.ngrok-free.dev"]
+        Ntfy["ntfy.sh secret topic<br/>(signed online/offline)"]
+    end
+
+    Sync -- "HTTPS, one combined call<br/>(progress, notes, bookmarks)" --> Edge
+    Edge --> Ngrok
+    Api -- "publish signed status<br/>on start / stop" --> Ntfy
+    Ntfy -- "subscribe / read latest" --> Status
 
     subgraph Browser["Browser (dev mode)"]
         WebUI["React UI<br/>(Vite dev server)"]
     end
+    WebUI -- "HTTP localhost (HttpDataSource)" --> Api
 
-    subgraph Server["ASP.NET Core API"]
-        Api["Minimal API<br/>JWT auth"] --> ServerDb[("SQLite<br/>EF Core + Identity")]
-        Seeder["Markdown seeder"] --> ServerDb
-    end
-
-    Content[/"content/*.md"/] --> Seeder
-    Sync -- "HTTPS" --> Api
-    WebUI -- "HTTP (HttpDataSource)" --> Api
-
-    subgraph Aspire["Aspire 13 AppHost (local dev)"]
-        direction TB
-        Dash["Dashboard + OTel"]
-    end
-    Aspire -.orchestrates.-> Server
-    Aspire -.orchestrates.-> Browser
-    Aspire -.orchestrates.-> Device
+    Content[/"content/*.md<br/>(repo)"/] -. "packaged at build" .-> Bundled
+    Content -.-> DevContent
 ```
+Aspire (local dev) orchestrates the API, the Vite dev server and the MAUI app
+together; in hosting mode the API runs as a Windows service behind ngrok.
 
 ### One UI, two transports
 ```mermaid
@@ -59,6 +68,32 @@ classDiagram
 ```
 `createDataSource()` picks the implementation at startup based on whether
 `window.HybridWebView` exists. This is the Strategy + Adapter pattern and becomes lesson material.
+
+### Who owns which data
+| Data | Lives on | Synced? | Notes |
+|---|---|---|---|
+| Lessons + cheat sheets | **Device** (bundled with the app → local SQLite) | No | Updated by app updates; Phase 2 admin UI may add server-delivered lessons |
+| Progress, notes, bookmarks | **Device** (local SQLite) | Yes, via API | Saved locally first; `SyncService` pushes/pulls when online |
+| Accounts, refresh tokens | **API** | — | Device keeps only its tokens in `SecureStorage` |
+| Access requests | **API**; queued on device while offline | Sent once | Approved/rejected in `Lld.Admin` |
+| Server status | **ntfy.sh** topic (signed) | — | Read by devices; costs no ngrok quota |
+| Content (copy) | API, read-only | — | Only for the browser dev mode and Playwright tests |
+
+The UI **never waits on the network**. In MAUI, React → `BridgeService` → local SQLite.
+In the browser (dev only) there is no local DB, so `HttpDataSource` calls the API.
+
+### Hosting and server status (spec 002)
+| Concern | Design |
+|---|---|
+| Public address | ngrok free fixed domain `*.ngrok-free.dev` → API on the PC. Fallback: Microsoft Dev Tunnels. Base URL is an app setting. |
+| Browser warning page | App's `HttpClient` adds `ngrok-skip-browser-warning` via a `DelegatingHandler`. |
+| Uptime | API (`UseWindowsService`) and ngrok (`ngrok service install`) run as Windows services; PC sleep disabled while plugged in. |
+| Server status | On start/stop, `ServerStatusPublisher` posts a signed message (`{status, at, nonce}` + signature) to a secret ntfy.sh topic. Devices' `ServerStatusMonitor` subscribes while open and reads the latest message on launch; verifies the signature with the bundled public key. A failed sync also sets status to offline. |
+| Offline UX | Status = offline → "Server offline" banner, Sync button disabled, access requests queued. Status = online → button enabled, queued requests and pending changes sent. |
+| Request budget (ngrok: 20k req, 1 GB / month) | Bundled content (0 requests to read); one combined `/sync` call; sync only on open (>15 min since last), "Sync now", app backgrounded with pending changes, or status → online; ~1 h access tokens; API rate limiting; client back-off; request counter metric. |
+| Quota exhausted | Treated exactly like server offline until the monthly reset. |
+| Backups | Scheduled task runs `VACUUM INTO` nightly into a synced folder; keeps 14 days. |
+| Admin | `Lld.Admin` runs on the PC against the same database through `Lld.Application`; no admin HTTP endpoints exist. |
 
 ### Aspire AppHost (sketch)
 ```csharp
@@ -85,7 +120,7 @@ LowLevelDesignGuide/
 ├─ .claude/skills/            # emilkowalski skills + lld-case-study
 ├─ docs/                      # PRD.md, plan.md, adr/
 ├─ specs/NNN-name/            # spec.md, plan.md, tasks.md
-├─ content/                   # lessons + cheat sheets (Markdown + front-matter)
+├─ content/                   # lessons + cheat sheets (Markdown + front-matter); packaged into the app
 │  ├─ oop-solid/  patterns/  uml/  case-studies/
 ├─ web/                       # React + Vite + TS
 ├─ src/
@@ -94,43 +129,59 @@ LowLevelDesignGuide/
 │  ├─ Lld.Domain/             # entities, value objects (no dependencies)
 │  ├─ Lld.Application/        # use cases + ports (IAuthService, ITokenService, ...)
 │  ├─ Lld.Infrastructure/     # EF Core SQLite, Identity, repositories, seeder
-│  ├─ Lld.Api/                # Minimal API endpoints
+│  ├─ Lld.Api/                # Minimal API endpoints (runs as a Windows service when hosted)
+│  ├─ Lld.Admin/              # Admin console: access requests, users, temporary passwords
 │  ├─ Lld.Contracts/          # DTOs shared by Api + App
+│  ├─ Lld.Content/            # Markdown + front-matter parser (ContentLoader), shared by App + Api
 │  └─ Lld.App/                # MAUI: HybridWebView shell, BridgeService, local DB, sync
 ├─ tests/
 │  ├─ Lld.Domain.Tests/  Lld.Application.Tests/  Lld.Api.Tests/
 │  └─ Lld.IntegrationTests/   # Aspire.Hosting.Testing
 └─ LowLevelDesignGuide.slnx
 ```
-Dependency rule: `Domain ← Application ← Infrastructure ← Api`; `Contracts` has no
+Dependency rule: `Domain ← Application ← Infrastructure ← Api` (and `← Admin`); `Contracts` has no
 dependencies; `App` depends on `Contracts` (+ its own local infrastructure).
 
 ## 3. Spec roadmap
 
-| # | Spec | Scope | Done when |
-|---|---|---|---|
-| **000** | Foundation | Solution skeleton (.NET 10), Aspire AppHost, ServiceDefaults, empty API with health endpoint, React shell (routing, layout, `DataSource`), MAUI app hosting the React build, GitHub Actions CI | `aspire run` shows api + web + app (Windows) healthy; Android emulator loads the UI; CI green on all targets |
-| **001** | Auth (Case Study #1) | Identity, custom JWT + rotating refresh tokens, register/login/logout UI, SecureStorage | Integration test register → login → refresh → logout passes; Auth lesson + cheat sheet written from real code |
-| **002** | Content engine | Markdown seeder, modules/lessons API, reader (C# highlighting, Mermaid), cheat-sheet "Revise" view | Dropping a `.md` file into `content/` shows it in the app |
-| **003** | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
-| **004** | Notes & bookmarks | Per-lesson notes, bookmarks, list view | CRUD works offline on device |
-| **005** | Search | FTS5 on API + device, highlighted results | Query → results under 200 ms on device |
-| **006** | Offline sync | Device ↔ API sync, LWW conflict rule | Airplane-mode scenario passes |
-| **007** | OOP & SOLID content | Lessons + cheat sheets | Module complete |
-| **008** | GoF patterns content | 23 patterns, C# samples, cheat sheets | Module complete |
-| **009** | UML content | Class / sequence / state / activity with Mermaid | Module complete |
-| **010+** | Case studies | One spec per case study; **each starts by asking the owner** (`lld-case-study` skill) | Lesson + cheat sheet + compiling code |
-| **P2** | Phase 2 | Admin UI, iOS/macOS verification on a Mac, deployment decision | — |
+Build order is **interleaved** (decided 2026-10-14), with **self-hosting right after Auth**. Once the reader exists (003),
+feature specs and content specs alternate, so the app is useful for learning early
+and every feature is tested with real lessons. Spec numbers follow build order.
 
-Content specs (007–009) can be interleaved with feature specs if preferred.
+| # | Kind | Spec | Scope | Done when |
+|---|---|---|---|---|
+| **000** | Feature | Foundation | Solution skeleton (.NET 10), Aspire AppHost, ServiceDefaults, empty API with health endpoint, React shell (routing, layout, `DataSource`), MAUI app hosting the React build, GitHub Actions CI | `aspire run` shows api + web + app (Windows) healthy; Android emulator loads the UI; CI green on all targets and added as required checks on `main` |
+| **001** | Feature + Content | Auth & access (Case Study #1) | Identity with **email as username**; custom JWT + rotating refresh tokens; **Request access** page (email required); `AccessRequest` state machine; **`Lld.Admin` console** (approve/reject, create user, reset password → temporary password); **forced password change on first login**; login/logout/refresh UI; SecureStorage | Integration test: request → admin approve → temp-password login → forced change → refresh → logout; Auth lesson + cheat sheet written from real code |
+| **002** | Feature | Self-hosting & server status | API + ngrok as Windows services; base-URL setting + ngrok header; Dev Tunnels fallback doc; **signed ntfy.sh status** publisher (PC) and monitor (app); "Server offline" banner; **offline queue for access requests**; rate limiting + request budget metric; nightly backup | Real phone outside the home network can request access and log in; stopping the API flips open apps to offline within seconds; restarting flips them back and sends queued requests |
+| **003** | Feature | Content engine (reader) | `Lld.Content` parser, content packaged into the app + loaded into local SQLite, read-only content API for browser dev, reader (C# highlighting, Mermaid), cheat-sheet "Revise" view | Fresh install in airplane mode shows lessons; a new `.md` file appears after rebuild |
+| **004** | Content | OOP & SOLID | Lessons + cheat sheets | Module complete and readable in the app |
+| **005** | Feature | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
+| **006** | Content | GoF design patterns | 23 patterns, C# samples, cheat sheets | Module complete; samples compile |
+| **007** | Feature | Notes & bookmarks | Per-lesson notes, bookmarks, list view | CRUD works offline on device |
+| **008** | Content | UML | Class / sequence / state / activity with Mermaid | Module complete |
+| **009** | Feature | Search | FTS5 on device (API copy for browser dev), highlighted results | Query → results under 200 ms on device |
+| **010** | Feature | Offline sync | One combined `/sync` call, LWW conflict rule, sync triggers, **Sync button disabled while server offline**, auto-sync when status → online | Airplane-mode scenario passes; offline → online auto-sync passes; monthly request estimate under budget |
+| **011+** | Content | Case studies | One spec per case study; **each starts by asking the owner** (`lld-case-study` skill) | Lesson + cheat sheet + compiling code |
+| **P2** | — | Phase 2 | Admin UI for content, iOS/macOS verification on a Mac, optional cloud hosting | — |
 
 ## 4. Per-spec workflow
-1. Write `specs/NNN-name/spec.md`: goal, user stories, acceptance criteria, out of scope, open questions.
-2. **Owner reviews the spec.** Open questions get answered; nothing is assumed.
-3. Write `plan.md` (design, classes, diagrams) and `tasks.md` (checklist).
-4. Implement task by task; tests alongside.
-5. Verify (see §5), then commit as `spec-NNN: ...` and push.
-6. Owner OK → next spec.
+1. Branch from latest `main`: `spec/NNN-short-name`.
+2. Write `specs/NNN-name/spec.md`: goal, user stories, acceptance criteria, out of scope, open questions.
+3. **Owner reviews the spec.** Open questions get answered; nothing is assumed.
+4. Write `plan.md` (design, classes, diagrams) and `tasks.md` (checklist).
+5. Implement task by task; tests alongside; commits as `spec-NNN: ...` on the branch.
+6. Verify (see §5), push the branch, and **open a PR to `main`** (spec link, summary, verification).
+7. CI must pass. **Owner reviews and squash-merges.** The branch is auto-deleted.
+8. Owner OK → next spec, branched from the updated `main`.
+
+### Main branch protection (GitHub ruleset "Protect main")
+| Rule | Setting |
+|---|---|
+| Direct push / force-push / deletion | Blocked for everyone |
+| Pull request required | Yes, 1 approval, stale approvals dismissed, conversations resolved |
+| Merge method | Squash only, linear history |
+| Bypass | Repo admin, **only via PR** (lets the solo owner merge their own PR) |
+| Required status checks | Added in spec 000 once CI exists |
 
 ## 5. Testing strategy
 | Layer | Tool | What |
@@ -140,6 +191,8 @@ Content specs (007–009) can be interleaved with feature specs if preferred.
 | End to end (backend) | Aspire.Hosting.Testing | Spin up the AppHost; exercise real HTTP flows |
 | React | Vitest + Testing Library | Components, `DataSource` implementations (mocked) |
 | UI smoke | Playwright | Browser run against Vite + API under Aspire |
+| Admin console | xUnit (command handlers) + integration test against a temp SQLite DB | Approve/reject, temporary password, reset |
+| Server status | xUnit | Signature verification, spoofed/expired messages rejected, offline/online state transitions |
 | MAUI | Manual checklist per spec (Windows + Android) | HybridWebView loads, bridge calls work, SecureStorage |
 | CI | GitHub Actions | `windows-latest`: build + test + Windows/Android MAUI build; `macos-latest`: iOS + MacCatalyst compile |
 
@@ -153,7 +206,17 @@ Content specs (007–009) can be interleaved with feature specs if preferred.
 - `ask-sonner`: toasts.
 - `lld-case-study`: every case study (asks the owner first).
 
-## 7. Open questions (to confirm before spec 000)
-1. License: MIT?
-2. App display name and bundle ID: "LLD Guide" / `com.akus0ni.lldguide`?
-3. Order of content specs vs feature specs: strictly sequential, or interleave?
+## 7. Decisions log
+| Date | Decision |
+|---|---|
+| 2026-10-14 | License: **MIT** |
+| 2026-10-14 | App display name **"LLD Guide"**, app/bundle ID **`com.akus0ni.lldguide`** |
+| 2026-10-14 | Build order: **interleaved** feature + content specs after the reader (see §3) |
+| 2026-10-14 | Every change goes through a PR; `main` protected by ruleset (see §4) |
+| 2026-10-14 | Data: **content bundled in the app** → local SQLite; device is the UI's source of truth; API = accounts + sync hub for user data (+ read-only content for browser dev) |
+| 2026-10-14 | Hosting: **owner's PC** (on during the day) + **ngrok** free domain; **Dev Tunnels** fallback; no Cloudflare; server DB stays SQLite |
+| 2026-10-14 | Deployment built **right after Auth** (spec 002); later specs renumbered |
+| 2026-10-14 | Server status via **signed ntfy.sh topic** (devices can't receive webhooks); Sync disabled for everyone while offline; auto-sync when back online |
+| 2026-10-14 | **No self-registration**: Request access (email required, queued offline) → admin approves in **`Lld.Admin`** (direct DB, no admin API) → temporary password shared manually → forced change at first login |
+| 2026-10-14 | **Email is the username** for requests and login |
+| 2026-10-14 | PRD v0.2 keeps a full requirements register (PRD §13) |

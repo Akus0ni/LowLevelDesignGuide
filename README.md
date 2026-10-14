@@ -5,7 +5,7 @@ in C#/.NET, built spec by spec. The app is its own case study: each feature is d
 using the principles it teaches.
 
 - **UI:** React + Vite + TypeScript, hosted in .NET MAUI `HybridWebView`
-- **Backend:** ASP.NET Core Minimal API · EF Core · SQLite · Identity + JWT
+- **Backend:** ASP.NET Core Minimal API · EF Core · SQLite · Identity + JWT, self-hosted on the owner's PC via ngrok
 - **Local dev:** .NET Aspire 13
 - **Content:** OOP & SOLID · GoF patterns · UML · LLD case studies, each with a cheat sheet
 
@@ -16,3 +16,6 @@ using the principles it teaches.
 
 ## Status
 Planning. Spec 000 (Foundation) starts once the PRD and plan are approved.
+
+## License
+[MIT](LICENSE)
