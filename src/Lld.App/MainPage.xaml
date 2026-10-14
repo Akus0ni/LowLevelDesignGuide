@@ -13,7 +13,7 @@
                                    StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </ContentPage.Behaviors>
 
-    <!-- Full-bleed: the React app pads itself with env(safe-area-inset-*). -->
+    <!-- Full-bleed: the React app pads itself with env(safe-area-inset-*). Android overrides this in code-behind. -->
     <HybridWebView x:Name="hybridWebView" HybridRoot="wwwroot" DefaultFile="index.html" />
 
 </ContentPage>

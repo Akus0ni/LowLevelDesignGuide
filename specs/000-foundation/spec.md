@@ -73,7 +73,7 @@ no lessons, no sync.
 
 ### 3.5 Aspire AppHost
 - Resources: `api` (project), `web` (Vite app, referencing `api`), `app` (MAUI project) with a **Windows device** and an **Android emulator** (Dev Tunnel for API/OTLP reach).
-- Android emulator: existing AVD **`PaisaPlan_Pixel_API35`**, configured by name in AppHost settings so it can be changed.
+- Android emulator: existing AVD **`PaisaPlan_Pixel_API35`**, booted before starting `app-android`; optional adb serial in AppHost settings (see plan §4).
 - Exact Aspire 13 APIs are verified against the installed packages during implementation; deviations are recorded in this spec's `plan.md`.
 
 ### 3.6 CI (GitHub Actions, `.github/workflows/ci.yml`)

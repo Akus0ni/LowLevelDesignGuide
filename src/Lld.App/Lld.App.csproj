@@ -6,7 +6,6 @@
     <!-- Apple targets build only on macOS (no Mac is paired with the Windows dev machine; CI builds them). -->
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
-    <TargetFrameworks>$(TargetFrameworks.TrimStart(';'))</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
     <RootNamespace>Lld.App</RootNamespace>

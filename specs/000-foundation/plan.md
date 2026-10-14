@@ -55,7 +55,7 @@ if (!builder.Configuration.GetValue<bool>("Lld:ApiOnly"))
 }
 ```
 - `Lld:ApiOnly=true` lets the Aspire integration test (and Linux CI) start only the API, without npm or a MAUI device.
-- `Lld:AndroidEmulatorId` defaults to `PaisaPlan_Pixel_API35` in `appsettings.json`.
+- `Lld:AndroidEmulatorId` is optional (an adb serial such as `emulator-5554`); see §4.
 - Android → API reference through a Dev Tunnel is deferred to spec 001 (the app doesn't call the API in this spec); OTLP goes through `WithOtlpDevTunnel()`.
 
 ### 2.4 Web
@@ -87,8 +87,9 @@ if (!builder.Configuration.GetValue<bool>("Lld:ApiOnly"))
 |---|---|
 | Windows (WinUI WebView2) | Shell renders; bridge verified over CDP: About shows `Native bridge · LLD Guide · 0.1.0.1 · WinUI` |
 | Browser via Vite proxy | Real API data on phone + desktop layouts |
-| Android | **Pending**: needs the `maui-android` workload and the Dev Tunnels CLI (`devtunnel user login`) on the dev machine |
-| Safe areas | Windows: not applicable. Android: pending with A4 |
+| Android (emulator, API 35, WebView Chrome 124) | Runs under `aspire run`; bridge verified over the WebView DevTools socket: About shows `Native bridge · LLD Guide · 0.1.0 · Android`; status bar matches `bg`; tab navigation works with real taps |
+| Safe areas | Windows: not applicable. **Android WebView reports `env(safe-area-inset-*)` as 0**, so content sat under the status bar and the gesture bar overlapped the tabs. Fallback applied: `SafeAreaEdges.All` on Android (code-behind); iOS/Windows stay full-bleed. Re-check iOS on a Mac (Phase 2) |
+| Emulator selection | `Lld:AndroidEmulatorId` is an **adb serial** (`emulator-5554`), not an AVD name (an AVD name fails with `XA0010`). Empty = the running emulator. Aspire does not boot emulators; start one first |
 | MAUI device resources | Not auto-started; start `app-windows` / `app-android` from the dashboard or with `aspire resource <name> start`. The Windows launcher shows *Finished* once the app window is open |
 | Dev certificate | Untrusted cert broke HTTPS health checks and the Vite proxy. Health check now uses the `http` endpoint; the Vite proxy prefers `API_HTTP`. `aspire certs trust` recommended for the dashboard |
 | Web bundle in MAUI | Included directly from `web/dist-app` as `wwwroot/**` MAUI assets inside a target (no copy step); evaluation-time globs miss build outputs |

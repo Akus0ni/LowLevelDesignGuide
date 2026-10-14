@@ -18,7 +18,9 @@ if (!builder.Configuration.GetValue<bool>("Lld:ApiOnly"))
     app.AddWindowsDevice("app-windows");
 
     // The app does not call the API until spec 001, so only telemetry needs a Dev Tunnel for now.
-    app.AddAndroidEmulator("app-android", builder.Configuration["Lld:AndroidEmulatorId"])
+    // Lld:AndroidEmulatorId is an adb serial (e.g. emulator-5554), not an AVD name; empty = the running emulator.
+    var emulatorId = builder.Configuration["Lld:AndroidEmulatorId"];
+    app.AddAndroidEmulator("app-android", string.IsNullOrWhiteSpace(emulatorId) ? null : emulatorId)
         .WithOtlpDevTunnel();
 }
 
