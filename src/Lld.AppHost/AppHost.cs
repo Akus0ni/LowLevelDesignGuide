@@ -36,8 +36,9 @@ if (!builder.Configuration.GetValue<bool>("Lld:ApiOnly"))
 
     // The Android emulator is another "machine": it reaches the API through a public Dev Tunnel.
     // Lld:AndroidEmulatorId is an adb serial (e.g. emulator-5554), not an AVD name; empty = the running emulator.
+    // Only the https endpoint is tunnelled: the tunnel's http port answered 502 (spec 001 plan §4).
     var apiTunnel = builder.AddDevTunnel("api-tunnel")
-        .WithReference(api, allowAnonymous: true);
+        .WithReference(api.GetEndpoint("https"), allowAnonymous: true);
     var emulatorId = builder.Configuration["Lld:AndroidEmulatorId"];
     app.AddAndroidEmulator("app-android", string.IsNullOrWhiteSpace(emulatorId) ? null : emulatorId)
         .WithReference(api, apiTunnel)
