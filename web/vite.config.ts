@@ -24,6 +24,15 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), hybridWebViewBridge(mode)],
   // Relative asset URLs so the app bundle works from the WebView's virtual origin.
   base: mode === 'maui' ? './' : '/',
+  build: {
+    rollupOptions: {
+      output: {
+        // No dots in chunk names ("mermaid.core" → "mermaid-core"): the Windows app's resource indexer reads
+        // "name.qualifier.js" as a resource qualifier and warns (PRI249).
+        chunkFileNames: (chunk) => `assets/${chunk.name.replace(/\./g, '-')}-[hash].js`,
+      },
+    },
+  },
   server: {
     // Aspire injects the API endpoints; the proxy avoids CORS in browser dev mode.
     // Prefer http: this is local-only, and it works without a trusted dev certificate.
