@@ -47,6 +47,28 @@ public sealed class SchemaMigratorTests : IDisposable
     }
 
     [Fact]
+    public async Task V2_AddsLessonTerms_ToADeviceThatAlreadyHasV1Content()
+    {
+        await new SchemaMigrator(_device.Database, [new V1ContentTables()]).MigrateAsync(Ct);
+        await using (var connection = await _device.Database.OpenAsync(Ct))
+        {
+            await using var insert = connection.CreateCommand();
+            insert.CommandText = """
+                INSERT INTO Modules VALUES ('m', 'M', 'S', 0);
+                INSERT INTO Lessons (Id, ModuleSlug, Slug, Title, Summary, SortOrder, TagsJson, Source, ReadingMinutes,
+                                     BodyMarkdown, OutlineJson, CheatSheetTitle, CheatSheetMarkdown)
+                VALUES ('l', 'm', 'l', 'L', 'S', 1, '[]', NULL, 1, '# L', '[]', 'C', '# C');
+                """;
+            await insert.ExecuteNonQueryAsync(Ct);
+        }
+
+        (await _device.MigrateAsync(Ct)).Should().Be(1);
+
+        await using var check = await _device.Database.OpenAsync(Ct);
+        (await Scalar(check, "SELECT TermsJson FROM Lessons WHERE Id = 'l';")).Should().Be("[]");
+    }
+
+    [Fact]
     public async Task FailingStep_LeavesThePreviousVersion_AndNoHalfDoneChanges()
     {
         var migrator = new SchemaMigrator(_device.Database,

@@ -334,3 +334,14 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
 - Classes are keyboard toggle buttons (Enter / Space, Esc clears); stepping uses ‹ › / ← →, Esc shows all; a polite live
   region reads the traced class or the current message. Only opacity animates (200 ms, strong ease-out).
 - The inline figure and the full-screen viewer each get their own interactive copy.
+
+### T13c notes
+- `EntityTerms` (packer) reads tables whose first header is Entity / Class / Type / Interface: first `code` in column 1
+  = term, column 2 = role, the heading above the table = anchor; first definition wins. `LessonTerm` travels in
+  `PackedLesson.Terms` → `LessonDetail.Terms` → `terms` in React.
+- Device schema **step V2** (`ALTER TABLE Lessons ADD COLUMN TermsJson … DEFAULT '[]'`) instead of editing V1: a
+  device that already has V1 (the emulator does) upgrades in place; a test covers V1 rows surviving the upgrade.
+- Matching is whole-identifier and skips member access (`x.AccessRequest` is a property, not the type).
+- **A15 example changed** from `RefreshToken` to `AccessRequest`: `RefreshToken` only appears in the Auth lesson's
+  prose, never in its code blocks (callouts are for code, as approved). Flagged for the owner in the PR.
+- Real Auth lesson: 5 callouts (Result ×3, AccessRequest, AuditEntry); "Read more" lands on "3. Core entities".

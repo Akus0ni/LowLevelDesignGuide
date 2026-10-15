@@ -61,9 +61,9 @@ public sealed class ContentPackLoader(DeviceDatabase database)
             "INSERT INTO Modules (Slug, Title, Summary, SortOrder) VALUES ($slug, $title, $summary, $order);");
         await using var insertLesson = Command(connection, transaction, """
             INSERT INTO Lessons (Id, ModuleSlug, Slug, Title, Summary, SortOrder, TagsJson, Source, ReadingMinutes,
-                                 BodyMarkdown, OutlineJson, CheatSheetTitle, CheatSheetMarkdown)
+                                 BodyMarkdown, OutlineJson, CheatSheetTitle, CheatSheetMarkdown, TermsJson)
             VALUES ($id, $module, $slug, $title, $summary, $order, $tags, $source, $minutes,
-                    $body, $outline, $sheetTitle, $sheetBody);
+                    $body, $outline, $sheetTitle, $sheetBody, $terms);
             """);
         foreach (var module in pack.Modules)
         {
@@ -76,7 +76,7 @@ public sealed class ContentPackLoader(DeviceDatabase database)
                     ("$summary", lesson.Summary), ("$order", lesson.Order), ("$tags", DeviceJson.Tags(lesson.Tags)),
                     ("$source", lesson.Source), ("$minutes", lesson.ReadingMinutes), ("$body", lesson.BodyMarkdown),
                     ("$outline", DeviceJson.Outline(lesson.Outline)), ("$sheetTitle", lesson.CheatSheet.Title),
-                    ("$sheetBody", lesson.CheatSheet.BodyMarkdown));
+                    ("$sheetBody", lesson.CheatSheet.BodyMarkdown), ("$terms", DeviceJson.Terms(lesson.Terms)));
                 await insertLesson.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
             }
         }

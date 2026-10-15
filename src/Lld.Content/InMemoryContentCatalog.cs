@@ -56,7 +56,8 @@ public sealed class InMemoryContentCatalog : IContentCatalog
             lesson.Outline,
             lesson.CheatSheet.Title,
             index > 0 ? ToLink(module, module.Lessons[index - 1]) : null,
-            index < module.Lessons.Count - 1 ? ToLink(module, module.Lessons[index + 1]) : null));
+            index < module.Lessons.Count - 1 ? ToLink(module, module.Lessons[index + 1]) : null,
+            lesson.Terms));
     }
 
     public Task<IReadOnlyList<CheatSheetSummary>> GetCheatSheetsAsync(string? moduleSlug, CancellationToken cancellationToken) =>

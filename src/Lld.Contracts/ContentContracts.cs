@@ -20,6 +20,10 @@ public sealed record LessonSummary(
 /// <summary>An h2 or h3 heading of a lesson; <see cref="Anchor"/> follows GitHub's heading-id rules.</summary>
 public sealed record OutlineEntry(int Level, string Text, string Anchor);
 
+/// <summary>A type a lesson's code mentions, from its entities table (code callouts, spec 003 §3.8).</summary>
+/// <param name="Anchor">Heading the entities table sits under ("Read more").</param>
+public sealed record LessonTerm(string Term, string Role, string Anchor);
+
 /// <summary>A neighbouring lesson in the same module, for previous / next links.</summary>
 public sealed record LessonLink(string Id, string ModuleSlug, string Slug, string Title);
 
@@ -37,7 +41,8 @@ public sealed record LessonDetail(
     IReadOnlyList<OutlineEntry> Outline,
     string CheatSheetTitle,
     LessonLink? Previous,
-    LessonLink? Next);
+    LessonLink? Next,
+    IReadOnlyList<LessonTerm> Terms);
 
 public sealed record CheatSheetSummary(
     string LessonId,

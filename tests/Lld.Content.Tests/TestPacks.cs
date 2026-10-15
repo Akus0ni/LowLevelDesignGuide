@@ -35,5 +35,6 @@ internal static class TestPacks
             ReadingMinutes: order + 2,
             BodyMarkdown: $"# {title}\n\n## Overview\n\nBody of {id}.",
             Outline: [new OutlineEntry(2, "Overview", "overview")],
-            new PackedCheatSheet($"Cheat sheet: {title}", $"# Cheat sheet: {title}\n\n- point"));
+            new PackedCheatSheet($"Cheat sheet: {title}", $"# Cheat sheet: {title}\n\n- point"),
+            Terms: [new LessonTerm("Token", $"A {title} token.", "overview")]);
 }

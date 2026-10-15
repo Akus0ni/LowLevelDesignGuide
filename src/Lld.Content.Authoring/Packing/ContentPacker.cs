@@ -45,6 +45,7 @@ public sealed class ContentPacker(ContentOptions options)
         var sheet = lesson.CheatSheet ?? throw NotValidated(lesson.CheatSheetPath);
         var front = body.FrontMatter ?? throw NotValidated(body.Path);
         var sheetFront = sheet.FrontMatter ?? throw NotValidated(sheet.Path);
+        var headings = DocumentHeadings.Of(body);
         return new PackedLesson(
             Text(front, FrontMatterKeys.Id),
             lesson.Slug,
@@ -55,8 +56,9 @@ public sealed class ContentPacker(ContentOptions options)
             front[FrontMatterKeys.Source]?.Scalar,
             ReadingTime.Minutes(body.Document, options.WordsPerMinute),
             _rewriter.RewriteBody(body),
-            DocumentHeadings.Outline(DocumentHeadings.Of(body)),
-            new PackedCheatSheet(Text(sheetFront, FrontMatterKeys.Title), _rewriter.RewriteBody(sheet)));
+            DocumentHeadings.Outline(headings),
+            new PackedCheatSheet(Text(sheetFront, FrontMatterKeys.Title), _rewriter.RewriteBody(sheet)),
+            EntityTerms.Of(body, headings));
     }
 
     private static string VersionOf(ContentPack unversioned) =>

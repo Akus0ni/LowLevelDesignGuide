@@ -6,7 +6,9 @@ import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import { useDataSource } from '../../../data/DataSourceContext';
 import { isWebLink } from '../../../data/camelCase';
+import type { LessonTerm } from '../../../data/types';
 import { CodeBlock } from './CodeBlock';
+import { TermsContext } from './terms';
 import { MermaidDiagram } from './MermaidDiagram';
 
 /**
@@ -14,20 +16,24 @@ import { MermaidDiagram } from './MermaidDiagram';
  * (github-slugger over every heading, in order), the same algorithm the C# packer uses for the outline and links.
  * The leading "# Title" is dropped after slugging: the page header already shows the title.
  */
-export function MarkdownView({ markdown }: { markdown: string }) {
+export function MarkdownView({ markdown, terms = NO_TERMS }: { markdown: string; terms?: LessonTerm[] }) {
   return (
-    <div className="reader-prose">
-      <Markdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSlug, rehypeDropLeadingTitle]}
-        components={components}
-        skipHtml
-      >
-        {markdown}
-      </Markdown>
-    </div>
+    <TermsContext value={terms}>
+      <div className="reader-prose">
+        <Markdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeSlug, rehypeDropLeadingTitle]}
+          components={components}
+          skipHtml
+        >
+          {markdown}
+        </Markdown>
+      </div>
+    </TermsContext>
   );
 }
+
+const NO_TERMS: LessonTerm[] = [];
 
 /** Removes a first-child h1 (the title repeated in the body). Runs after rehype-slug, so its id still counts. */
 function rehypeDropLeadingTitle() {

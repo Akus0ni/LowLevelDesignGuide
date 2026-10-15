@@ -73,6 +73,14 @@ export interface OutlineEntry {
   anchor: string;
 }
 
+/** A type the lesson's code mentions, with its role (from the lesson's entities table). Mirrors Lld.Contracts.LessonTerm. */
+export interface LessonTerm {
+  term: string;
+  role: string;
+  /** Heading of the entities table, for "Read more". */
+  anchor: string;
+}
+
 /** A neighbouring lesson in the same module. */
 export interface LessonLink {
   id: string;
@@ -89,6 +97,8 @@ export interface LessonDetail extends LessonSummary {
   cheatSheetTitle: string;
   previous: LessonLink | null;
   next: LessonLink | null;
+  /** Code-callout terms (spec 003 §3.8); empty when the lesson has no entities table. */
+  terms: LessonTerm[];
 }
 
 /** Mirrors Lld.Contracts.CheatSheetSummary. */

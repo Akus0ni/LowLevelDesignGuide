@@ -156,7 +156,7 @@ Quizzes, scores and gamification stay out (PRD R21). These help understanding an
 | A12 | All CI checks green; zero warnings; guardrail lint clean | CI |
 | A13 | Learn shows modules as class boxes joined in reading order; the intro plays once per app run and is a fade with reduced motion | Vitest + Playwright + manual |
 | A14 | Tapping a class in the Auth class diagram highlights it and its relationships; Esc / tap outside clears it. A sequence diagram steps message by message with buttons and arrow keys | Vitest (SVG fixtures) + Playwright |
-| A15 | In the Auth lesson, `RefreshToken` in a code block opens a popover with its role from the entities table, and "Read more" jumps to the table | Unit (term extraction) + Playwright |
+| A15 | In the Auth lesson, `AccessRequest` in a code block opens a popover with its role from the entities table, and "Read more" jumps to the table | Unit (term extraction) + Playwright |
 | A16 | The outline highlights the current section; finished sections are ticked and stay ticked after a restart; the "Next up" card appears at the end | Vitest + manual |
 | A17 | Recall mode folds every cheat sheet section, reveals one on tap, "Reveal all" opens the rest; the switch is remembered | Vitest + Playwright |
 

@@ -584,3 +584,60 @@
     }
   }
 }
+
+/* Code callouts (spec 003 §3.8): a dotted underline says "tap me"; the card scales from the word (popover rule). */
+@layer components {
+  .term-callout {
+    font: inherit;
+    color: inherit;
+    background: none;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+    border-radius: 2px;
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    &[data-popup-open] {
+      background: color-mix(in oklab, var(--accent) 14%, transparent);
+    }
+  }
+
+  .term-card {
+    max-width: min(20rem, calc(100vw - 2rem));
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--surface);
+    padding: 0.75rem 0.9rem 0.5rem;
+    box-shadow: 0 8px 28px rgb(0 0 0 / 0.14);
+    transform-origin: var(--transform-origin);
+    transition:
+      opacity 150ms var(--ease-out),
+      transform 150ms var(--ease-out);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+
+    &[data-ending-style] {
+      transition-duration: 100ms;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .term-card {
+      &[data-starting-style],
+      &[data-ending-style] {
+        transform: none;
+      }
+    }
+  }
+}

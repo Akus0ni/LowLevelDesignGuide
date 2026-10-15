@@ -46,7 +46,7 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
       <article className="min-w-0">
         <BackLink to={`/learn/${module.slug}`}>{module.title}</BackLink>
         <LessonHeader lesson={lesson} module={module} position={position + 1} />
-        <MarkdownView markdown={lesson.bodyMarkdown} />
+        <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} />
         <PreviousNext previous={lesson.previous} next={lesson.next} />
       </article>
       <aside className="hidden lg:block">

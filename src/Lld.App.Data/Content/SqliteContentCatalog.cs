@@ -57,7 +57,7 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
             $"""
             SELECT x.Id, x.ModuleSlug, m.Title, x.Slug, x.Title, x.Summary, x.SortOrder, x.ReadingMinutes, x.TagsJson,
                    x.BodyMarkdown, x.OutlineJson, x.CheatSheetTitle,
-                   x.PrevId, x.PrevSlug, x.PrevTitle, x.NextId, x.NextSlug, x.NextTitle
+                   x.PrevId, x.PrevSlug, x.PrevTitle, x.NextId, x.NextSlug, x.NextTitle, x.TermsJson
             FROM (
                 SELECT l.*,
                        LAG(l.Id) OVER w AS PrevId, LAG(l.Slug) OVER w AS PrevSlug, LAG(l.Title) OVER w AS PrevTitle,
@@ -74,7 +74,7 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
                 r.GetString(0), r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetString(5),
                 r.GetInt32(6), r.GetInt32(7), DeviceJson.Tags(r.GetString(8)), r.GetString(9),
                 DeviceJson.Outline(r.GetString(10)), r.GetString(11),
-                Link(r, 12, r.GetString(1)), Link(r, 15, r.GetString(1))),
+                Link(r, 12, r.GetString(1)), Link(r, 15, r.GetString(1)), DeviceJson.Terms(r.GetString(18))),
             cancellationToken).ConfigureAwait(false)).SingleOrDefault();
 
     public Task<IReadOnlyList<CheatSheetSummary>> GetCheatSheetsAsync(string? moduleSlug, CancellationToken cancellationToken) =>

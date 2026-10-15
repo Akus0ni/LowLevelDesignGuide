@@ -18,9 +18,16 @@ internal static class DeviceJson
 
     public static IReadOnlyList<OutlineEntry> Outline(string json) =>
         JsonSerializer.Deserialize(json, DeviceJsonContext.Default.OutlineEntryArray) ?? [];
+
+    public static string Terms(IReadOnlyList<LessonTerm> terms) =>
+        JsonSerializer.Serialize([.. terms], DeviceJsonContext.Default.LessonTermArray);
+
+    public static IReadOnlyList<LessonTerm> Terms(string json) =>
+        JsonSerializer.Deserialize(json, DeviceJsonContext.Default.LessonTermArray) ?? [];
 }
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(string[]))]
 [JsonSerializable(typeof(OutlineEntry[]))]
+[JsonSerializable(typeof(LessonTerm[]))]
 internal sealed partial class DeviceJsonContext : JsonSerializerContext;

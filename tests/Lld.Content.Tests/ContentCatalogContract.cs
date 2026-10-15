@@ -66,6 +66,7 @@ public abstract class ContentCatalogContract
         lesson.Outline.Should().Equal(new OutlineEntry(2, "Overview", "overview"));
         lesson.CheatSheetTitle.Should().Be("Cheat sheet: Single responsibility");
         lesson.Tags.Should().Equal("tag-b", "tag-a");
+        lesson.Terms.Should().Equal(new LessonTerm("Token", "A Single responsibility token.", "overview"));
     }
 
     [Fact]

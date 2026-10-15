@@ -30,6 +30,7 @@ public sealed record PackedLesson(
     int ReadingMinutes,
     string BodyMarkdown,
     IReadOnlyList<OutlineEntry> Outline,
-    PackedCheatSheet CheatSheet);
+    PackedCheatSheet CheatSheet,
+    IReadOnlyList<LessonTerm> Terms);
 
 public sealed record PackedCheatSheet(string Title, string BodyMarkdown);

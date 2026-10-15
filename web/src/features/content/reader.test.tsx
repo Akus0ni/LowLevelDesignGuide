@@ -73,6 +73,7 @@ const auth: LessonDetail = {
   cheatSheetTitle: 'Cheat sheet: Authentication',
   previous: null,
   next: { id: 'case-study-parking', moduleSlug: 'case-studies', slug: 'parking-lot', title: 'Parking lot' },
+  terms: [{ term: 'Result', role: 'Outcome of every operation', anchor: 'the-login-use-case' }],
 };
 
 const caseStudies: ModuleDetail = {
@@ -188,6 +189,20 @@ describe('Lesson reader', () => {
     expect(await screen.findByRole('figure', { name: 'class diagram' })).toHaveTextContent('diagram');
     expect(screen.getByText("This diagram couldn't be drawn, so here is its source.")).toBeInTheDocument();
     expect(screen.getByLabelText('mermaid code')).toHaveTextContent('broken -->');
+  });
+
+  it('turns a term in code into a callout with its role and a way to read more', async () => {
+    const { router } = await renderAt('/learn/case-studies/auth');
+
+    const callout = within(screen.getByLabelText('csharp code')).getByRole('button', {
+      name: 'Result: what is it?',
+    });
+    await act(async () => fireEvent.click(callout));
+
+    const card = await screen.findByRole('dialog');
+    expect(card).toHaveTextContent('Outcome of every operation');
+    await act(async () => fireEvent.click(within(card).getByRole('link', { name: 'Read more →' })));
+    expect(router.state.location.search).toBe('?at=the-login-use-case');
   });
 
   it('links to the next lesson in the module', async () => {
