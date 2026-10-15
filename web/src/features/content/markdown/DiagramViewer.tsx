@@ -1,6 +1,7 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { cn } from '../../../ui/cn';
 import { Icon } from '../../../ui/Icon';
+import { InteractiveDiagram } from './InteractiveDiagram';
 import { atNaturalSize } from './mermaid';
 
 const expandIcon = ['M15 3h6v6', 'M9 21H3v-6', 'M21 3l-7 7', 'M3 21l7-7'];
@@ -42,10 +43,12 @@ export function DiagramViewer({ svg, label }: { svg: string; label: string }) {
               <Icon d={closeIcon} size={20} />
             </Dialog.Close>
           </div>
-          <div
-            className="viewer-canvas"
-            // Mermaid's strict security level sanitises the SVG.
-            dangerouslySetInnerHTML={{ __html: atNaturalSize(svg) }}
+          <InteractiveDiagram
+            svg={atNaturalSize(svg)}
+            label={label}
+            showLabel={false}
+            className="flex min-h-0 flex-1 flex-col"
+            canvasClassName="viewer-canvas"
           />
         </Dialog.Popup>
       </Dialog.Portal>

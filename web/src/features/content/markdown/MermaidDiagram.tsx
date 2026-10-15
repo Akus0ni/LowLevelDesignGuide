@@ -1,6 +1,7 @@
 import { useEffect, useId, useState, useSyncExternalStore } from 'react';
 import { CodeBlock } from './CodeBlock';
 import { DiagramViewer } from './DiagramViewer';
+import { InteractiveDiagram } from './InteractiveDiagram';
 import { currentColorScheme, renderMermaid } from './mermaid';
 
 const DARK = '(prefers-color-scheme: dark)';
@@ -55,17 +56,13 @@ export function MermaidDiagram({ source }: { source: string }) {
 
   const label = diagramKind(source);
   return (
-    <figure className="diagram" aria-label={label}>
-      <figcaption className="diagram-label">
-        <span>{label}</span>
-        <DiagramViewer svg={diagram.svg} label={label} />
-      </figcaption>
-      <div
-        className="diagram-canvas"
-        // Mermaid's strict security level sanitises the SVG it returns.
-        dangerouslySetInnerHTML={{ __html: diagram.svg }}
-      />
-    </figure>
+    <InteractiveDiagram
+      svg={diagram.svg}
+      label={label}
+      className="diagram"
+      canvasClassName="diagram-canvas"
+      actions={<DiagramViewer svg={diagram.svg} label={label} />}
+    />
   );
 }
 

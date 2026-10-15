@@ -13,7 +13,7 @@
 - [x] T11 Web data: types, `DataSource` content methods (HTTP + bridge), `useContent`; Vitest
 - [x] T12 Web Learn: routes, module list, module page; sections updated
 - [x] T13 Web reader: `MarkdownView`, `CodeBlock` (Shiki), `MermaidDiagram`, `Outline` (desktop + phone sheet), cheat sheet button, prev / next
-- [ ] T13b Interactive diagrams: class highlight, sequence step-through (§3.8); SVG fixture tests
+- [x] T13b Interactive diagrams: class highlight, sequence step-through (§3.8); SVG fixture tests
 - [ ] T13c Code callouts: entities-table term extraction at pack time (`LessonDetail.terms`), underline + popover in code blocks
 - [ ] T14 Web reader preferences: text size, reading position; Vitest
 - [ ] T14b Guided reading flow: outline scroll-spy, section ticks (device-only), "Next up" card

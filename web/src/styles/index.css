@@ -519,3 +519,68 @@
     }
   }
 }
+
+/*
+ * Interactive diagrams (spec 003 §3.8). Only opacity animates (200ms, strong ease-out); colour changes are instant so
+ * the focused path reads at once. !important beats Mermaid's id-scoped <style> rules inside the SVG.
+ */
+@layer components {
+  .diagram-canvas svg,
+  .viewer-canvas svg {
+    & g.node[role='button'] {
+      cursor: pointer;
+      outline: none;
+    }
+
+    & g.node,
+    & path[data-et='edge'],
+    & .edgeLabel,
+    & .messageText,
+    & .messageLine0,
+    & .messageLine1,
+    & .sequenceNumber,
+    & .note,
+    & .noteText {
+      transition: opacity 200ms var(--ease-out);
+    }
+
+    /* Class focus: the traced class and its relationships stay, the rest steps back. */
+    &[data-focus] :is(g.node, path[data-et='edge'], .edgeLabel):not([data-related]) {
+      opacity: 0.15;
+    }
+
+    &[data-focus] path[data-et='edge'][data-related] {
+      stroke: var(--accent) !important;
+      stroke-width: 2px !important;
+    }
+
+    & g.node[data-selected] path:not([fill='none']),
+    & g.node[data-selected] rect {
+      stroke: var(--accent) !important;
+      stroke-width: 2px !important;
+    }
+
+    & g.node:focus-visible path:not([fill='none']),
+    & g.node:focus-visible rect {
+      stroke: var(--accent) !important;
+      stroke-dasharray: 4 3;
+    }
+
+    /* Sequence stepping: what has happened stays, the current message is blue, the rest waits. */
+    & [data-step='future'] {
+      opacity: 0;
+    }
+
+    & .messageLine0[data-step='current'],
+    & .messageLine1[data-step='current'] {
+      stroke: var(--accent) !important;
+      stroke-width: 2.5px !important;
+    }
+
+    & .messageText[data-step='current'],
+    & .noteText[data-step='current'] {
+      fill: var(--accent) !important;
+      font-weight: 600;
+    }
+  }
+}

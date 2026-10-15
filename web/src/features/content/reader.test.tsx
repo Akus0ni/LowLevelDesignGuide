@@ -94,22 +94,20 @@ function readerSource(overrides: Partial<DataSource> = {}): DataSource {
           ? Promise.resolve(caseStudies)
           : Promise.reject(new AppError('content.not_found', 'x', 404)),
       ),
-    getLesson: vi
-      .fn()
-      .mockImplementation((id: string) =>
-        id === 'case-study-auth'
-          ? Promise.resolve(auth)
-          : id === 'case-study-parking'
-            ? Promise.resolve({
-                ...auth,
-                id,
-                slug: 'parking-lot',
-                title: 'Parking lot',
-                previous: null,
-                next: null,
-              })
-            : Promise.reject(new AppError('content.not_found', 'Not found.', 404)),
-      ),
+    getLesson: vi.fn().mockImplementation((id: string) =>
+      id === 'case-study-auth'
+        ? Promise.resolve(auth)
+        : id === 'case-study-parking'
+          ? Promise.resolve({
+              ...auth,
+              id,
+              slug: 'parking-lot',
+              title: 'Parking lot',
+              previous: null,
+              next: null,
+            })
+          : Promise.reject(new AppError('content.not_found', 'Not found.', 404)),
+    ),
     ...overrides,
   });
 }

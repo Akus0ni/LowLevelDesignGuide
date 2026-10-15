@@ -323,3 +323,14 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
   `warmUpHighlighter`): main chunk 393 KB (122 KB gzip); reader 249 KB; Mermaid's layout engines stay lazy.
 - Real-content check (the Auth lesson from `lld-content snapshot`): 4 diagrams drawn, 31 highlighted lines, no
   sideways page scroll on a Pixel 7.
+
+### T13b notes
+- Pure DOM functions (`interactive.ts`) over Mermaid's SVG, tested against the real Auth diagrams saved as fixtures
+  (`markdown/__fixtures__`, styles stripped): 21 classes / all 17 relationships recognised; 15 sequence steps; notes as
+  steps. A Mermaid upgrade that changes the markup fails these tests instead of silently going static.
+- Class ids end `-classId-<Name>-<n>`; relationships carry `data-id="id_<From>_<To>_<n>"`, split against the known class
+  names (names may contain `_`). A sequence message is text → line → number dot (a zero-length line with a
+  `sequencenumber` start marker) → number.
+- Classes are keyboard toggle buttons (Enter / Space, Esc clears); stepping uses ‹ › / ← →, Esc shows all; a polite live
+  region reads the traced class or the current message. Only opacity animates (200 ms, strong ease-out).
+- The inline figure and the full-screen viewer each get their own interactive copy.
