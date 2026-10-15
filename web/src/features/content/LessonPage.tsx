@@ -1,20 +1,23 @@
 import { Link, useParams } from 'react-router';
 import { useDataSource } from '../../data/DataSourceContext';
-import type { LessonDetail, LessonLink, ModuleDetail } from '../../data/types';
+import type { LessonDetail, ModuleDetail } from '../../data/types';
 import { content, preloadContent, useLesson, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
 import { BackLink } from './BackLink';
 import { ContentBoundary } from './ContentBoundary';
 import { MarkdownView } from './markdown/MarkdownView';
-import { chevronLeft, chevronRight, usePreload } from './navigation';
 import { OutlineColumn, OutlineSheet } from './Outline';
+import { NextUp } from './reader/NextUp';
+import { TextSizeControl } from './reader/TextSizeControl';
+import { useReadingTracker } from './reader/useReadingTracker';
+import { useTextSize } from './reader/useTextSize';
 import { LessonSkeleton } from './Skeletons';
 import { useAnchorScroll } from './useAnchorScroll';
 
 const boltIcon = ['M13 2 4 14h7l-1 8 9-12h-7l1-8Z'];
 
-/** The reader: a lesson's text, its outline, its cheat sheet one tap away, and the next lesson. */
+/** The reader: a lesson's text, its outline, its cheat sheet one tap away, and what to read next. */
 export function LessonPage() {
   const { module = '', lesson = '' } = useParams();
   return (
@@ -32,6 +35,8 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
   // An unknown slug asks for an id that can't exist, so the boundary shows "not found" like any missing lesson.
   const lesson = useLesson(module.lessons[position]?.id ?? `missing:${lessonSlug}`);
   const source = useDataSource();
+  const textSize = useTextSize();
+  const reading = useReadingTracker(lesson.id, lesson.outline);
   useAnchorScroll();
 
   // The next lesson is the likeliest tap: have it ready.
@@ -45,12 +50,12 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
       <title>{`${lesson.title} · LLD Guide`}</title>
       <article className="min-w-0">
         <BackLink to={`/learn/${module.slug}`}>{module.title}</BackLink>
-        <LessonHeader lesson={lesson} module={module} position={position + 1} />
-        <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} />
-        <PreviousNext previous={lesson.previous} next={lesson.next} />
+        <LessonHeader lesson={lesson} module={module} position={position + 1} reading={reading} />
+        <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} textSize={textSize} />
+        <NextUp lesson={lesson} />
       </article>
       <aside className="hidden lg:block">
-        <OutlineColumn outline={lesson.outline} />
+        <OutlineColumn outline={lesson.outline} current={reading.current} read={reading.read} />
       </aside>
     </div>
   );
@@ -60,10 +65,12 @@ function LessonHeader({
   lesson,
   module,
   position,
+  reading,
 }: {
   lesson: LessonDetail;
   module: ModuleDetail;
   position: number;
+  reading: ReturnType<typeof useReadingTracker>;
 }) {
   return (
     <header className="mt-3 border-b border-rule pb-6">
@@ -86,47 +93,10 @@ function LessonHeader({
           Cheat sheet
         </Link>
         <div className="lg:hidden">
-          <OutlineSheet outline={lesson.outline} />
+          <OutlineSheet outline={lesson.outline} current={reading.current} read={reading.read} />
         </div>
+        <TextSizeControl />
       </div>
     </header>
-  );
-}
-
-function PreviousNext({ previous, next }: { previous: LessonLink | null; next: LessonLink | null }) {
-  if (!previous && !next) return null;
-  return (
-    <nav
-      aria-label="More in this module"
-      className="mt-16 grid gap-3 border-t border-rule pt-8 sm:grid-cols-2"
-    >
-      {previous && <NeighbourCard link={previous} direction="previous" />}
-      {next && <NeighbourCard link={next} direction="next" />}
-    </nav>
-  );
-}
-
-function NeighbourCard({ link, direction }: { link: LessonLink; direction: 'previous' | 'next' }) {
-  const preload = usePreload(content.lesson(link.id));
-  const isNext = direction === 'next';
-  return (
-    <Link
-      to={`/learn/${link.moduleSlug}/${link.slug}`}
-      {...preload}
-      className={cn(
-        'flex items-center gap-3 rounded-lg border border-rule bg-surface p-4 select-none',
-        'transition-[transform,background-color] duration-[120ms] ease-out active:scale-[0.98] hover:bg-surface/70',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-        isNext ? 'sm:col-start-2 sm:flex-row-reverse sm:text-right' : '',
-      )}
-    >
-      <span className="shrink-0 text-muted">
-        <Icon d={isNext ? chevronRight : chevronLeft} size={20} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block font-mono text-[12px] tracking-[0.08em] text-muted">{direction}</span>
-        <span className="mt-0.5 block leading-snug font-semibold">{link.title}</span>
-      </span>
-    </Link>
   );
 }

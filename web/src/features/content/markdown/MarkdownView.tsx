@@ -16,10 +16,19 @@ import { MermaidDiagram } from './MermaidDiagram';
  * (github-slugger over every heading, in order), the same algorithm the C# packer uses for the outline and links.
  * The leading "# Title" is dropped after slugging: the page header already shows the title.
  */
-export function MarkdownView({ markdown, terms = NO_TERMS }: { markdown: string; terms?: LessonTerm[] }) {
+export function MarkdownView({
+  markdown,
+  terms = NO_TERMS,
+  textSize = 'm',
+}: {
+  markdown: string;
+  terms?: LessonTerm[];
+  /** Reader setting (T14): s / m / l. */
+  textSize?: 's' | 'm' | 'l';
+}) {
   return (
     <TermsContext value={terms}>
-      <div className="reader-prose">
+      <div className="reader-prose" data-text-size={textSize}>
         <Markdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeSlug, rehypeDropLeadingTitle]}

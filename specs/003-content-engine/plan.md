@@ -345,3 +345,14 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
 - **A15 example changed** from `RefreshToken` to `AccessRequest`: `RefreshToken` only appears in the Auth lesson's
   prose, never in its code blocks (callouts are for code, as approved). Flagged for the owner in the PR.
 - Real Auth lesson: 5 callouts (Result ×3, AccessRequest, AuditEntry); "Read more" lands on "3. Core entities".
+
+### T14 / T14b notes
+- One scroll tracker (`useReadingTracker`, rAF-throttled) drives the current section, the read ticks and the saved
+  position. Storage is device-only `localStorage` behind try/catch (`readerStore`); keys `lld.reader.*`.
+- Position = nearest heading above the top + pixels past it; restored on open, never over `?at=` or Back's own restore
+  (POP with a scroll), and re-applied once after ~700 ms (diagrams render late) unless the reader already moved.
+- A section is read when its end passes mid-screen after the reader scrolled (the last one at the page bottom). The
+  outline marks the current section with the one amber "you are here" bar (spec §3.7) and ticks read ones.
+- Text size S / M / L (15 / 17 / 19 px) from the "Aa" popover; instant (a setting, not an animation).
+- "Next up" replaces the previous/next cards: the next lesson, or the cheat sheet on the last lesson; it rises 8 px +
+  fades in (320 ms ease-out) the first time it scrolls into view; previous stays as a plain link.

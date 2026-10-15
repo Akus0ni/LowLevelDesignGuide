@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { routes } from '../../app/routes';
 import { DataSourceProvider } from '../../data/DataSourceContext';
 import { AppError, type DataSource, type LessonDetail, type ModuleDetail } from '../../data/types';
@@ -8,6 +8,7 @@ import { fakeDataSource } from '../../test/fakeDataSource';
 import { AuthProvider } from '../auth/AuthProvider';
 import { ServerStatusProvider } from '../serverStatus/ServerStatusProvider';
 import { atNaturalSize } from './markdown/mermaid';
+import { resetReaderStoreForTests } from './reader/readerStore';
 
 // Mermaid needs a real layout engine; the reader's handling of its output is what's tested here.
 vi.mock('./markdown/mermaid', async (original) => ({
@@ -205,13 +206,23 @@ describe('Lesson reader', () => {
     expect(router.state.location.search).toBe('?at=the-login-use-case');
   });
 
-  it('links to the next lesson in the module', async () => {
+  it('ends with a "next up" card to the next lesson', async () => {
     await renderAt('/learn/case-studies/auth');
 
-    const more = within(screen.getByRole('navigation', { name: 'More in this module' }));
-    expect(more.getByRole('link', { name: /next\s*Parking lot/ })).toHaveAttribute(
+    const next = within(screen.getByRole('navigation', { name: 'Next up' }));
+    expect(next.getByRole('link', { name: /next up\s*Parking lot/ })).toHaveAttribute(
       'href',
       '/learn/case-studies/parking-lot',
+    );
+  });
+
+  it('offers the cheat sheet at the end of the last lesson', async () => {
+    await renderAt('/learn/case-studies/parking-lot');
+
+    const next = within(screen.getByRole('navigation', { name: 'Next up' }));
+    expect(next.getByRole('link', { name: /revise it\s*Cheat sheet: Authentication/ })).toHaveAttribute(
+      'href',
+      '/revise/case-studies/parking-lot',
     );
   });
 
@@ -221,6 +232,70 @@ describe('Lesson reader', () => {
 
     expect(screen.getByRole('heading', { name: "This page isn't in the guide" })).toBeInTheDocument();
     vi.mocked(console.error).mockRestore();
+  });
+});
+
+describe('Reader preferences and reading flow', () => {
+  beforeAll(async () => {
+    await import('./LessonPage');
+  });
+
+  afterEach(() => {
+    window.localStorage.clear();
+    resetReaderStoreForTests();
+    vi.restoreAllMocks();
+  });
+
+  it('changes the reading text size and keeps it', async () => {
+    await renderAt('/learn/case-studies/auth');
+    const prose = document.querySelector('.reader-prose')!;
+    expect(prose).toHaveAttribute('data-text-size', 'm');
+
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Text size' })));
+    await act(async () => fireEvent.click(await screen.findByRole('radio', { name: 'Large' })));
+
+    expect(prose).toHaveAttribute('data-text-size', 'l');
+    expect(window.localStorage.getItem('lld.reader.textSize')).toBe('"l"');
+  });
+
+  it('reopens a lesson where the reader left it', async () => {
+    window.localStorage.setItem(
+      'lld.reader.position.case-study-auth',
+      JSON.stringify({ anchor: 'the-login-use-case', offset: 40 }),
+    );
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      return { top: this.id === 'the-login-use-case' ? 900 : 0 } as DOMRect;
+    });
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+    await renderAt('/learn/case-studies/auth');
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 940, behavior: 'instant' });
+  });
+
+  it('does not override a jump to a heading', async () => {
+    window.localStorage.setItem(
+      'lld.reader.position.case-study-auth',
+      JSON.stringify({ anchor: '', offset: 300 }),
+    );
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+    await renderAt('/learn/case-studies/auth?at=token-rotation');
+
+    // Only the router's own scroll-to-top happens; the saved position (300) is not applied.
+    expect(scrollTo).not.toHaveBeenCalledWith({ top: 300, behavior: 'instant' });
+  });
+
+  it('ticks sections already read on this device', async () => {
+    window.localStorage.setItem('lld.reader.read.case-study-auth', JSON.stringify(['problem-statement']));
+
+    await renderAt('/learn/case-studies/auth');
+
+    const outline = screen.getAllByRole('navigation', { name: 'On this page' })[0];
+    expect(within(outline).getByRole('link', { name: /Problem statement/ })).toContainElement(
+      within(outline).getByRole('img', { name: 'read' }),
+    );
+    expect(within(outline).getAllByRole('img', { name: 'read' })).toHaveLength(1);
   });
 });
 

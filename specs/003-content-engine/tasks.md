@@ -15,8 +15,8 @@
 - [x] T13 Web reader: `MarkdownView`, `CodeBlock` (Shiki), `MermaidDiagram`, `Outline` (desktop + phone sheet), cheat sheet button, prev / next
 - [x] T13b Interactive diagrams: class highlight, sequence step-through (§3.8); SVG fixture tests
 - [x] T13c Code callouts: entities-table term extraction at pack time (`LessonDetail.terms`), underline + popover in code blocks
-- [ ] T14 Web reader preferences: text size, reading position; Vitest
-- [ ] T14b Guided reading flow: outline scroll-spy, section ticks (device-only), "Next up" card
+- [x] T14 Web reader preferences: text size, reading position; Vitest
+- [x] T14b Guided reading flow: outline scroll-spy, section ticks (device-only), "Next up" card
 - [ ] T15 Web Revise: grouped list, module filter, cheat sheet page
 - [ ] T15b Recall mode on cheat sheets (fold / reveal / reveal all, remembered on the device)
 - [ ] T16 Playwright: A5–A8 from the snapshot (phone + desktop)

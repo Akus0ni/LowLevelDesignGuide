@@ -173,6 +173,15 @@
 @layer components {
   .reader-prose {
     --reading-size: 1.0625rem;
+
+    &[data-text-size='s'] {
+      --reading-size: 0.9375rem;
+    }
+
+    &[data-text-size='l'] {
+      --reading-size: 1.1875rem;
+    }
+
     margin-top: 2rem;
     font-size: var(--reading-size);
     line-height: 1.7;
