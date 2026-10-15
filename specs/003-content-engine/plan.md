@@ -221,3 +221,16 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
   A reference-style use (`[text][id]`) reports its definition's `UrlSpan`, so the rewriter only touches inline links
   without a reference plus the definitions themselves.
 - Folders starting with `.` or `_` under `content/` are ignored (drafts, editor folders).
+
+### T4 notes
+- **Fixtures:** instead of one folder per rule under `tests/fixtures/content/<rule>/`, the tests use one valid in-memory
+  repository (`ValidRepo`) and each test breaks exactly one thing, asserting the exact `(path, line, code)`. Each failing
+  case sits next to its assertion; no near-duplicate folders.
+- **Two rules beyond the plan's list:** `ImagesNotSupportedRule` (images are out of scope and would show as broken) and
+  folder names in `IdentifierFormatRule` (module / lesson folders become routes, so they must be kebab-case, like ids).
+- `source` accepts the values the `lld-case-study` skill already defines: `classic`, `personal`, `self-referential`.
+- Line endings are normalised to LF when reading, so Windows (CRLF) and Linux (LF) checkouts give the same pack version.
+- YamlDotNet throws `InvalidOperationException` (no position) for some malformed input such as an unclosed `[`; the
+  parser reports it as `yaml.invalid` at the start of the front-matter instead of crashing.
+- Issue codes: `src/Lld.Content.Authoring/Validation/IssueCodes.cs`. Output format: `path:line: code: message`.
+- Dry run on the real `content/` before T5: 8 issues, all from the front-matter migration; every link in the Auth lesson resolves.

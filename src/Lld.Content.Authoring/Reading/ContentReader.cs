@@ -6,6 +6,7 @@ namespace Lld.Content.Authoring.Reading;
 /// <summary>
 /// Reads <c>content/&lt;module&gt;/module.yml</c> and <c>content/&lt;module&gt;/&lt;lesson&gt;/{lesson,cheatsheet}.md</c>.
 /// Missing files are recorded as <c>null</c> for the validation rules to report; it never throws on bad content.
+/// Line endings are normalised to LF, so a Windows (CRLF) and a Linux (LF) checkout pack identically.
 /// </summary>
 public sealed class ContentReader(IContentFiles files, ContentOptions options)
 {
@@ -40,7 +41,7 @@ public sealed class ContentReader(IContentFiles files, ContentOptions options)
         YamlMap? manifest = null;
         if (files.FileExists(manifestPath))
         {
-            var (map, issue) = YamlMapParser.Parse(files.ReadAllText(manifestPath), manifestPath, FirstLine);
+            var (map, issue) = YamlMapParser.Parse(ReadNormalized(manifestPath), manifestPath, FirstLine);
             manifest = map;
             AddIfAny(issues, issue);
         }
@@ -62,10 +63,14 @@ public sealed class ContentReader(IContentFiles files, ContentOptions options)
             return null;
         }
 
-        var (document, issue) = SourceDocument.Parse(path, files.ReadAllText(path));
+        var (document, issue) = SourceDocument.Parse(path, ReadNormalized(path));
         AddIfAny(issues, issue);
         return document;
     }
+
+    private const string LineFeed = "\n";
+
+    private string ReadNormalized(string path) => files.ReadAllText(path).ReplaceLineEndings(LineFeed);
 
     /// <summary>Folders starting with <c>.</c> or <c>_</c> are ignored (editor files, drafts).</summary>
     private static bool IsContentFolder(string name) => !name.StartsWith('.') && !name.StartsWith('_');

@@ -13,6 +13,10 @@ public static class ContentPackJson
             .ConfigureAwait(false);
     }
 
+    /// <summary>The pack as UTF-8 JSON bytes (used to hash it into its version).</summary>
+    public static byte[] ToUtf8Bytes(ContentPack pack) =>
+        JsonSerializer.SerializeToUtf8Bytes(pack, ContentPackJsonContext.Default.ContentPack);
+
     /// <exception cref="InvalidDataException">The file is empty, malformed or in a format this build doesn't know.</exception>
     public static async Task<ContentPack> ReadAsync(Stream source, CancellationToken cancellationToken)
     {

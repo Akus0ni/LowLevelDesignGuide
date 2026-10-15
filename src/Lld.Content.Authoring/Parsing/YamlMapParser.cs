@@ -24,6 +24,11 @@ public static class YamlMapParser
             var line = firstLine + (int)ex.Start.Line - 1;
             return new(null, new ContentIssue(path, line, InvalidCode, $"YAML can't be read: {ex.Message}"));
         }
+        catch (InvalidOperationException)
+        {
+            // YamlDotNet's scanner throws this (without a position) for some malformed input, e.g. an unclosed "[".
+            return new(null, new ContentIssue(path, firstLine, InvalidCode, "YAML can't be read: check brackets and quotes."));
+        }
 
         if (stream.Documents.Count == 0)
         {
