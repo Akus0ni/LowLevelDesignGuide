@@ -108,6 +108,11 @@
     <PropertyGroup>
       <ContentPackDir>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'content-pack'))</ContentPackDir>
     </PropertyGroup>
+    <!-- The tool isn't a project reference, so restoring the app doesn't restore it (a clean CI checkout has no
+         obj/). Restore it on its own: the extra global property gives the Build call below a fresh evaluation that
+         sees the restore output. -->
+    <MSBuild Projects="$(ContentCliProject)" Targets="Restore" Properties="Configuration=$(Configuration);_LldContentRestore=true"
+             RemoveProperties="TargetFramework;RuntimeIdentifier;SelfContained;Platform;PublishDir;OutputPath;OutDir;_CommandLineDefinedOutputPath;PublishTrimmed;TrimMode;RunAOTCompilation;AndroidEnableProfiledAot;SkipWebBuild" />
     <!-- Build the tool for this machine, without the app's platform settings (Android RID, trimming, AOT, output folders). -->
     <MSBuild Projects="$(ContentCliProject)" Targets="Build" Properties="Configuration=$(Configuration)"
              RemoveProperties="TargetFramework;RuntimeIdentifier;SelfContained;Platform;PublishDir;OutputPath;OutDir;_CommandLineDefinedOutputPath;PublishTrimmed;TrimMode;RunAOTCompilation;AndroidEnableProfiledAot;SkipWebBuild">

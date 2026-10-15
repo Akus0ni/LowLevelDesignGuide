@@ -419,6 +419,12 @@ scrolling sideways in their own row, Revise with 10 groups, the 40-entry outline
    resource indexer reads the middle segment as a resource qualifier. Vite now names chunks without dots
    (`chunkFileNames` in `web/vite.config.ts`); the solution builds with 0 warnings.
 
+4. **CI `maui-windows-android` failed on a clean checkout (NETSDK1004)**: `PackContent` builds `lld-content` with an
+   MSBuild task, and the tool is not a project reference, so restoring the app never restored it. Local builds
+   passed only because `obj/` already existed. The target now runs `Restore` on the tool first (a separate global
+   property gives the Build call a fresh evaluation). Reproduced and verified from a fresh clone: fails without the
+   fix, Windows + Android build with 0 warnings with it.
+
 ### T21: final checks (2026-10-16)
 .NET: Domain 23, Application 38, Api 26, Admin 11, ServerStatus 30, Content 151, Integration 4: all green; solution
 build 0 warnings. Web: lint + guardrails clean, `tsc -b` clean, Vitest 130, build, Playwright 39. MAUI: Windows and
