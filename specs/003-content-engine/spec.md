@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Approved by owner (2026-10-16); amendment §3.7–3.8 (identity, interactive learning) waiting for approval |
+| **Status** | Approved by owner (2026-10-16); amendment §3.7–3.8 (identity, interactive learning) approved 2026-10-16 |
 | **Branch** | `spec/003-content-engine` |
 | **Covers** | R20, R25, R34 (content part) (PRD §13); PRD F2, F3 |
 | **Depends on** | Spec 000 (shell, `DataSource`), spec 002 (merged, PR #4) |
