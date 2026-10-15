@@ -6,7 +6,7 @@
 - [x] T4 Validation rules (one class each) + fixtures; packer (deterministic version); `ContentPipeline`; tests
 - [x] T5 Content migration: `module.yml` for `case-studies` + `start`, Auth front-matter, `lld-case-study` skill template; "repo content is valid" test green
 - [x] T6 `Lld.Content.Cli` (`validate`, `pack`, `snapshot`) + `PackContent` target in `Lld.App.csproj`; a broken lesson fails the app build
-- [ ] T7 `Lld.App.Data` (Microsoft.Data.Sqlite): `DeviceDatabase`, `SchemaMigrator` + step 1 (content tables), `SqliteContentCatalog`, `ContentPackLoader`; catalog contract suite + migrator + loader tests green
+- [x] T7 `Lld.App.Data` (Microsoft.Data.Sqlite): `DeviceDatabase`, `SchemaMigrator` + step 1 (content tables), `SqliteContentCatalog`, `ContentPackLoader`; catalog contract suite + migrator + loader tests green
 - [ ] T8 MAUI: content assets, `ContentGate`, bridge content methods + `OpenExternal`
 - [ ] T9 API: dev-only content endpoints, watcher reload, `content.invalid`; AppHost `Content__Path`; API + Aspire tests green
 - [ ] T10 CI: content tests in `backend` (added in T2); snapshot step in `web`

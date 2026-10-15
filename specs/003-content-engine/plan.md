@@ -242,3 +242,12 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
   parser reports it as `yaml.invalid` at the start of the front-matter instead of crashing.
 - Issue codes: `src/Lld.Content.Authoring/Validation/IssueCodes.cs`. Output format: `path:line: code: message`.
 - Dry run on the real `content/` before T5: 8 issues, all from the front-matter migration; every link in the Auth lesson resolves.
+
+### T7 notes
+- Schema step 1 is `V1ContentTables` (`DeviceMeta`, `Modules`, `Lessons`). The order column is `SortOrder`, because
+  `Order` is an SQL keyword. Tags and outlines are JSON columns written with a source-generated context (trim-safe).
+- `SchemaMigrator` refuses a database written by a newer app (downgrade) instead of guessing, and checks that steps
+  are numbered 1, 2, 3… with no gaps.
+- Previous / next on the device come from `LAG` / `LEAD` window functions over the module's lessons.
+- `RealContentParityTests` loads the repository's real pack into SQLite and checks that every catalog query returns
+  exactly what the in-memory (dev API) catalog returns.

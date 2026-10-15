@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/Lld.Admin/Lld.Admin.csproj" />
     <Project Path="src/Lld.Api/Lld.Api.csproj" />
+    <Project Path="src/Lld.App.Data/Lld.App.Data.csproj" />
     <Project Path="src/Lld.App.ServiceDefaults/Lld.App.ServiceDefaults.csproj" />
     <Project Path="src/Lld.App/Lld.App.csproj" />
     <Project Path="src/Lld.AppHost/Lld.AppHost.csproj" />

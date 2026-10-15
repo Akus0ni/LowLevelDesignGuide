@@ -19,7 +19,7 @@ public sealed class RepositoryContentTests
         result.Pack.Modules.SelectMany(m => m.Lessons).Select(l => l.Id).Should().Contain("case-study-auth");
     }
 
-    private static string RepositoryRoot()
+    internal static string RepositoryRoot()
     {
         for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)
         {
