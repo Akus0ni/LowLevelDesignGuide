@@ -17,6 +17,7 @@
     <Project Path="tests/Lld.Admin.Tests/Lld.Admin.Tests.csproj" />
     <Project Path="tests/Lld.Api.Tests/Lld.Api.Tests.csproj" />
     <Project Path="tests/Lld.Application.Tests/Lld.Application.Tests.csproj" />
+    <Project Path="tests/Lld.Content.Tests/Lld.Content.Tests.csproj" />
     <Project Path="tests/Lld.Domain.Tests/Lld.Domain.Tests.csproj" />
     <Project Path="tests/Lld.IntegrationTests/Lld.IntegrationTests.csproj" />
     <Project Path="tests/Lld.ServerStatus.Tests/Lld.ServerStatus.Tests.csproj" />

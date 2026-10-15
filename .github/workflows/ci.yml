@@ -27,13 +27,14 @@ jobs:
           global-json-file: global.json
       - name: Install Aspire CLI
         run: dotnet tool install -g Aspire.Cli --version 13.6.1
-      - name: Unit tests (domain, application, API, admin console)
+      - name: Unit tests (domain, application, API, admin console, server status, content)
         run: |
           dotnet test --project tests/Lld.Domain.Tests
           dotnet test --project tests/Lld.Application.Tests
           dotnet test --project tests/Lld.Api.Tests
           dotnet test --project tests/Lld.Admin.Tests
           dotnet test --project tests/Lld.ServerStatus.Tests
+          dotnet test --project tests/Lld.Content.Tests
       - name: Aspire integration tests (API only)
         run: dotnet test --project tests/Lld.IntegrationTests
 
