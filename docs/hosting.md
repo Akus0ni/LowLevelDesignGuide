@@ -10,13 +10,22 @@ How the LLD Guide API is exposed to real devices (spec 002). The API runs as a W
 2. Get your free static domain: in the dashboard open **Universal Gateway → Domains**. Free accounts get one
    `*.ngrok-free.dev` domain; create or claim it if one isn't listed. Write it down; it becomes the app's
    API base URL (`https://<your-domain>`).
+   The domain shows **Offline** until an agent connects to it, which is expected. **Don't create an endpoint in the
+   dashboard** (no Cloud Endpoint, no traffic policy). The agent on this PC creates the endpoint when it starts:
+   step 5 below for a quick test, and the `ngrok` Windows service after `install.ps1`. The domain then shows
+   **Online**.
 3. Copy your **authtoken** from **Getting Started → Your Authtoken**. Treat it like a password: it never goes into the
    repo. `install.ps1` asks for it once and stores it only in `%ProgramData%\LldGuide\ngrok.yml`.
-4. Install the agent (PowerShell):
+4. Install the agent (PowerShell). The winget ID is case-sensitive with `-e`, and the winget package lags
+   behind (3.3.x), so update the agent right after installing it:
    ```powershell
-   winget install --id ngrok.ngrok -e
-   ngrok version
+   winget install --id Ngrok.Ngrok -e
+   # open a new terminal so ngrok is on PATH, then:
+   ngrok update
+   ngrok version   # expect 3.2x or newer
    ```
+   Alternative: download the Windows zip from <https://ngrok.com/download>, extract `ngrok.exe` to a folder on
+   your PATH (e.g. `C:\Tools\ngrok`), then run `ngrok version`.
 5. Optional smoke test (until the installer exists): start the API locally, then
    ```powershell
    ngrok config add-authtoken <your-authtoken>

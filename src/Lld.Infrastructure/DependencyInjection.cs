@@ -86,7 +86,8 @@ public static class DependencyInjection
         services.AddScoped<GetBudgetUsage>();
 
         services.AddOptions<ServerStatusOptions>().Bind(configuration.GetSection(ServerStatusOptions.SectionName));
-        services.AddHttpClient<IStatusAnnouncer, NtfyStatusAnnouncer>();
+        services.AddHttpClient(NtfyStatusAnnouncer.HttpClientName);
+        services.AddSingleton<IStatusAnnouncer, NtfyStatusAnnouncer>();
 
         var backup = configuration.GetSection(BackupOptions.SectionName).Get<BackupOptions>() ?? new BackupOptions();
         services.AddSingleton(backup);

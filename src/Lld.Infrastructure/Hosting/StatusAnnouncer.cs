@@ -12,9 +12,14 @@ public interface IStatusAnnouncer
     Task AnnounceAsync(StatusMessage message, CancellationToken cancellationToken);
 }
 
-/// <summary>Signs the message and publishes it to the ntfy.sh topic. Costs no tunnel quota: apps read ntfy directly.</summary>
-public sealed class NtfyStatusAnnouncer(HttpClient http, IOptions<ServerStatusOptions> options) : IStatusAnnouncer
+/// <summary>
+/// Signs the message and publishes it to the ntfy.sh topic. Costs no tunnel quota: apps read ntfy directly.
+/// A singleton that takes a fresh client from the factory per publish, so DNS changes are picked up in a long-running service.
+/// </summary>
+public sealed class NtfyStatusAnnouncer(IHttpClientFactory httpClients, IOptions<ServerStatusOptions> options) : IStatusAnnouncer
 {
+    public const string HttpClientName = "ntfy";
+
     private readonly ServerStatusOptions _options = options.Value;
 
     public bool IsConfigured => _options.IsConfigured;
@@ -31,6 +36,7 @@ public sealed class NtfyStatusAnnouncer(HttpClient http, IOptions<ServerStatusOp
         var url = $"{_options.NtfyBaseUrl.TrimEnd('/')}/{Uri.EscapeDataString(_options.Topic!)}";
 
         using var content = new StringContent(body, Encoding.UTF8, "text/plain");
+        var http = httpClients.CreateClient(HttpClientName);
         using var response = await http.PostAsync(new Uri(url), content, cancellationToken);
         response.EnsureSuccessStatusCode();
     }

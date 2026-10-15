@@ -64,6 +64,19 @@ public sealed class RequestBudgetTests
     }
 
     [Fact]
+    public void Meter_Requeue_RetriesPendingWithoutChangingTotals()
+    {
+        var meter = new RequestBudgetMeter(new BudgetOptions { HeaderAllowanceBytes = 0 }, new FakeTimeProvider(Utc(2026, 10, 15)));
+        meter.Record(50);
+        var (_, requests, bytes) = meter.TakePending();
+
+        meter.Requeue(requests, bytes);
+
+        meter.TakePending().Requests.Should().Be(1);
+        meter.Usage.Requests.Should().Be(1);
+    }
+
+    [Fact]
     public void Meter_RollsToANewWindowAfterTheResetDay()
     {
         var time = new FakeTimeProvider(Utc(2026, 10, 31, 23));

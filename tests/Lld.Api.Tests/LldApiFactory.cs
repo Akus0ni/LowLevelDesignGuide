@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Lld.Api.Tests;
 
 /// <summary>The real API on a throw-away SQLite file with a test signing key.</summary>
-public sealed class LldApiFactory : WebApplicationFactory<Program>
+public class LldApiFactory : WebApplicationFactory<Program>
 {
     public const string Password = "correct-horse-battery";
 

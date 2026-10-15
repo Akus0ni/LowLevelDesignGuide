@@ -23,6 +23,7 @@ public static class StatusReasons
     public const string Heartbeat = "heartbeat";
     public const string Shutdown = "shutdown";
     public const string Quota = "quota";
+    public const string QuotaReset = "quota_reset";
     public const string Manual = "manual";
 
     // Set on the device, never published.

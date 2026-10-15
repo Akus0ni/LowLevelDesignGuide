@@ -118,6 +118,13 @@ public sealed class RequestBudgetMeter(BudgetOptions options, TimeProvider time)
         }
     }
 
+    /// <summary>Puts counts back after a failed save so the next flush retries them (totals are unchanged).</summary>
+    public void Requeue(long requests, long bytes)
+    {
+        Interlocked.Add(ref _pendingRequests, requests);
+        Interlocked.Add(ref _pendingBytes, bytes);
+    }
+
     /// <summary>Starts a new window when the reset day has passed. Call after flushing the pending counts.</summary>
     public bool RollIfNewWindow()
     {
