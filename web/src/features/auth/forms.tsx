@@ -73,22 +73,32 @@ export function RequestAccessForm({ onSent }: { onSent?: () => void }) {
   const [note, setNote] = useState('');
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<'sent' | 'queued'>();
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     setError(undefined);
     try {
-      await auth.requestAccess({ email, name, note: note || undefined });
-      setSent(true);
-      toast.success('Request sent', { description: 'The admin will review it and contact you.' });
+      const { queued } = await auth.requestAccess({ email, name, note: note || undefined });
+      setSent(queued ? 'queued' : 'sent');
+      if (!queued)
+        toast.success('Request sent', { description: 'The admin will review it and contact you.' });
       onSent?.();
     } catch (failure) {
       setError(messageOf(failure));
     } finally {
       setBusy(false);
     }
+  }
+
+  if (sent === 'queued') {
+    return (
+      <p role="status" className="rounded-2xl bg-surface p-5">
+        Request saved, will be sent when the server is online. Your request for{' '}
+        <strong className="break-all">{email}</strong> is kept on this device until then.
+      </p>
+    );
   }
 
   if (sent) {

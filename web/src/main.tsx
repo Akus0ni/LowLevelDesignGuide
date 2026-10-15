@@ -6,6 +6,7 @@ import { routes } from './app/routes';
 import { createDataSource } from './data/createDataSource';
 import { DataSourceProvider } from './data/DataSourceContext';
 import { AuthProvider } from './features/auth/AuthProvider';
+import { ServerStatusProvider } from './features/serverStatus/ServerStatusProvider';
 import './styles/index.css';
 
 // Hash routing: the MAUI WebView has no server to answer deep-link reloads.
@@ -14,9 +15,11 @@ const router = createHashRouter(routes);
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <DataSourceProvider source={createDataSource()}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
+      <ServerStatusProvider>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </ServerStatusProvider>
     </DataSourceProvider>
     {/* One Toaster at the root (ask-sonner); keep clear of the notch on phones. */}
     <Toaster

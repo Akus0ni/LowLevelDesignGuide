@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { DataSourceProvider } from '../data/DataSourceContext';
 import type { DataSource } from '../data/types';
 import { AuthProvider } from '../features/auth/AuthProvider';
+import { ServerStatusProvider } from '../features/serverStatus/ServerStatusProvider';
 import { fakeDataSource, learner } from '../test/fakeDataSource';
 import { routes } from './routes';
 
@@ -12,9 +13,11 @@ function renderAt(path: string, source: DataSource = fakeDataSource()) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <DataSourceProvider source={source}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
+      <ServerStatusProvider>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </ServerStatusProvider>
     </DataSourceProvider>,
   );
   return source;

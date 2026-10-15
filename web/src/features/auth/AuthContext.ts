@@ -1,12 +1,13 @@
 import { createContext, useContext } from 'react';
-import type { AccessRequestInput, UserSummary } from '../../data/types';
+import type { AccessRequestInput, AccessRequestOutcome, UserSummary } from '../../data/types';
 
 export type AuthState =
   { status: 'loading' } | { status: 'signedOut' } | { status: 'signedIn'; user: UserSummary };
 
 export interface Auth {
   state: AuthState;
-  requestAccess(input: AccessRequestInput): Promise<void>;
+  /** `queued: true` when saved on the device until the server is online. */
+  requestAccess(input: AccessRequestInput): Promise<AccessRequestOutcome>;
   login(email: string, password: string): Promise<UserSummary>;
   changePassword(currentPassword: string, newPassword: string): Promise<UserSummary>;
   logout(): Promise<void>;
