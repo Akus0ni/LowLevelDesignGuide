@@ -77,7 +77,13 @@ function Set-ExactAcl([string] $Path, [string[]] $Grants) {
 
 # 1. Prerequisites ---------------------------------------------------------------------------------------------
 Write-Step 'Checking prerequisites'
-if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) { throw '.NET SDK not found. Install .NET 10 first (see README).' }
+# Elevated shells can resolve "dotnet" to a wrong entry; prefer the standard install location.
+$dotnetExe = Join-Path $env:ProgramFiles 'dotnet\dotnet.exe'
+if (-not (Test-Path $dotnetExe)) {
+    $found = Get-Command dotnet -ErrorAction SilentlyContinue
+    if (-not $found) { throw '.NET SDK not found. Install .NET 10 first (see README).' }
+    $dotnetExe = $found.Source
+}
 $ngrok = Get-Command ngrok -ErrorAction SilentlyContinue
 if (-not $ngrok) { throw 'ngrok not found on PATH. Follow docs/hosting.md section 1, open a new terminal, then re-run.' }
 $ngrokExe = $ngrok.Source
@@ -92,8 +98,8 @@ if ($existing -and $existing.Status -ne 'Stopped' -and $PSCmdlet.ShouldProcess($
 
 if ($PSCmdlet.ShouldProcess($InstallRoot, 'Publish API and admin console')) {
     Write-Step "Publishing to $InstallRoot"
-    Invoke-Native 'dotnet' @('publish', (Join-Path $RepoRoot 'src\Lld.Api\Lld.Api.csproj'), '-c', 'Release', '-o', $ApiDir, '--nologo', '-v', 'q')
-    Invoke-Native 'dotnet' @('publish', (Join-Path $RepoRoot 'src\Lld.Admin\Lld.Admin.csproj'), '-c', 'Release', '-o', $AdminDir, '--nologo', '-v', 'q')
+    Invoke-Native $dotnetExe @('publish', (Join-Path $RepoRoot 'src\Lld.Api\Lld.Api.csproj'), '-c', 'Release', '-o', $ApiDir, '--nologo', '-v', 'q')
+    Invoke-Native $dotnetExe @('publish', (Join-Path $RepoRoot 'src\Lld.Admin\Lld.Admin.csproj'), '-c', 'Release', '-o', $AdminDir, '--nologo', '-v', 'q')
 }
 
 # 3. API service -----------------------------------------------------------------------------------------------
