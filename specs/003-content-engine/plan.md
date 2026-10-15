@@ -91,17 +91,25 @@ Pipeline: **read → validate → pack**. Each step is a small class, so a new r
 The GitHub base URL is an option (`ContentOptions.RepositoryFileUrl`), not a literal in the rewriter.
 
 ### 2.5 Build tool and app packaging (`Lld.Content.Cli`, `Lld.App.csproj`)
-- Commands (System.CommandLine, already used by `Lld.Admin`):
-  - `validate [--content <dir>]` → prints `path:line: code: message` per issue; exit code 1 when any.
-  - `pack --out <dir>` → `content-pack.json` + `content-version.txt`; fails like `validate`.
-  - `snapshot --out <dir>` → every API response as static JSON (`modules.json`, `modules/<slug>.json`,
-    `lessons/<id>.json`, `cheatsheets.json`, `cheatsheets/<lessonId>.json`) via `InMemoryContentCatalog`. Used by
-    Playwright, so the e2e tests read real content without duplicating catalog logic in TypeScript.
+- Commands (System.CommandLine, already used by `Lld.Admin`); options `--repo <root>` (default: current folder) and
+  `--format Text|MSBuild`:
+  - `validate` → prints `path:line: code: message` per issue; exit code 1 when any.
+  - `pack --out <dir>` → `content-pack.json` + `content-version.txt`; fails like `validate`. When the folder already
+    holds the same version nothing is written, so timestamps stay put.
+  - `snapshot --out <dir>` → every API response as static JSON via `InMemoryContentCatalog`: `modules.json`,
+    `modules/<slug>.json`, `lessons/<id>.json`, `cheatsheets.json`, `cheatsheets-by-module/<slug>.json`,
+    `cheatsheets/<lessonId>.json` (camelCase, like the API). Used by Playwright, so the e2e tests read real content
+    without duplicating catalog logic in TypeScript.
 - `Lld.App.csproj`:
-  - `ProjectReference` to the CLI with `ReferenceOutputAssembly=false` (built first, never shipped).
-  - Target `PackContent` (before `BeforeBuild`, `Inputs="content/**"`, `Outputs="$(IntermediateOutputPath)content/content-pack.json"`)
-    runs `dotnet <cli>.dll pack`. **A content error fails the app build**, showing the issue list.
-  - The two files are added as `MauiAsset` under `content/` (same pattern as the web bundle).
+  - Target `PackContent` (before `BeforeBuild`) builds the CLI with an `MSBuild` task call that removes the app's
+    platform properties (Android RID, trimming, AOT, output folders), then runs `dotnet lld-content.dll pack
+    --format MSBuild` into `obj/<config>/<tfm>/content-pack/`. (A `ProjectReference` from the Android app to an
+    executable would bring self-contained / RID checks into play.)
+  - It runs on **every** build: a deleted lesson changes no input timestamp, so `Inputs`/`Outputs` would miss it.
+    The tool skips writing when the version is unchanged, so the asset copy stays incremental.
+  - **A content error fails the app build** with clickable `file(line): error code: message` lines.
+  - The two files are added as `MauiAsset` with logical names `content/...` (verified inside the APK:
+    `assets/content/content-pack.json`).
 
 ### 2.6 Device database (`Lld.App.Data`)
 - **Plain ADO.NET** (`Microsoft.Data.Sqlite`), no EF Core: owner decision after the T1 measurements (§4).

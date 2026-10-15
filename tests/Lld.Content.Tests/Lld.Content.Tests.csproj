@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Lld.Content\Lld.Content.csproj" />
     <ProjectReference Include="..\..\src\Lld.Content.Authoring\Lld.Content.Authoring.csproj" />
+    <ProjectReference Include="..\..\src\Lld.Content.Cli\Lld.Content.Cli.csproj" />
   </ItemGroup>
 
   <ItemGroup>

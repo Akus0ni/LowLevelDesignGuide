@@ -7,6 +7,7 @@
     <Project Path="src/Lld.AppHost/Lld.AppHost.csproj" />
     <Project Path="src/Lld.Application/Lld.Application.csproj" />
     <Project Path="src/Lld.Content.Authoring/Lld.Content.Authoring.csproj" />
+    <Project Path="src/Lld.Content.Cli/Lld.Content.Cli.csproj" />
     <Project Path="src/Lld.Content/Lld.Content.csproj" />
     <Project Path="src/Lld.Contracts/Lld.Contracts.csproj" />
     <Project Path="src/Lld.Domain/Lld.Domain.csproj" />

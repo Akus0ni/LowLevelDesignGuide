@@ -96,6 +96,17 @@ internal sealed class ValidRepo
         return this;
     }
 
+    /// <summary>Writes the repository to a real folder (for the command-line tool).</summary>
+    public void WriteTo(string root)
+    {
+        foreach (var (path, text) in _files)
+        {
+            var full = Path.Combine(root, path.Replace('/', Path.DirectorySeparatorChar));
+            Directory.CreateDirectory(Path.GetDirectoryName(full)!);
+            File.WriteAllText(full, text);
+        }
+    }
+
     public InMemoryContentFiles Files()
     {
         var files = new InMemoryContentFiles();
