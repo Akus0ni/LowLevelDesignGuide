@@ -288,3 +288,17 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
 - **Testing note:** with React 19, a first render (or a retry) that suspends must run inside `await act(async () => …)`,
   or React never schedules the retry and the test sees the fallback forever. `content.test.tsx` shows the pattern.
 - T10 (the CI snapshot step) moves to T16, where the Playwright tests that read the snapshot are written.
+
+### T12 notes and amendment (2026-10-16)
+- The owner asked for the `frontend-design` skill and interactive learning. After a design review the owner chose the
+  **class-diagram identity** (spec §3.7) and all four **interactive learning** features (spec §3.8).
+- Identity: tokens keep their names (`bg`, `surface`, `fg`, `muted`, `accent`, `chrome`) and add `rule` and `highlight`,
+  so existing screens restyled without code changes. Fonts: `@fontsource-variable/bricolage-grotesque` (opsz) and
+  `@fontsource-variable/jetbrains-mono`, about 120 KB of latin woff2, loaded on demand.
+- Learn intro: `animate-rise` (opacity + 8 px translate, 320 ms `--ease-out`) and `animate-draw` (clip-path), 70 ms per
+  step, once per app run (module flag); reduced motion → 200 ms fade. Verified by sampling opacities mid-animation.
+- Code callouts design: the packer reads entities tables (first header `Entity` / `Class` / `Type` / `Interface`) into
+  `PackedLesson.Terms` → `LessonDetail.terms: { term, role, anchor }[]`; the reader marks matching identifiers in code
+  tokens. Interactive diagrams post-process Mermaid's SVG (classes: node ids and edge ids; sequence: message groups in
+  document order) and fall back to static when the structure isn't recognised.
+- Design review screenshots (phone light/dark, desktop) are taken with a local, git-ignored `web/*.local.mjs` script.

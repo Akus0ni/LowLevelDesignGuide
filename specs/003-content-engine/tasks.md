@@ -11,10 +11,14 @@
 - [x] T9 API: dev-only content endpoints, watcher reload, `content.invalid`; AppHost `Content__Path`; API + Aspire tests green
 - [ ] T10 CI: content tests in `backend` (added in T2); snapshot step in `web` (done together with T16)
 - [x] T11 Web data: types, `DataSource` content methods (HTTP + bridge), `useContent`; Vitest
-- [ ] T12 Web Learn: routes, module list, module page; sections updated
+- [x] T12 Web Learn: routes, module list, module page; sections updated
 - [ ] T13 Web reader: `MarkdownView`, `CodeBlock` (Shiki), `MermaidDiagram`, `Outline` (desktop + phone sheet), cheat sheet button, prev / next
+- [ ] T13b Interactive diagrams: class highlight, sequence step-through (§3.8); SVG fixture tests
+- [ ] T13c Code callouts: entities-table term extraction at pack time (`LessonDetail.terms`), underline + popover in code blocks
 - [ ] T14 Web reader preferences: text size, reading position; Vitest
+- [ ] T14b Guided reading flow: outline scroll-spy, section ticks (device-only), "Next up" card
 - [ ] T15 Web Revise: grouped list, module filter, cheat sheet page
+- [ ] T15b Recall mode on cheat sheets (fold / reveal / reveal all, remembered on the device)
 - [ ] T16 Playwright: A5–A8 from the snapshot (phone + desktop)
 - [ ] T17 Content: "How to use LLD Guide" lesson + cheat sheet (owner reviews the text)
 - [ ] T18 UI pass with the skills (`emil-design-eng`, `apple-design`, `mobile-native`, `break-ui`); fixes

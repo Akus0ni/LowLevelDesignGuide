@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Approved by owner (2026-10-16) |
+| **Status** | Approved by owner (2026-10-16); amendment §3.7–3.8 (identity, interactive learning) waiting for approval |
 | **Branch** | `spec/003-content-engine` |
 | **Covers** | R20, R25, R34 (content part) (PRD §13); PRD F2, F3 |
 | **Depends on** | Spec 000 (shell, `DataSource`), spec 002 (merged, PR #4) |
@@ -98,7 +98,41 @@ content/
 - **Auth case study** migrated to the new front-matter (drop `module:`, add `summary`; cheat sheet keeps `title` only).
 - `module.yml` for `case-studies` and `start`.
 
+### 3.7 Visual identity: "the curriculum as a class diagram" (amendment, 2026-10-16)
+Applies to the whole app (tokens), chosen by the owner after a `frontend-design` review of the spec 000 look.
+- **Palette** (light / dark): drafting paper `#f4f6f9` / `#0b0f16`, class-box white `#ffffff` / `#121824`, ink
+  `#0e1726` / `#e6ebf3`, hairline rule `#d6dce5` / `#263042`, blueprint blue accent `#1d5bff` / `#6f9bff`, one amber
+  `#e59a1f` / `#f2b44c` reserved for "you are here". The status bar, `theme-color`, app icon and splash follow it.
+- **Type:** Bricolage Grotesque (titles, optical sizing), JetBrains Mono (UML labels, counts, code), system font for body
+  text. Fonts are bundled, so they work offline.
+- **Learn** draws modules as UML class boxes (`«module»`, title, summary, lessons as members) joined by dependency arrows
+  in reading order on a dot-grid "drafting table". A **module** is one class box of numbered lessons.
+- **Motion:** one orchestrated intro per app run on Learn (boxes rise, connectors draw, ≤ ~600 ms); everything else is
+  press / hover feedback only. Reduced motion gets a fade.
+
+### 3.8 Interactive learning (amendment, 2026-10-16)
+Quizzes, scores and gamification stay out (PRD R21). These help understanding and active recall without grading.
+- **Interactive diagrams** (reader + cheat sheets):
+  - *Class diagrams:* tap or click a class to highlight it and the relationships it takes part in; the rest dims.
+    Tap it again, tap empty space or press Esc to clear.
+  - *Sequence diagrams:* a "Step through" control reveals messages one at a time (Previous / Next, ← / → keys,
+    "Show all"). The diagram starts complete; stepping is opt-in.
+  - Works on Mermaid's rendered SVG; if a diagram's structure isn't recognised it stays a normal, static diagram.
+- **Code callouts:** a lesson's *entities table* (a table whose first header is `Entity`, `Class`, `Type` or
+  `Interface`, as the case-study template already requires) defines its terms: the first `code` in the first column is
+  the term, the second column is its role. In that lesson's code blocks each term gets a dotted underline; tapping it
+  opens a small popover with the role and "Read more", which jumps to the table. Terms are extracted when content is
+  packed (no parsing on the device). Lessons without such a table simply have no callouts.
+- **Guided reading flow:**
+  - The outline highlights the section being read (desktop column and phone sheet).
+  - A section is ticked in the outline once you've scrolled past its end; ticks are saved on this device only
+    (real progress and sync are spec 005 / 010).
+  - At the end of a lesson a "Next up" card (next lesson in the module, or the cheat sheet) rises into view.
+- **Recall mode on cheat sheets:** a "Recall" switch folds every section under its heading; think of the answer, then
+  tap to reveal ("Reveal all" to finish). Off by default; the choice is remembered on this device. No scoring.
+
 ## 4. Out of scope
+- Quizzes, scores, streaks or any gamification (PRD R21), including in recall mode.
 - Progress / "mark done" / "continue where you left off" across devices (spec 005); notes and bookmarks (spec 007);
   search (spec 009); sync (spec 010).
 - Images and other media in lessons; an in-app content editor (Phase 2); server-delivered content updates.
@@ -120,6 +154,11 @@ content/
 | A10 | Opening a lesson takes under **300 ms** on the Android emulator (Release, after first launch, diagrams excluded) | Manual measurement |
 | A11 | The hosted API (non-Development) returns 404 for `/api/content/*` | API test |
 | A12 | All CI checks green; zero warnings; guardrail lint clean | CI |
+| A13 | Learn shows modules as class boxes joined in reading order; the intro plays once per app run and is a fade with reduced motion | Vitest + Playwright + manual |
+| A14 | Tapping a class in the Auth class diagram highlights it and its relationships; Esc / tap outside clears it. A sequence diagram steps message by message with buttons and arrow keys | Vitest (SVG fixtures) + Playwright |
+| A15 | In the Auth lesson, `RefreshToken` in a code block opens a popover with its role from the entities table, and "Read more" jumps to the table | Unit (term extraction) + Playwright |
+| A16 | The outline highlights the current section; finished sections are ticked and stay ticked after a restart; the "Next up" card appears at the end | Vitest + manual |
+| A17 | Recall mode folds every cheat sheet section, reveals one on tap, "Reveal all" opens the rest; the switch is remembered | Vitest + Playwright |
 
 ## 6. LLD hooks (worth noting in later lessons)
 | Pattern / principle | Where |
@@ -142,6 +181,8 @@ content/
 | Front-matter | Lessons drop `module:` (folder decides); cheat sheets keep only `title` |
 | Cheat sheet length | Concept cheat sheets: one screen + at most 2 scrolls (F3). Case-study cheat sheets: up to 4 scrolls. PRD F3 updated to match |
 | Packaging | Validate + pack at build time into `content-pack.json`; invalid content fails the build |
+| Visual identity (amendment) | "The curriculum as a class diagram" (§3.7), for the whole app |
+| Interactive learning (amendment) | Interactive diagrams, code callouts, guided reading flow, recall mode (§3.8); no quizzes |
 
 ## 8. Open questions
 None. Resolved on 2026-10-16 (see §7): "Start here" module, simpler front-matter, case-study cheat sheet exception,
