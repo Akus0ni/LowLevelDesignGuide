@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet, ScrollRestoration } from 'react-router';
 import { useAuth } from '../features/auth/AuthContext';
 import { ForcedPasswordChange } from '../features/auth/screens';
 import { ServerOfflineBanner } from '../features/serverStatus/ServerOfflineBanner';
@@ -41,6 +41,8 @@ export function AppShell() {
         </nav>
       </aside>
 
+      {/* New screens open at the top; Back returns to where you were. */}
+      <ScrollRestoration />
       <main className="mx-auto w-full max-w-3xl px-5 pt-safe pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-12">
         <Outlet />
       </main>
