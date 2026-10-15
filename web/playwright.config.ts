@@ -4,6 +4,8 @@ const PORT = 4173;
 
 export default defineConfig({
   testDir: './e2e',
+  // Writes the real content's API responses for the content tests (needs the .NET SDK).
+  globalSetup: './e2e/global-setup.ts',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',

@@ -26,3 +26,6 @@ dist-app
 
 # Local design-review scripts (screenshots); never committed.
 *.local.mjs
+
+# Content API snapshot for the e2e tests (written by e2e/global-setup.ts).
+e2e/.content/

@@ -26,6 +26,15 @@ public sealed class ContentFilesTests : IDisposable
     }
 
     [Fact]
+    public void Physical_AcceptsARootWithATrailingSeparator()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "content"));
+        var files = new PhysicalContentFiles(_root + Path.DirectorySeparatorChar);
+
+        files.DirectoryExists("content").Should().BeTrue();
+    }
+
+    [Fact]
     public void Physical_RefusesPathsOutsideTheRepository()
     {
         var files = new PhysicalContentFiles(_root);

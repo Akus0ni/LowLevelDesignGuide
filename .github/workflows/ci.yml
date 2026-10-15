@@ -46,6 +46,10 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v5
+      # Playwright's global setup runs lld-content snapshot, so the e2e tests read the real content.
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
       - uses: actions/setup-node@v5
         with:
           node-version: 24

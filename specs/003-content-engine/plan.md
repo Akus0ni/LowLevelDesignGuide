@@ -368,3 +368,13 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
 - **Content change for owner review:** the Auth cheat sheet's bold labels (`**Requirements (5 bullets)**` …) became
   `##` sections, wording unchanged, so recall mode can fold them; the `lld-case-study` skill now asks for `##` blocks.
   Real cheat sheet height on a Pixel 7: 3.08 screens (case-study limit ≤ 5).
+
+### T10 / T16 notes
+- Playwright's `globalSetup` runs `lld-content snapshot` into `web/e2e/.content` (git-ignored); `routeContent` serves
+  it at `/api/content/*`. The CI `web` job installs .NET for this (`setup-dotnet`).
+- `e2e/content.spec.ts` covers A5 (light + dark), A6, A7, A8, A13 (incl. reduced motion), A14, A15, A17 on phone and
+  desktop projects: 21 tests, all green.
+- **Found by the e2e run:** (1) `PhysicalContentFiles` rejected every path when the root had a trailing separator;
+  fixed + regression test. (2) At 320 px the Auth lesson scrolled sideways by 39 px: screen-reader-only text inside
+  a table link was absolutely positioned against the page; `.table-scroll` / `.reader-prose` are now positioned.
+  The phone project didn't catch it (mobile emulation widens the layout viewport to fit), the desktop one did.

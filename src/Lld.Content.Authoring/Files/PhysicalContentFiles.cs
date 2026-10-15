@@ -8,7 +8,8 @@ public sealed class PhysicalContentFiles : IContentFiles
     public PhysicalContentFiles(string repositoryRoot)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repositoryRoot);
-        _root = Path.GetFullPath(repositoryRoot);
+        // A root given with a trailing separator is the same root (it used to reject every path).
+        _root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repositoryRoot));
     }
 
     public bool FileExists(string path) => File.Exists(Resolve(path));

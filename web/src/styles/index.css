@@ -172,6 +172,7 @@
  */
 @layer components {
   .reader-prose {
+    position: relative;
     --reading-size: 1.0625rem;
 
     &[data-text-size='s'] {
@@ -304,6 +305,9 @@
     }
 
     & .table-scroll {
+      /* Contains absolutely positioned children (e.g. screen-reader text in links): they scroll with the table
+         instead of widening the page. */
+      position: relative;
       overflow-x: auto;
       overscroll-behavior-x: contain;
       border: 1px solid var(--rule);
