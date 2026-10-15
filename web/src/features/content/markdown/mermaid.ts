@@ -13,6 +13,15 @@ function load(): Promise<Mermaid> {
   return mermaid;
 }
 
+/**
+ * Resolves once the browser has painted the current frame. Drawing a diagram blocks the main thread for ~100 ms on a
+ * phone, and React runs a click's effects before painting: without this wait the lesson's text would appear only after
+ * its diagrams. Each diagram waits, so the page stays responsive between them.
+ */
+function afterPaint(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+}
+
 /** Diagrams wear the app's own tokens, so a class diagram looks like the class boxes on Learn. */
 function config(): MermaidConfig {
   const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -61,6 +70,7 @@ function config(): MermaidConfig {
 export function renderMermaid(id: string, source: string): Promise<string> {
   const run = queue.then(async () => {
     const engine = await load();
+    await afterPaint();
     engine.initialize(config());
     try {
       return (await engine.render(id, source)).svg;
