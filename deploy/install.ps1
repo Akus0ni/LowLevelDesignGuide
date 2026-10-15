@@ -70,6 +70,16 @@ function Invoke-Native([string] $File, [string[]] $Arguments) {
     if ($LASTEXITCODE -ne 0) { throw "'$File $($Arguments -join ' ')' failed with exit code $LASTEXITCODE." }
 }
 
+# ngrok authtokens are long and use only letters, digits, "_" and "-". Rejects pasted control characters.
+function Test-AuthToken([string] $Token) { return $Token -cmatch '^[A-Za-z0-9_-]{30,}$' }
+
+function Read-SavedAuthToken([string] $ConfigPath) {
+    if (-not (Test-Path $ConfigPath)) { return $null }
+    $match = Select-String -Path $ConfigPath -Pattern '^\s*authtoken:\s*(\S+)' | Select-Object -First 1
+    if ($match -and (Test-AuthToken $match.Matches[0].Groups[1].Value)) { return $match.Matches[0].Groups[1].Value }
+    return $null
+}
+
 function Set-ExactAcl([string] $Path, [string[]] $Grants) {
     # Replace inherited permissions with exactly these grants (inherited by children).
     Invoke-Native 'icacls.exe' (@($Path, '/inheritance:r', '/grant:r') + $Grants + @('/Q'))
@@ -141,13 +151,17 @@ if ($PSCmdlet.ShouldProcess($SecretsDir, 'Create missing secrets (lld-admin host
 # 6. ngrok -----------------------------------------------------------------------------------------------------
 if ($PSCmdlet.ShouldProcess($NgrokConfig, 'Write ngrok config and install the ngrok service')) {
     Write-Step 'Configuring ngrok'
-    if (-not $AuthToken -and (Test-Path $NgrokConfig)) {
-        $match = Select-String -Path $NgrokConfig -Pattern '^\s*authtoken:\s*(\S+)' | Select-Object -First 1
-        if ($match) { $AuthToken = $match.Matches[0].Groups[1].Value }
+    if ($AuthToken -and -not (Test-AuthToken $AuthToken)) { throw 'The -AuthToken value does not look like an ngrok authtoken.' }
+    # Reuse a valid token: this installer's config first, then the one "ngrok config add-authtoken" saves.
+    foreach ($candidate in @($NgrokConfig, (Join-Path $env:LOCALAPPDATA 'ngrok\ngrok.yml'))) {
+        if (-not $AuthToken) { $AuthToken = Read-SavedAuthToken $candidate }
     }
-    if (-not $AuthToken) {
+    for ($attempt = 1; -not $AuthToken -and $attempt -le 3; $attempt++) {
+        Write-Host '    Paste with right-click or Ctrl+Shift+V (Ctrl+V does not work in this hidden prompt).'
         $secure = Read-Host 'ngrok authtoken (input hidden)' -AsSecureString
-        $AuthToken = [System.Net.NetworkCredential]::new('', $secure).Password
+        $typed = [System.Net.NetworkCredential]::new('', $secure).Password.Trim()
+        if (Test-AuthToken $typed) { $AuthToken = $typed }
+        else { Write-Warning "That doesn't look like an ngrok authtoken ($($typed.Length) characters received). Try again." }
     }
     if (-not $AuthToken) { throw 'An ngrok authtoken is required (dashboard.ngrok.com > Your Authtoken).' }
 

@@ -61,7 +61,9 @@ Run in an **elevated** PowerShell (Run as administrator) from the repo root:
 ```powershell
 .\deploy\install.ps1 -Domain <your-domain>          # e.g. -Domain example-name.ngrok-free.dev
 ```
-- It asks for the ngrok authtoken once (hidden input) and reuses it on later runs.
+- It asks for the ngrok authtoken once (hidden input) and reuses it on later runs. **Paste it with right-click or
+  Ctrl+Shift+V**: in Windows PowerShell, Ctrl+V types a control character into a hidden prompt instead of pasting.
+  If you already ran `ngrok config add-authtoken`, it reuses that token and doesn't ask.
 - Re-run it after pulling new code: it stops the service, republishes and restarts.
 - `-WhatIf` shows every step without changing anything.
 - At the end it checks `http://localhost:5280/health` and `https://<your-domain>/health`.
