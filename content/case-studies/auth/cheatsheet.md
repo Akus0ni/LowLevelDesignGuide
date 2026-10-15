@@ -1,10 +1,5 @@
 ---
-id: case-study-auth-cheatsheet
 title: "Cheat sheet: Authentication & Access"
-module: case-studies
-order: 1
-tags: [state, strategy, repository, unit-of-work, result, domain-events]
-source: self-referential
 ---
 
 # Cheat sheet: Authentication & Access

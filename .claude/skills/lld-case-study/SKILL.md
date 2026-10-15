@@ -34,18 +34,21 @@ an explicit OK before writing code or the full lesson.
 
 ## Step 3 — Write the lesson
 
-Output: `content/case-studies/<slug>/lesson.md` with front-matter:
+Output: `content/case-studies/<slug>/lesson.md` (`<slug>` is kebab-case) with front-matter:
 
 ```yaml
 ---
-id: case-study-<slug>
-title: <Title>
-module: case-studies
-order: <n>
+id: case-study-<slug>          # stable forever: progress and notes point at it
+title: "<Title>"                # quote it if it contains a colon
+order: <n>                       # position in the module, unique
+summary: "<one sentence for the lesson list>"
 tags: [<patterns>, <principles>]
 source: classic | personal | self-referential
 ---
 ```
+
+The module comes from the folder; there is no `module:` key. The contract is in
+`specs/003-content-engine/spec.md` §3.1 and is enforced by the build.
 
 Sections, in order:
 
@@ -67,8 +70,10 @@ Sections, in order:
 
 ## Step 4 — Write the cheat sheet
 
-Output: `content/case-studies/<slug>/cheatsheet.md` (same `id` + `-cheatsheet`).
-One screen max: requirements in 5 bullets, entity list, the class diagram,
+Output: `content/case-studies/<slug>/cheatsheet.md`. Its front-matter is only
+`title: "Cheat sheet: <Title>"`; everything else comes from the lesson.
+Case-study cheat sheets fit a phone screen with at most 4 scrolls (concept
+cheat sheets: 2): requirements in 5 bullets, entity list, the class diagram,
 patterns with one-line reasons, 3 gotchas, 30-second pitch.
 
 ## Step 5 — Verify
@@ -76,4 +81,6 @@ patterns with one-line reasons, 3 gotchas, 30-second pitch.
 - Mermaid blocks render (validate if a Mermaid tool is available).
 - C# samples compile (put runnable samples under `samples/case-studies/<slug>/`
   or point at real `src/` code with tests).
-- Links to `src/` files resolve.
+- Links to `src/` files and between lessons resolve, and the front-matter is
+  valid: the content tests (`dotnet test --project tests/Lld.Content.Tests`) and
+  the app build both fail with `path:line: code: message` otherwise.

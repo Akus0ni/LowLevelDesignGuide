@@ -1,8 +1,8 @@
 ---
 id: case-study-auth
 title: "Case Study 1: Authentication & Access"
-module: case-studies
 order: 1
+summary: "How this app's own sign-in works, class by class: access requests, temporary passwords and rotating refresh tokens."
 tags: [state, strategy, repository, unit-of-work, result, domain-events, observer, adapter, factory, srp, dip]
 source: self-referential
 ---
