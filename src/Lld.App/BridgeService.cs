@@ -1,4 +1,5 @@
 using Lld.App.Auth;
+using Lld.App.Content;
 using Lld.App.Hosting;
 using Lld.Contracts;
 using IMauiAppInfo = Microsoft.Maui.ApplicationModel.IAppInfo;
@@ -12,6 +13,10 @@ public sealed record BridgeResult<T>(bool Ok, T? Value, BridgeError? Error);
 public static class BridgeResult
 {
     public static BridgeResult<T> From<T>(ApiResult<T> result) => new(result.Ok, result.Value, result.Error);
+
+    public static BridgeResult<T> Success<T>(T value) => new(true, value, null);
+
+    public static BridgeResult<T> Failure<T>(BridgeError error) => new(false, default, error);
 }
 
 /// <summary>
@@ -24,9 +29,13 @@ public sealed class BridgeService(
     IDeviceInfo deviceInfo,
     SessionService session,
     AccessRequestOutbox outbox,
-    ServerStatusMonitor status)
+    ServerStatusMonitor status,
+    ContentService content,
+    IBrowser browser)
 {
     private const string ApplicationName = "LLD Guide";
+
+    public static readonly BridgeError LinkNotAllowed = new("link.not_allowed", "Only web links (http or https) can be opened.");
 
     public SharedAppInfo GetInfo() =>
         new(ApplicationName, appInfo.VersionString, deviceInfo.Platform.ToString());
@@ -52,4 +61,32 @@ public sealed class BridgeService(
 
     public async Task<BridgeResult<bool>> LogoutAll() =>
         BridgeResult.From(await session.LogoutAllAsync(CancellationToken.None));
+
+    // Content (spec 003): read from the device database, so these work offline.
+
+    public Task<BridgeResult<IReadOnlyList<ModuleSummary>>> GetModules() => content.GetModulesAsync();
+
+    public Task<BridgeResult<ModuleDetail>> GetModule(string slug) => content.GetModuleAsync(slug);
+
+    public Task<BridgeResult<LessonDetail>> GetLesson(string id) => content.GetLessonAsync(id);
+
+    /// <param name="moduleSlug">One module's cheat sheets, or every cheat sheet when null.</param>
+    public Task<BridgeResult<IReadOnlyList<CheatSheetSummary>>> GetCheatSheets(string? moduleSlug) => content.GetCheatSheetsAsync(moduleSlug);
+
+    public Task<BridgeResult<CheatSheetDetail>> GetCheatSheet(string lessonId) => content.GetCheatSheetAsync(lessonId);
+
+    /// <summary>
+    /// Opens a web link (e.g. source code on GitHub) in the system browser, so the WebView never leaves the app.
+    /// Only http and https: a lesson can't make the app open other schemes.
+    /// </summary>
+    public async Task<BridgeResult<bool>> OpenExternal(string url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
+        {
+            return BridgeResult.Failure<bool>(LinkNotAllowed);
+        }
+
+        var opened = await MainThread.InvokeOnMainThreadAsync(() => browser.OpenAsync(uri, BrowserLaunchMode.SystemPreferred));
+        return BridgeResult.Success(opened);
+    }
 }

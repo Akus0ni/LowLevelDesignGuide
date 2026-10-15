@@ -44,6 +44,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Lld.Contracts\Lld.Contracts.csproj" />
     <ProjectReference Include="..\Lld.Content\Lld.Content.csproj" />
+    <ProjectReference Include="..\Lld.App.Data\Lld.App.Data.csproj" />
     <ProjectReference Include="..\Lld.App.ServiceDefaults\Lld.App.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Lld.ServerStatus\Lld.ServerStatus.csproj" />
   </ItemGroup>

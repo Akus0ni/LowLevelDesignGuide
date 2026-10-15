@@ -134,7 +134,7 @@ The GitHub base URL is an option (`ContentOptions.RepositoryFileUrl`), not a lit
   waits for the load and later calls don't.
 - `BridgeService` gains `GetModules`, `GetModule(slug)`, `GetLesson(id)`, `GetCheatSheets(moduleSlug?)`,
   `GetCheatSheet(lessonId)` → `BridgeResult<T>` (`content.not_found` when missing), and `OpenExternal(url)`
-  (`Launcher.OpenAsync`, only `https://` allowed).
+  (`Browser.OpenAsync(..., SystemPreferred)`: a Custom Tab on Android; only `http`/`https` allowed).
 - **Spike (T1, done):** EF Core was measured on the device and replaced by plain SQLite (§4).
 
 ### 2.8 API (`Lld.Api`, `Lld.AppHost`)
@@ -251,3 +251,20 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
 - Previous / next on the device come from `LAG` / `LEAD` window functions over the module's lessons.
 - `RealContentParityTests` loads the repository's real pack into SQLite and checks that every catalog query returns
   exactly what the in-memory (dev API) catalog returns.
+
+### T8 notes
+- `ContentGate` starts in `App.OnStart`, so the database is ready before React asks; a failed attempt is retried by the
+  next call. `ContentService` maps a missing item to `content.not_found` and a broken database to `content.unavailable`.
+- `OpenExternal` accepts `http` and `https` (the plan said `https` only; an `http` link in a lesson would otherwise be
+  dead). Anything else (`javascript:`, `file:`, `intent:`) returns `link.not_allowed`. It uses
+  `BrowserLaunchMode.SystemPreferred`, so Android shows a Custom Tab and Back returns to the app.
+- **The bridge serialises with PascalCase** (`Ok`, `Value`, `Error`, `ModuleSlug`, …) while the HTTP API uses camelCase.
+  `BridgeDataSource` (T11) converts keys once for every result, so both data sources hand React the same shape.
+- Verified through the WebView's DevTools protocol, with a fresh database each time:
+  | Check | Windows (Debug) | Android emulator (Debug) |
+  |---|---|---|
+  | Modules / module / lesson / cheat sheets / cheat sheet | ✅ | ✅ |
+  | Unknown lesson → `content.not_found` | ✅ | ✅ |
+  | `OpenExternal('javascript:…')` → `link.not_allowed` | ✅ | ✅ |
+  | `OpenExternal('https://github.com/…')` | not run (would open a desktop browser) | ✅ Chrome on top; Back returns to the app |
+  | Lesson read time after start-up | 2–11 ms | 21–76 ms (Debug, JIT) |
