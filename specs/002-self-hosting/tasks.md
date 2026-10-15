@@ -7,7 +7,7 @@
 - [x] T5 API: `ServerStatusPublisher` (health probe, online/heartbeat/quota/shutdown)
 - [x] T6 `Lld.Api.Tests` for T4–T5 green
 - [x] T7 Admin: `hosting init`, `status keygen --force`, `status publish`, `status budget`, `backup run/list` + tests
-- [ ] T8 `deploy/install.ps1`, `uninstall.ps1`, `ngrok.template.yml`; `docs/hosting.md` (ngrok sign-up, Dev Tunnels fallback, troubleshooting)
+- [x] T8 `deploy/install.ps1`, `uninstall.ps1`, `ngrok.template.yml`; `docs/hosting.md` (ngrok sign-up, Dev Tunnels fallback, troubleshooting)
 - [ ] T9 MAUI: embedded settings (+ optional local file), base-URL strategy, `TunnelHeadersHandler`, `ServerReachabilityHandler`
 - [ ] T10 MAUI: `ServerStatusMonitor` (poll + stream + lifecycle), bridge push via `SendRawMessage` (verify API first), `AccessRequestOutbox`
 - [ ] T11 Web: types, TS verifier + tracker, `BridgeDataSource`/`HttpDataSource` status + outbox, `ServerStatusProvider`, `useServerStatus`
