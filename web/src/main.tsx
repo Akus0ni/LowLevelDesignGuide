@@ -7,6 +7,8 @@ import { createDataSource } from './data/createDataSource';
 import { DataSourceProvider } from './data/DataSourceContext';
 import { AuthProvider } from './features/auth/AuthProvider';
 import { ServerStatusProvider } from './features/serverStatus/ServerStatusProvider';
+import '@fontsource-variable/bricolage-grotesque/opsz.css';
+import '@fontsource-variable/jetbrains-mono';
 import './styles/index.css';
 
 // Hash routing: the MAUI WebView has no server to answer deep-link reloads.

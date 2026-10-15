@@ -21,27 +21,65 @@
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
+  /* Body stays the platform font (reads natively everywhere); the display face is used with restraint for titles,
+     the mono face for UML labels, counts and code. Both are bundled (@fontsource), so they work offline. */
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', Menlo, monospace;
+
+  /* Loading placeholders appear only if loading is slow: local content (a few ms) never flashes a skeleton. */
+  --animate-appear-late: appear 200ms var(--ease-out) 200ms both;
+
+  /* The class diagram on Learn: boxes rise into place, connectors draw top to bottom (once per app run). */
+  --animate-rise: rise 320ms var(--ease-out) both;
+  --animate-draw: draw 260ms var(--ease-out) both;
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  @keyframes draw {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
 }
 
-/* Semantic colours. The header/background colour is mirrored by the native status bar (Lld.App). */
+/*
+ * Semantic colours: "the curriculum as a class diagram" (spec 003). A cool drafting-paper background, white class
+ * boxes drawn with a hairline rule, ink text, blueprint blue for what you can act on, and one amber reserved for
+ * "you are here". The paper colour is mirrored by the native status bar (Lld.App MainPage.xaml) and theme-color.
+ */
 :root {
-  --bg: #ffffff;
-  --fg: #0a0a0a;
-  --muted: #6b7280;
-  --chrome: rgb(255 255 255 / 0.72);
-  --surface: #f4f4f5;
-  --accent: #4f46e5;
+  --bg: #f4f6f9;
+  --fg: #0e1726;
+  --muted: #5a6577;
+  --chrome: rgb(244 246 249 / 0.78);
+  --surface: #ffffff;
+  --rule: #d6dce5;
+  --accent: #1d5bff;
+  --highlight: #e59a1f;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a0a0a;
-    --fg: #fafafa;
-    --muted: #a1a1aa;
-    --chrome: rgb(10 10 10 / 0.72);
-    --surface: #18181b;
-    --accent: #818cf8;
+    --bg: #0b0f16;
+    --fg: #e6ebf3;
+    --muted: #8b96a8;
+    --chrome: rgb(11 15 22 / 0.74);
+    --surface: #121824;
+    --rule: #263042;
+    --accent: #6f9bff;
+    --highlight: #f2b44c;
   }
 }
 
@@ -51,7 +89,16 @@
   --color-muted: var(--muted);
   --color-chrome: var(--chrome);
   --color-surface: var(--surface);
+  --color-rule: var(--rule);
   --color-accent: var(--accent);
+  --color-highlight: var(--highlight);
+}
+
+/* Drafting-table dot grid behind diagram screens (Learn, a module); never behind reading text. */
+@utility bg-drafting {
+  background-image: radial-gradient(color-mix(in oklab, var(--rule) 70%, transparent) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: -10px -10px;
 }
 
 /* Safe-area padding; needs viewport-fit=cover in index.html or the values are 0. */
@@ -104,9 +151,15 @@
     -webkit-touch-callout: none;
   }
 
-  /* Size-specific tracking: tighten large headings, leave body text at 0. */
+  /* Titles use the display face with optical sizing; size-specific tracking (tight large, body at 0). */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+  }
   h1 {
     letter-spacing: -0.02em;
+    line-height: 1.1;
   }
   h2 {
     letter-spacing: -0.01em;
