@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, awaiting owner review |
+| **Status** | Approved by owner (2026-10-15) |
 | **Branch** | `spec/002-self-hosting` |
 | **Covers** | R35–R38, R44 (status part), R45 (status part), R46 (PRD §13); PRD F8 |
 | **Depends on** | Spec 001 (merged, PR #3) |
@@ -123,8 +123,12 @@ queue access requests, and send them by themselves when the server is back onlin
 | Install | PowerShell `install.ps1` / `uninstall.ps1` |
 | Budget visibility | `lld-admin status budget` + OTel metric |
 | Near the limit | API publishes signed `offline` (quota) at 95 %; `online` after the monthly reset |
+| Topic / public key | Public key committed; topic injected at build time from a git-ignored file |
+| Backup schedule | Daily 13:00 + catch-up after a missed run |
+| Phone check (A2) | Owner's Android phone, sideloaded Release APK |
 
 ## 8. Open questions
-1. **Real Android phone for A2:** do you have one you can sideload a Release APK onto (USB debugging or file transfer)?
-2. **ntfy topic in a public repo:** the topic and public key ship inside the app anyway. Should they be committed in app settings (simple; security relies on the signature) or injected at build time from a git-ignored file (keeps casual spam away)? *Recommendation: commit the public key, inject the topic.*
-3. **Backup time:** daily at 13:00 with catch-up after a missed run. Is that time OK, or do you prefer another one, or "on every service stop"?
+None. Resolved on 2026-10-15:
+- **Real phone:** the owner has an Android phone for A2 (Release APK sideloaded).
+- **Topic and public key:** the public key is committed in the app settings. The ntfy topic is injected at build time from a git-ignored local file, and CI uses a placeholder.
+- **Backup time:** daily at 13:00, with catch-up after a missed run.
