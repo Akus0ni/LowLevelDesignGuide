@@ -1,4 +1,6 @@
 using Lld.Application.Abstractions;
+using Lld.Application.Hosting;
+using Lld.Infrastructure.Hosting;
 using Lld.Infrastructure.Identity;
 using Lld.Infrastructure.Persistence;
 using Lld.Infrastructure.Security;
@@ -70,6 +72,28 @@ public static class DependencyInjection
         services.AddSingleton<IRefreshTokenCodec, RefreshTokenCodec>();
         services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
         services.AddScoped<DatabaseInitializer>();
+        return services;
+    }
+
+    /// <summary>
+    /// Self-hosting services shared by the API and the admin console: request budget, status announcements, backups.
+    /// </summary>
+    public static IServiceCollection AddLldHosting(this IServiceCollection services, IConfiguration configuration)
+    {
+        var budget = configuration.GetSection(BudgetOptions.SectionName).Get<BudgetOptions>() ?? new BudgetOptions();
+        services.AddSingleton(budget);
+        services.AddScoped<IUsageCounterStore, SqliteUsageCounterStore>();
+        services.AddScoped<GetBudgetUsage>();
+
+        services.AddOptions<ServerStatusOptions>().Bind(configuration.GetSection(ServerStatusOptions.SectionName));
+        services.AddHttpClient<IStatusAnnouncer, NtfyStatusAnnouncer>();
+
+        var backup = configuration.GetSection(BackupOptions.SectionName).Get<BackupOptions>() ?? new BackupOptions();
+        services.AddSingleton(backup);
+        services.AddSingleton<SqliteBackupService>();
+
+        var hosting = configuration.GetSection(HostingOptions.SectionName).Get<HostingOptions>() ?? new HostingOptions();
+        services.AddSingleton(hosting);
         return services;
     }
 }

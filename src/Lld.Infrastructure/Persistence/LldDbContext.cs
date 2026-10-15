@@ -2,6 +2,7 @@ using Lld.Domain.Access;
 using Lld.Domain.Audit;
 using Lld.Domain.Identity;
 using Lld.Domain.Sessions;
+using Lld.Infrastructure.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,8 @@ public sealed class LldDbContext(DbContextOptions<LldDbContext> options) : Ident
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+
+    public DbSet<UsageCounter> UsageCounters => Set<UsageCounter>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -76,6 +79,13 @@ public sealed class LldDbContext(DbContextOptions<LldDbContext> options) : Ident
             entry.Property(e => e.Email).HasMaxLength(EmailAddress.MaxLength);
             entry.Property(e => e.Details).HasMaxLength(500);
             entry.HasIndex(e => e.OccurredAt);
+        });
+
+        builder.Entity<UsageCounter>(counter =>
+        {
+            counter.ToTable("UsageCounters");
+            counter.HasKey(c => c.WindowStart);
+            counter.Property(c => c.WindowStart).HasMaxLength(10);
         });
 
         builder.Entity<IdentityRole>().HasData(

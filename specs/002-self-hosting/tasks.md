@@ -2,7 +2,7 @@
 
 - [x] T1 `Lld.ServerStatus`: message, envelope, signer, verifier, tracker; shared test vector in `tests/fixtures/server-status/`
 - [x] T2 `Lld.ServerStatus.Tests` green
-- [ ] T3 Infrastructure: protected-secrets config source, `UsageCounter` + migration `AddUsageCounter`, `SqliteBackupService`, `NtfyClient`
+- [x] T3 Infrastructure: protected-secrets config source, `UsageCounter` + migration `AddUsageCounter`, `SqliteBackupService`, `NtfyClient`
 - [ ] T4 API: Windows service, `appsettings.Production.json`, forwarded headers, global rate limiter, request budget middleware + flusher + OTel metric
 - [ ] T5 API: `ServerStatusPublisher` (health probe, online/heartbeat/quota/shutdown)
 - [ ] T6 `Lld.Api.Tests` for T4–T5 green
