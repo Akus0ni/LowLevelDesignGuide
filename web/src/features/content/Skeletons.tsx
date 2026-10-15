@@ -44,3 +44,19 @@ export function ModuleSkeleton() {
     </Loading>
   );
 }
+
+export function LessonSkeleton() {
+  return (
+    <Loading>
+      <div className={cn(bar, 'h-5 w-28')} />
+      <div className={cn(bar, 'mt-6 h-3 w-40')} />
+      <div className={cn(bar, 'mt-3 h-10 w-4/5')} />
+      <div className={cn(bar, 'mt-4 h-5 w-full max-w-prose')} />
+      <div className="mt-10 flex max-w-prose flex-col gap-3">
+        {[100, 96, 92, 98, 60].map((width) => (
+          <div key={width} className={cn(bar, 'h-4')} style={{ width: `${width}%` }} />
+        ))}
+      </div>
+    </Loading>
+  );
+}

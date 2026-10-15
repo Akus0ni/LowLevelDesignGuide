@@ -302,3 +302,24 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
   tokens. Interactive diagrams post-process Mermaid's SVG (classes: node ids and edge ids; sequence: message groups in
   document order) and fall back to static when the structure isn't recognised.
 - Design review screenshots (phone light/dark, desktop) are taken with a local, git-ignored `web/*.local.mjs` script.
+
+### T13 notes
+- **Headings:** `rehype-slug` (github-slugger over every heading, in order) gives the same ids as the C# outline; the
+  repeated `# Title` is removed *after* slugging so its id still counts (a test checks every outline anchor exists).
+- **Diagrams fit the column** (`useMaxWidth: true`) so the whole shape is visible; an "expand" control in the diagram's
+  top strip opens a full-screen Base UI Dialog at natural size (`atNaturalSize` rewrites Mermaid's `width="100%"` /
+  inline `max-width`). Changed from "natural size with sideways scroll" after the screenshot review: on a phone that
+  showed a fragment of the class diagram, on desktop it cut the sequence diagram next to empty space.
+- **Mermaid** wears the identity tokens (`theme: 'base'` + themeVariables from CSS variables), renders one diagram at a
+  time, re-renders on colour-scheme change, and shows the source with a note when a diagram fails.
+- **Code:** Shiki core + JavaScript regex engine, 9 languages, dual themes as CSS variables; plain text first, tokens
+  in the same box; ligatures off (`=>` must not become an arrow); the language sits in a top strip.
+- **Layout:** text keeps a 68ch measure, figures use the whole column; a `---` right before an `h2` is hidden (the
+  heading draws its own compartment rule). The lesson route sets `handle.wide` so the shell widens to fit the outline.
+- **Outline:** sticky column on desktop; on phones a Base UI **Drawer** bottom sheet (swipe-down to close, follows the
+  finger through `--drawer-swipe-movement-y`, iOS drawer curve, faster exit, fade with reduced motion). Choosing a
+  heading closes the sheet and lands the heading at the top (checked: 24 px with scroll-margin).
+- **Bundle:** the reader route is `lazy` and warmed on idle with the highlighter (`warmUpReader`,
+  `warmUpHighlighter`): main chunk 393 KB (122 KB gzip); reader 249 KB; Mermaid's layout engines stay lazy.
+- Real-content check (the Auth lesson from `lld-content snapshot`): 4 diagrams drawn, 31 highlighted lines, no
+  sideways page scroll on a Pixel 7.

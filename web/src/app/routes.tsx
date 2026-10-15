@@ -6,6 +6,21 @@ import { ModulePage } from '../features/content/ModulePage';
 import { AppShell } from './AppShell';
 import { SECTIONS } from './sections';
 
+/** The reader's code; imported on first lesson open, or earlier by `warmUpReader`. */
+const loadReader = () => import('../features/content/LessonPage');
+
+/** Starts loading the reader when the browser is idle, so the first lesson opens without waiting for code. */
+export function warmUpReader(): void {
+  const start = () => void loadReader().catch(() => {});
+  if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 3000 });
+  else setTimeout(start, 1);
+}
+
+/** Route options the shell reads (see AppShell). */
+export interface RouteHandle {
+  wide?: boolean;
+}
+
 /** Sections that have their real screens; the rest show a "coming in spec N" placeholder. */
 const BUILT: Record<string, RouteObject> = {
   learn: {
@@ -13,6 +28,13 @@ const BUILT: Record<string, RouteObject> = {
     children: [
       { index: true, element: <LearnPage /> },
       { path: ':module', element: <ModulePage /> },
+      // The reader needs room for the outline column on desktop.
+      {
+        path: ':module/:lesson',
+        // The reader (Markdown, highlighting) loads on demand and is warmed while the app is idle (main.tsx).
+        lazy: async () => ({ Component: (await loadReader()).LessonPage }),
+        handle: { wide: true } satisfies RouteHandle,
+      },
     ],
   },
   profile: { path: 'profile', element: <ProfilePage /> },
