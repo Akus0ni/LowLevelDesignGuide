@@ -20,12 +20,16 @@ internal static class AdminCli
 
     public static Task<int> RunAsync(string[] args, IServiceProvider services, TextWriter output, TextWriter error)
     {
-        var root = new RootCommand("LLD Guide admin console: access requests, users and the audit log.")
+        var root = new RootCommand("LLD Guide admin console: access requests, users, the audit log and self-hosting.")
         {
             RequestsCommand(services, output, error),
             UsersCommand(services, output, error),
             AuditCommand(services, output),
         };
+        foreach (var command in HostingCommands.All(services, output, error))
+        {
+            root.Subcommands.Add(command);
+        }
 
         var invocation = new InvocationConfiguration { Output = output, Error = error };
         return root.Parse(args).InvokeAsync(invocation);
@@ -154,7 +158,7 @@ internal static class AdminCli
         return new Command("audit", "Read the audit log.") { list };
     }
 
-    private static async Task<TResult> Run<TUseCase, TResult>(IServiceProvider services, Func<TUseCase, Task<TResult>> action)
+    internal static async Task<TResult> Run<TUseCase, TResult>(IServiceProvider services, Func<TUseCase, Task<TResult>> action)
         where TUseCase : notnull
     {
         await using var scope = services.CreateAsyncScope();
@@ -187,7 +191,7 @@ internal static class AdminCli
         return Success;
     }
 
-    private static int Fail(TextWriter error, Error failure)
+    internal static int Fail(TextWriter error, Error failure)
     {
         error.WriteLine($"Error: {failure.Message} ({failure.Code})");
         return Failure;
