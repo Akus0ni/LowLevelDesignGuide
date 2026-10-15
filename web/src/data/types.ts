@@ -20,6 +20,21 @@ export interface AccessRequestInput {
   note?: string;
 }
 
+/** Sent now, or saved on this device until the server is online (spec 002). */
+export interface AccessRequestOutcome {
+  queued: boolean;
+}
+
+/** What the app believes about the server (mirrors Lld.App ServerStatusView). */
+export interface ServerStatus {
+  state: 'unknown' | 'online' | 'offline';
+  /** e.g. startup, shutdown, quota, unreachable, stale, no_signal, assumed */
+  reason: string;
+  since: string;
+  /** Set when the server stopped for its monthly request budget. */
+  quotaResetsAt?: string;
+}
+
 /** A failure from the API or the native bridge, with the stable error code (e.g. `auth.locked_out`). */
 export class AppError extends Error {
   readonly code: string;
@@ -42,13 +57,20 @@ export interface DataSource {
   readonly kind: 'http' | 'bridge';
   getInfo(): Promise<AppInfo>;
 
-  requestAccess(input: AccessRequestInput): Promise<void>;
+  /** Sends the request, or saves it on the device while the server is offline. */
+  requestAccess(input: AccessRequestInput): Promise<AccessRequestOutcome>;
   login(email: string, password: string): Promise<UserSummary>;
   /** Restores a session from a stored refresh token; null when signed out. */
   restoreSession(): Promise<UserSummary | null>;
   changePassword(currentPassword: string, newPassword: string): Promise<UserSummary>;
   logout(): Promise<void>;
   logoutAll(): Promise<void>;
+
+  getServerStatus(): Promise<ServerStatus>;
+  /** Live status changes; returns an unsubscribe function. */
+  onServerStatusChanged(listener: (status: ServerStatus) => void): () => void;
+  /** A request saved while offline reached the server. */
+  onAccessRequestSent(listener: (email: string) => void): () => void;
 }
 
 /** Shape of window.HybridWebView, injected by _framework/hybridwebview.js inside the MAUI app. */

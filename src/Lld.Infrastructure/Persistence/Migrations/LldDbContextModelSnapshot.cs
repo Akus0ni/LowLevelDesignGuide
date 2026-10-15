@@ -137,6 +137,23 @@ namespace Lld.Infrastructure.Persistence.Migrations
                     b.ToTable("RefreshTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Lld.Infrastructure.Hosting.UsageCounter", b =>
+                {
+                    b.Property<string>("WindowStart")
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Bytes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Requests")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("WindowStart");
+
+                    b.ToTable("UsageCounters", (string)null);
+                });
+
             modelBuilder.Entity("Lld.Infrastructure.Persistence.AppUser", b =>
                 {
                     b.Property<string>("Id")

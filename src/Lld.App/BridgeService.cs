@@ -1,4 +1,5 @@
 using Lld.App.Auth;
+using Lld.App.Hosting;
 using Lld.Contracts;
 using IMauiAppInfo = Microsoft.Maui.ApplicationModel.IAppInfo;
 using SharedAppInfo = Lld.Contracts.AppInfo;
@@ -18,15 +19,24 @@ public static class BridgeResult
 /// JavaScript through <c>window.HybridWebView.InvokeDotNet("MethodName", [args])</c>.
 /// Tokens never cross the bridge: React only receives the user summary.
 /// </summary>
-public sealed class BridgeService(IMauiAppInfo appInfo, IDeviceInfo deviceInfo, ApiClient api, SessionService session)
+public sealed class BridgeService(
+    IMauiAppInfo appInfo,
+    IDeviceInfo deviceInfo,
+    SessionService session,
+    AccessRequestOutbox outbox,
+    ServerStatusMonitor status)
 {
     private const string ApplicationName = "LLD Guide";
 
     public SharedAppInfo GetInfo() =>
         new(ApplicationName, appInfo.VersionString, deviceInfo.Platform.ToString());
 
-    public async Task<BridgeResult<AcceptedResponse>> RequestAccess(string email, string name, string? note) =>
-        BridgeResult.From(await api.RequestAccessAsync(new AccessRequestRequest(email, name, note), CancellationToken.None));
+    /// <summary>Sends the request, or saves it on the device while the server is offline (<c>queued: true</c>).</summary>
+    public async Task<BridgeResult<AccessRequestOutcome>> RequestAccess(string email, string name, string? note) =>
+        BridgeResult.From(await outbox.SubmitAsync(new AccessRequestRequest(email, name, note), CancellationToken.None));
+
+    /// <summary>The current status; later changes arrive as <c>serverStatus</c> raw messages.</summary>
+    public ServerStatusView GetServerStatus() => ServerStatusView.From(status.Tracker.Current);
 
     public async Task<BridgeResult<UserSummary>> Login(string email, string password) =>
         BridgeResult.From(await session.LoginAsync(email, password, CancellationToken.None));

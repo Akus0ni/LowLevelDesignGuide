@@ -38,12 +38,24 @@
     <PackageReference Include="Microsoft.Maui.Controls" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
     <PackageReference Include="CommunityToolkit.Maui" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Lld.Contracts\Lld.Contracts.csproj" />
     <ProjectReference Include="..\Lld.Content\Lld.Content.csproj" />
     <ProjectReference Include="..\Lld.App.ServiceDefaults\Lld.App.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Lld.ServerStatus\Lld.ServerStatus.csproj" />
+  </ItemGroup>
+
+  <!--
+    Hosting settings (spec 002), embedded so they work on every platform without file access:
+    appsettings.json is committed (public key); appsettings.local.json is git-ignored (ntfy topic, tunnel URL)
+    and embedded only when it exists, so CI builds without it.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="appsettings.json" LogicalName="Lld.App.appsettings.json" />
+    <EmbeddedResource Include="appsettings.local.json" LogicalName="Lld.App.appsettings.local.json" Condition="Exists('appsettings.local.json')" />
   </ItemGroup>
 
   <!--

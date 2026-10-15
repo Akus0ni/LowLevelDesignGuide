@@ -1,0 +1,11 @@
+# ngrok agent config for the LLD Guide API (spec 002).
+# install.ps1 renders this to %ProgramData%\LldGuide\ngrok.yml (readable by SYSTEM and Administrators only).
+# The authtoken never goes into the repo. Requires a recent agent (`ngrok update`); check with `ngrok config check`.
+version: "3"
+agent:
+  authtoken: __AUTHTOKEN__
+endpoints:
+  - name: lld-api
+    url: https://__DOMAIN__
+    upstream:
+      url: http://localhost:__PORT__

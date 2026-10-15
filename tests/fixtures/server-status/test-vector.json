@@ -1,0 +1,53 @@
+{
+  "description": "Shared test vector for the server-status signature (spec 002). Test-only key: never used by a real server.",
+  "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQFqd2U5gqB14QdRIWHGvIUGjCryb2XnrHxei9jmj7x6Hl0TvcEezcrdlOSEvzi1gHX+E7pLO1fNM4FkDPQ1h+A==",
+  "cases": [
+    {
+      "name": "valid-online",
+      "envelope": "{\"payload\":\"eyJ2IjoxLCJzdGF0dXMiOiJvbmxpbmUiLCJyZWFzb24iOiJzdGFydHVwIiwiYXQiOiIyMDI2LTEwLTE1VDA4OjAwOjAwKzAwOjAwIn0\",\"sig\":\"uqGWRZoSff1IFCKFDNoem-WD8o_gZk3GatF1sWduGeOnqzfH_pAr637aLWwIcPjRO4-R3IM9zLs_GLB0faYN_g\"}",
+      "expect": "valid",
+      "status": "online",
+      "reason": "startup",
+      "at": "2026-10-15T08:00:00+00:00"
+    },
+    {
+      "name": "valid-offline-quota",
+      "envelope": "{\"payload\":\"eyJ2IjoxLCJzdGF0dXMiOiJvZmZsaW5lIiwicmVhc29uIjoicXVvdGEiLCJhdCI6IjIwMjYtMTAtMTVUMDk6MDA6MDArMDA6MDAiLCJxdW90YVJlc2V0c0F0IjoiMjAyNi0xMS0wMVQwMDowMDowMCswMDowMCJ9\",\"sig\":\"fU9DebKRrV9fNiprcv8X8D0Rrl_TznEC7ru3TyIUwESjG3-qp-2QGLfIPiZrGwZLlgk8s0AwSq3r91s2HgJqpA\"}",
+      "expect": "valid",
+      "status": "offline",
+      "reason": "quota",
+      "at": "2026-10-15T09:00:00+00:00",
+      "quotaResetsAt": "2026-11-01T00:00:00+00:00"
+    },
+    {
+      "name": "tampered-payload",
+      "envelope": "{\"payload\":\"eyJ2IjoxLCJzdGF0dXMiOiJvZmZsaW5lIiwicmVhc29uIjoic3RhcnR1cCIsImF0IjoiMjAyNi0xMC0xNVQwODowMDowMCswMDowMCJ9\",\"sig\":\"uqGWRZoSff1IFCKFDNoem-WD8o_gZk3GatF1sWduGeOnqzfH_pAr637aLWwIcPjRO4-R3IM9zLs_GLB0faYN_g\"}",
+      "expect": "bad_signature"
+    },
+    {
+      "name": "signed-by-another-key",
+      "envelope": "{\"payload\":\"eyJ2IjoxLCJzdGF0dXMiOiJvbmxpbmUiLCJyZWFzb24iOiJzdGFydHVwIiwiYXQiOiIyMDI2LTEwLTE1VDA4OjAwOjAwKzAwOjAwIn0\",\"sig\":\"NqLfEz8JPNpsNXkJahFZCYZCXIJqkFYZWdSuv41HsJHytB2Q9rs9VhxyZ3B_VZ6D_NLz4FMuSiBvgkvr7_UFmA\"}",
+      "expect": "bad_signature"
+    },
+    {
+      "name": "unsupported-version",
+      "envelope": "{\"payload\":\"eyJ2IjoyLCJzdGF0dXMiOiJvbmxpbmUiLCJyZWFzb24iOiJzdGFydHVwIiwiYXQiOiIyMDI2LTEwLTE1VDA4OjAwOjAwKzAwOjAwIn0\",\"sig\":\"kfyfTaWw3uXim0pJv1EnnmfieKlz3zi-IqLZASl3vgQRvWXcg1Z0kQEsAvypkmSBfCYVVTPwn4fg2hdQMCxmiw\"}",
+      "expect": "unsupported_version"
+    },
+    {
+      "name": "not-json",
+      "envelope": "hello",
+      "expect": "malformed"
+    },
+    {
+      "name": "missing-signature",
+      "envelope": "{\"payload\":\"e30\"}",
+      "expect": "malformed"
+    },
+    {
+      "name": "signature-not-base64url",
+      "envelope": "{\"payload\":\"e30\",\"sig\":\"%%%\"}",
+      "expect": "malformed"
+    }
+  ]
+}

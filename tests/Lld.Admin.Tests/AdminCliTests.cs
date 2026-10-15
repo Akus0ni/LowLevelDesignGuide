@@ -70,6 +70,28 @@ public sealed class AdminCliTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task RequestsApproveAndReject_ByEmail_FindThePendingRequest()
+    {
+        await using (var scope = _services.CreateAsyncScope())
+        {
+            var submit = scope.ServiceProvider.GetRequiredService<SubmitAccessRequest>();
+            await submit.ExecuteAsync(new SubmitAccessRequestCommand("grace@example.com", "Grace", null), Ct);
+            await submit.ExecuteAsync(new SubmitAccessRequestCommand("linus@example.com", "Linus", null), Ct);
+        }
+
+        var (approvedCode, approved, _) = await RunAsync("requests", "approve", "Grace@Example.com");
+        var (rejectedCode, rejected, _) = await RunAsync("requests", "reject", "linus@example.com");
+        var (missingCode, _, missing) = await RunAsync("requests", "approve", "nobody@example.com");
+
+        approvedCode.Should().Be(0);
+        approved.Should().Contain("Approved access for grace@example.com");
+        rejectedCode.Should().Be(0);
+        rejected.Should().Contain("Request rejected.");
+        missingCode.Should().Be(1);
+        missing.Should().Contain("No pending access request for 'nobody@example.com'");
+    }
+
+    [Fact]
     public async Task UnknownRequestOrUser_FailsWithExitCodeOne()
     {
         var (rejectCode, _, rejectError) = await RunAsync("requests", "reject", "deadbeef");

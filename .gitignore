@@ -501,3 +501,7 @@ src/Lld.App/Resources/Raw/wwwroot/
 .env
 .env.local
 .claude/settings.local.json
+
+# Spec 002: per-machine app build settings (ntfy topic, public API URL) and web dev status settings
+src/Lld.App/appsettings.local.json
+web/.env.local

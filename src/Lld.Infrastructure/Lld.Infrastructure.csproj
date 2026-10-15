@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Lld.Application\Lld.Application.csproj" />
+    <ProjectReference Include="..\Lld.ServerStatus\Lld.ServerStatus.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -14,6 +15,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
   </ItemGroup>
 
 

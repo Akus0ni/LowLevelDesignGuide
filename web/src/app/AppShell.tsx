@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router';
 import { useAuth } from '../features/auth/AuthContext';
 import { ForcedPasswordChange } from '../features/auth/screens';
+import { ServerOfflineBanner } from '../features/serverStatus/ServerOfflineBanner';
 import { cn } from '../ui/cn';
 import { SECTIONS } from './sections';
 
@@ -17,6 +18,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh bg-bg text-fg md:pl-64">
+      <ServerOfflineBanner />
       {/* Tablet/desktop: translucent sidebar (apple-design §12). */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col gap-1 bg-chrome px-3 pt-safe backdrop-blur-xl md:flex">
         <p className="px-3 pt-6 pb-4 text-lg font-semibold tracking-tight">LLD Guide</p>
@@ -39,7 +41,7 @@ export function AppShell() {
         </nav>
       </aside>
 
-      <main className="mx-auto w-full max-w-3xl px-5 pt-safe pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-12">
+      <main className="mx-auto w-full max-w-3xl px-5 pt-safe pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-12">
         <Outlet />
       </main>
 

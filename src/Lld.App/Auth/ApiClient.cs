@@ -26,6 +26,10 @@ public sealed class ApiClient(HttpClient http)
 {
     public const string ServiceAddress = "http+https://api";
 
+    /// <summary>One cheap call to learn whether the server is reachable again (its outcome updates the status).</summary>
+    public async Task PingAsync(CancellationToken ct) =>
+        await SendAsync<object>(HttpMethod.Get, "/health", body: null, accessToken: null, ct);
+
     public Task<ApiResult<AcceptedResponse>> RequestAccessAsync(AccessRequestRequest request, CancellationToken ct) =>
         SendAsync<AcceptedResponse>(HttpMethod.Post, "/api/access-requests", request, accessToken: null, ct);
 

@@ -19,4 +19,9 @@
     <InternalsVisibleTo Include="Lld.Admin.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Same hosted settings as the API (database, secrets, backup paths); used only when run as Production. -->
+    <Content Include="..\Lld.Api\appsettings.Production.json" Link="appsettings.Production.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
