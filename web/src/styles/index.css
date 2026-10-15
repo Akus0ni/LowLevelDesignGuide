@@ -151,6 +151,13 @@
     -webkit-touch-callout: none;
   }
 
+  /* Titles can be one long identifier (C# names): break inside a word only when nothing else fits. */
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: anywhere;
+  }
+
   /* Titles use the display face with optical sizing; size-specific tracking (tight large, body at 0). */
   h1,
   h2 {

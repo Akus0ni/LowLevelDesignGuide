@@ -41,7 +41,7 @@ function OutlineList({
               entry.level === 3 ? 'pl-5' : 'pl-2',
             )}
           >
-            <span className="min-w-0 flex-1">{entry.text}</span>
+            <span className="min-w-0 flex-1 wrap-anywhere">{entry.text}</span>
             {read?.has(entry.anchor) && (
               <span className="mt-0.5 shrink-0 text-accent" aria-label="read" role="img">
                 <Icon d={checkIcon} size={14} />

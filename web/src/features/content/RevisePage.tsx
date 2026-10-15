@@ -129,8 +129,10 @@ function SheetRow({ sheet }: { sheet: CheatSheetSummary }) {
         <Icon d={boltIcon} size={18} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block leading-snug font-semibold">{sheet.title}</span>
-        <span className="mt-0.5 block truncate text-[14px] text-muted">from {sheet.lessonTitle}</span>
+        <span className="block leading-snug font-semibold wrap-anywhere">{sheet.title}</span>
+        <span className="mt-0.5 block truncate text-[14px] text-muted" title={sheet.lessonTitle}>
+          from {sheet.lessonTitle}
+        </span>
       </span>
       <span className="shrink-0 text-muted">
         <Icon d={chevronRight} size={18} />

@@ -21,7 +21,7 @@
 - [x] T15b Recall mode on cheat sheets (fold / reveal / reveal all, remembered on the device)
 - [x] T16 Playwright: A5–A8 from the snapshot (phone + desktop)
 - [x] T17 Content: "How to use LLD Guide" lesson + cheat sheet (owner reviews the text)
-- [ ] T18 UI pass with the skills (`emil-design-eng`, `apple-design`, `mobile-native`, `break-ui`); fixes
+- [x] T18 UI pass with the skills (`emil-design-eng`, `apple-design`, `mobile-native`, `break-ui`); fixes
 - [ ] T19 Manual run: A1 airplane-mode fresh install (Android Release), A2 add a lesson + rebuild (Windows, Android, browser), A5 on devices, A9 restart, A10 timing; screenshots
 - [ ] T20 Docs: PRD (F2, F3, §13 new decisions, v0.5), `docs/plan.md` decisions, README authoring section, plan §4 outcomes, progress log
 - [ ] T21 PR with acceptance-criteria table

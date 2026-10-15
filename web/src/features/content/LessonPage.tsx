@@ -7,6 +7,7 @@ import { Icon } from '../../ui/Icon';
 import { BackLink } from './BackLink';
 import { ContentBoundary } from './ContentBoundary';
 import { MarkdownView } from './markdown/MarkdownView';
+import { formatMinutes } from './navigation';
 import { OutlineColumn, OutlineSheet } from './Outline';
 import { NextUp } from './reader/NextUp';
 import { TextSizeControl } from './reader/TextSizeControl';
@@ -76,7 +77,7 @@ function LessonHeader({
     <header className="mt-3 border-b border-rule pb-6">
       <p className="font-mono text-[12px] tracking-[0.08em] text-muted tabular-nums">
         lesson {String(position).padStart(2, '0')} of {String(module.lessons.length).padStart(2, '0')} ·{' '}
-        {lesson.readingMinutes} min read
+        {formatMinutes(lesson.readingMinutes)} read
       </p>
       <h1 className="mt-1.5 text-[32px] font-semibold md:text-[44px]">{lesson.title}</h1>
       <p className="mt-3 max-w-prose text-[17px] leading-relaxed text-muted">{lesson.summary}</p>

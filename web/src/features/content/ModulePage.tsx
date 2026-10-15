@@ -5,7 +5,7 @@ import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
 import { ContentBoundary } from './ContentBoundary';
 import { BackLink } from './BackLink';
-import { chevronRight, plural, usePreload } from './navigation';
+import { chevronRight, formatMinutes, plural, usePreload } from './navigation';
 import { ModuleSkeleton } from './Skeletons';
 
 /** One module, drawn as a single class box whose members are its lessons, numbered in reading order. */
@@ -41,7 +41,7 @@ function ModuleView({ slug }: { slug: string }) {
             <p className="flex items-baseline justify-between border-b border-rule px-4 py-2.5 font-mono text-[12px] text-muted">
               <span>lessons</span>
               <span className="tabular-nums">
-                {plural(module.lessons.length, 'lesson')} · {minutes} min
+                {plural(module.lessons.length, 'lesson')} · {formatMinutes(minutes)}
               </span>
             </p>
             <ol>
@@ -76,11 +76,11 @@ function LessonRow({ lesson, position }: { lesson: LessonSummary; position: numb
         {String(position).padStart(2, '0')}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block leading-snug font-semibold">{lesson.title}</span>
+        <span className="block leading-snug font-semibold wrap-anywhere">{lesson.title}</span>
         <span className="mt-0.5 line-clamp-2 text-[15px] leading-relaxed text-muted">{lesson.summary}</span>
       </span>
       <span className="mt-0.5 flex shrink-0 items-center gap-1 font-mono text-[12px] text-muted tabular-nums">
-        {lesson.readingMinutes} min
+        {formatMinutes(lesson.readingMinutes)}
         <Icon d={chevronRight} size={18} />
       </span>
     </Link>

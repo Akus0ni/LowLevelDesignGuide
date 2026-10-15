@@ -378,3 +378,19 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
   fixed + regression test. (2) At 320 px the Auth lesson scrolled sideways by 39 px: screen-reader-only text inside
   a table link was absolutely positioned against the page; `.table-scroll` / `.reader-prose` are now positioned.
   The phone project didn't catch it (mobile emulation widens the layout viewport to fit), the desktop one did.
+
+### T18 notes: UI pass (break-ui)
+Worst-case content (`web/e2e/fixtures/worstCase.ts`) goes in through the content API, like real content: a
+104-character title, a 59-character identifier as a title and heading, a 40-lesson module, a 40-entry outline,
+10 modules, empty and one-lesson modules, non-Latin titles, a 120-minute lesson. Checked at 320 px, phone (dark),
+desktop and 200 % text. Instead of a dev-only toggle in the app, the fixture is a Playwright regression test
+(`e2e/break-ui.spec.ts`).
+
+| # | Severity | Field | Worst case | What happened | Fix |
+|---|---|---|---|---|---|
+| 1 | Broken | lesson title (h1), heading, outline entry, next-up title | `IRefreshTokenRepositoryFactoryProviderConfigurationOptions` | Page scrolled sideways 612 px at 320, 148 px on desktop; outline text ran into the article | `overflow-wrap: anywhere` on h1–h3 and on titles in flex rows (`wrap-anywhere`) |
+| 2 | Ugly | back link (module title) | 89-character module title | Wrapped to 3 lines inside a 44 px box, overlapping the line below | One line, truncated, full name in `title` |
+| 3 | Ugly | reading time | 120 / 939 minutes | "939 min" hard to read | `formatMinutes`: "2 h", "15 h 39 min" |
+
+Held up: Learn boxes with long titles/summaries, "1 lesson" / "no lessons yet", member list truncation, chips
+scrolling sideways in their own row, Revise with 10 groups, the 40-entry outline (scrolls in its sticky column).

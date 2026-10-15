@@ -20,3 +20,13 @@ export function usePreload<T>(next: Preload<T>) {
 export function plural(count: number, one: string, many = `${one}s`): string {
   return `${count} ${count === 1 ? one : many}`;
 }
+
+const MINUTES_PER_HOUR = 60;
+
+/** Reading time people can take in at a glance: "8 min", "2 h", "15 h 39 min". */
+export function formatMinutes(minutes: number): string {
+  if (minutes < MINUTES_PER_HOUR) return `${minutes} min`;
+  const hours = Math.floor(minutes / MINUTES_PER_HOUR);
+  const rest = minutes % MINUTES_PER_HOUR;
+  return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
+}

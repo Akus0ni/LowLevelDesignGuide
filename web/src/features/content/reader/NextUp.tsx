@@ -57,7 +57,7 @@ export function NextUp({ lesson }: { lesson: LessonDetail }) {
           <span className="block font-mono text-[12px] tracking-[0.08em] text-accent">
             {next ? 'next up' : 'revise it'}
           </span>
-          <span className="mt-1 block text-[19px] leading-snug font-semibold">
+          <span className="mt-1 block text-[19px] leading-snug font-semibold wrap-anywhere">
             {next ? next.title : lesson.cheatSheetTitle}
           </span>
         </span>

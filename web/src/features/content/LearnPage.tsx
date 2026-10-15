@@ -6,7 +6,7 @@ import { content, preloadContent, useModule, useModules } from '../../data/useCo
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
 import { ContentBoundary } from './ContentBoundary';
-import { chevronRight, usePreload } from './navigation';
+import { chevronRight, formatMinutes, usePreload } from './navigation';
 import { DiagramSkeleton } from './Skeletons';
 
 /** Lessons listed inside a module box before it says "+ N more". */
@@ -145,7 +145,7 @@ function ModuleBox({
               </span>
               <span className="min-w-0 flex-1 truncate">{lesson.title}</span>
               <span className="font-mono text-[12px] text-muted tabular-nums">
-                {lesson.readingMinutes} min
+                {formatMinutes(lesson.readingMinutes)}
               </span>
             </MemberLink>
           </li>
