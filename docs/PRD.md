@@ -158,7 +158,7 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 ## 9. Architecture overview
 - **UI:** React + Vite + TypeScript, one UI for all platforms.
 - **Native shell:** .NET MAUI `HybridWebView` hosts the React build; a C# `BridgeService` is called from JS via `HybridWebView.InvokeDotNet`.
-- **Device data:** EF Core + SQLite in the MAUI app, holding bundled content plus the user's progress, notes, bookmarks and queued access requests.
+- **Device data:** SQLite in the MAUI app through plain `Microsoft.Data.Sqlite` (no EF Core on device, R67), holding bundled content plus the user's progress, notes, bookmarks and queued access requests.
 - **Backend:** ASP.NET Core Minimal API + EF Core + SQLite + Identity + JWT. It owns accounts and access requests and is the sync hub for user data; content is read-only, for browser dev mode.
 - **Hosting:** owner's PC (Windows services) exposed through ngrok (Dev Tunnels fallback); server status published to a signed ntfy.sh topic.
 - **Admin:** `Lld.Admin` console on the PC, sharing the application layer with the API.
@@ -274,6 +274,7 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R64 | Hosted secrets (JWT key, status private key, topic) live in DPAPI-protected, ACL-restricted files; one idempotent installer, `deploy/install.ps1` | F8 | 002 |
 | R65 | Daily backup at 13:00 (catches up after a missed run) to a local folder, `D:\Applications\LldGuide\backups`, keeping 14 days | F8 | 002 |
 | R66 | Hosted API listens on localhost only (ngrok is the only way in); `/health` is public without details; global per-client-IP rate limit | F8 | 002 |
+| R67 | Device database uses plain `Microsoft.Data.Sqlite` (hand-written SQL behind repository ports, `user_version` schema steps), not EF Core: EF Core cost 1–5 s per launch on Android (spec 003 plan §4). EF Core stays on the API | §9 | 003 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.

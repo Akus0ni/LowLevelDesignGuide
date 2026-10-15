@@ -221,6 +221,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | 2026-10-14 | **Email is the username** for requests and login |
 | 2026-10-14 | PRD v0.2 keeps a full requirements register (PRD §13) |
 | 2026-10-14 | **Apple CI deferred to Phase 2**: the `maui-apple` job moved to a manual-only workflow; required checks are `backend`, `web`, `maui-windows-android` (see §8) |
+| 2026-10-16 | **No EF Core on the device**: plain `Microsoft.Data.Sqlite` behind repository ports (EF Core cost 1–5 s per launch on Android; spec 003 plan §4). EF Core stays on the API (PRD R67) |
 
 ## 8. Phase 2: Apple builds (deferred 2026-10-14)
 Owner decision: Apple CI does not block PRs until Phase 2. The job is kept, ready to run, in

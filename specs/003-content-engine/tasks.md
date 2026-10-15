@@ -1,12 +1,12 @@
 # Spec 003: Tasks
 
-- [ ] T1 Spike: EF Core SQLite + a migration in the trimmed Android Release APK and the Windows app (go / no-go; ask the owner if no-go)
+- [x] T1 Spike: EF Core SQLite + a migration in the trimmed Android Release APK and the Windows app → too slow on Android; owner chose plain SQLite (plan §4)
 - [ ] T2 Contracts: content DTOs; `Lld.Content`: pack model, source-generated JSON context, `IContentCatalog`, `InMemoryContentCatalog`
 - [ ] T3 `Lld.Content.Authoring`: files abstraction, reader, slugger (+ shared vector), outline, reading time, link resolver + rewriter; tests
 - [ ] T4 Validation rules (one class each) + fixtures; packer (deterministic version); `ContentPipeline`; tests
 - [ ] T5 Content migration: `module.yml` for `case-studies` + `start`, Auth front-matter, `lld-case-study` skill template; "repo content is valid" test green
 - [ ] T6 `Lld.Content.Cli` (`validate`, `pack`, `snapshot`) + `PackContent` target in `Lld.App.csproj`; a broken lesson fails the app build
-- [ ] T7 `Lld.App.Data`: `DeviceDbContext`, `InitialContent` migration, `SqliteContentCatalog`, `ContentPackLoader`; catalog contract suite + loader tests green
+- [ ] T7 `Lld.App.Data` (Microsoft.Data.Sqlite): `DeviceDatabase`, `SchemaMigrator` + step 1 (content tables), `SqliteContentCatalog`, `ContentPackLoader`; catalog contract suite + migrator + loader tests green
 - [ ] T8 MAUI: content assets, `ContentGate`, bridge content methods + `OpenExternal`
 - [ ] T9 API: dev-only content endpoints, watcher reload, `content.invalid`; AppHost `Content__Path`; API + Aspire tests green
 - [ ] T10 CI: content tests in `backend`; snapshot step in `web`

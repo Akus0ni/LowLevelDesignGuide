@@ -7,8 +7,7 @@ Companion to [`spec.md`](./spec.md). Versions checked against NuGet and npm on 2
 |---|---|---|
 | `Markdig` | 1.4.0 | Content.Authoring (Markdown AST: front-matter block, headings, links, code fences, with line numbers) |
 | `YamlDotNet` | 18.1.0 | Content.Authoring (front-matter, `module.yml`) |
-| `Microsoft.EntityFrameworkCore.Sqlite` | 10.0.13 (already pinned) | App.Data (device database) |
-| `Microsoft.EntityFrameworkCore.Design` | 10.0.13 (already pinned) | App.Data (migrations, design time only) |
+| `Microsoft.Data.Sqlite` | 10.0.13 | App.Data (device database, plain ADO.NET; **no EF Core on device**, see §4 T1) |
 
 | npm package | Version | Why |
 |---|---|---|
@@ -29,7 +28,7 @@ Lld.Contracts            + ContentContracts.cs (DTOs shared by API, App, web typ
 Lld.Content              pack model + IContentCatalog + InMemoryContentCatalog   (BCL + Contracts only; App uses it)
 Lld.Content.Authoring    NEW: read content/ → validate → pack                     (Markdig, YamlDotNet; API + CLI)
 Lld.Content.Cli          NEW: `lld-content validate | pack | snapshot`            (build tool, CI, Playwright data)
-Lld.App.Data             NEW: device SQLite (EF Core) + SqliteContentCatalog + ContentPackLoader (net10.0, testable)
+Lld.App.Data             NEW: device SQLite (Microsoft.Data.Sqlite) + SqliteContentCatalog + ContentPackLoader (net10.0, testable)
 tests/Lld.Content.Tests  NEW: authoring, rules, packer, both catalogs (one shared contract suite), loader
 ```
 Dependency direction: `Contracts ← Content ← Content.Authoring ← {Api, Cli}` and `Content ← App.Data ← App`.
@@ -105,27 +104,30 @@ The GitHub base URL is an option (`ContentOptions.RepositoryFileUrl`), not a lit
   - The two files are added as `MauiAsset` under `content/` (same pattern as the web bundle).
 
 ### 2.6 Device database (`Lld.App.Data`)
-- `DeviceDbContext` (EF Core SQLite) at `<AppDataDirectory>/lld-device.db`; migrations from the start
-  (`InitialContent`), applied with `MigrateAsync()` on launch, because specs 005/007/010 add user tables later.
+- **Plain ADO.NET** (`Microsoft.Data.Sqlite`), no EF Core: owner decision after the T1 measurements (§4).
+  The rest of the app only sees the ports (`IContentCatalog`, `ContentPackLoader`), so the choice stays local.
+- `DeviceDatabase` opens `<AppDataDirectory>/lld-device.db` (WAL, foreign keys on) and hands out connections.
+- `SchemaMigrator`: an ordered list of `ISchemaMigration { int Version; string Sql }` (one class per step, so a new step
+  never edits an old one). It reads `PRAGMA user_version` and applies each newer step in its own transaction, then
+  sets `user_version`. Normal launches cost one PRAGMA read. Step 1 = content tables; specs 005/007/010 add steps.
 - Tables: `Modules` (Slug PK, Title, Summary, Order), `Lessons` (Id PK, ModuleSlug FK, Slug, Title, Summary, Order,
   TagsJson, Source, ReadingMinutes, BodyMarkdown, OutlineJson, CheatSheetTitle, CheatSheetMarkdown),
-  `DeviceMeta` (Key PK, Value) holding `content.version`. Unique index (ModuleSlug, Slug).
+  `DeviceMeta` (Key PK, Value) holding `content.version`. Unique index (ModuleSlug, Slug). All SQL is parameterised.
 - `ContentPackLoader.EnsureLoadedAsync(IContentPackSource)`:
   1. Read `content-version.txt` (a few bytes). Equal to `DeviceMeta[content.version]` → done (no pack parse).
   2. Otherwise deserialize the pack and, **in one transaction**, delete content rows, insert the new ones and set the
      version. Any failure rolls back and leaves the old content in place.
-- `SqliteContentCatalog : IContentCatalog` (AsNoTracking queries, prev / next by `Order`).
+- `SqliteContentCatalog : IContentCatalog`: hand-written queries mapped by small row readers; prev / next by `Order`.
 - `IContentPackSource` is the seam: MAUI implements it with `FileSystem.OpenAppPackageFileAsync`, tests with files on disk.
 
 ### 2.7 MAUI (`Lld.App`)
-- DI: `DeviceDbContext` (factory), `ContentPackLoader`, `SqliteContentCatalog`, `MauiContentPackSource`.
+- DI: `DeviceDatabase`, `SchemaMigrator`, `ContentPackLoader`, `SqliteContentCatalog`, `MauiContentPackSource`.
 - `ContentGate`: a `Lazy<Task>` that migrates + loads once; every content bridge method awaits it, so the first call
   waits for the load and later calls don't.
 - `BridgeService` gains `GetModules`, `GetModule(slug)`, `GetLesson(id)`, `GetCheatSheets(moduleSlug?)`,
   `GetCheatSheet(lessonId)` → `BridgeResult<T>` (`content.not_found` when missing), and `OpenExternal(url)`
   (`Launcher.OpenAsync`, only `https://` allowed).
-- **Spike first (T1):** EF Core + SQLite + migrations inside the **trimmed Android Release APK** and the Windows app.
-  If it doesn't work cleanly, I stop and bring the options to the owner before going on.
+- **Spike (T1, done):** EF Core was measured on the device and replaced by plain SQLite (§4).
 
 ### 2.8 API (`Lld.Api`, `Lld.AppHost`)
 - `ContentEndpoints` mapped **only when `IsDevelopment()`**:
@@ -174,7 +176,7 @@ The GitHub base URL is an option (`ContentOptions.RepositoryFileUrl`), not a lit
 |---|---|
 | Authoring | Reader (front-matter lines, YAML errors), slugger (shared vector), outline, reading time, link resolver + rewriter, **one fixture per rule** (`tests/fixtures/content/<rule>/`), packer determinism, and "the repo's real `content/` is valid" |
 | Catalogs | One contract suite run against `InMemoryContentCatalog` and `SqliteContentCatalog` (ordering, prev / next at module edges, filters, not found) |
-| Loader | Same version → nothing parsed or written; new version → replaced; a failure mid-load → old content intact |
+| Device DB | Schema migrator (fresh DB, already current, a failing step rolls back that step); loader: same version → nothing parsed or written, new version → replaced, a failure mid-load → old content intact |
 | API | Endpoints in Development; 404 in Production (A11); file added → visible on the next request (A2); invalid content → `content.invalid` |
 | Aspire | `GET /api/content/modules` through the AppHost returns `start` and `case-studies` |
 | Vitest | Content methods on both data sources, `useContent` cache, `MarkdownView` (ids, links, tables, Mermaid fallback with a mocked module), `readerPrefs`, Revise filter, prev / next |
@@ -185,4 +187,30 @@ CI: `backend` gains `tests/Lld.Content.Tests`; `web` gains `setup-dotnet` and ru
 `maui-windows-android` packs content as part of the app build (so content errors fail it too).
 
 ## 4. Outcomes
-_Filled in at the end of the spec: deviations, findings, verification table._
+_Completed at the end of the spec: deviations, findings, verification table._
+
+### T1 spike: EF Core on the device (2026-10-16)
+Android emulator (Pixel, API 35, x86_64), Release APK, one-row table, every launch measured from app start:
+
+| Setup | EF ready after launch | First screen | APK |
+|---|---|---|---|
+| EF Core, runtime model | ~5.4 s (model 2.5 s, migration check 1.1 s, first query 1.3 s) | ~2.5 s | 42 MB |
+| + compiled model (`dotnet ef dbcontext optimize`) | **hangs forever** | — | 42 MB |
+| + compiled model, `Microsoft.EntityFrameworkCore.Issue31751` switch, migration check skipped when current | ~3.9 s (first query 2.7 s) | ~2.7 s | 42 MB |
+| + full AOT (`AndroidEnableProfiledAot=false`) | ~1.1 s | ~2.0 s | 67 MB |
+| Windows Release (CoreCLR) | ~0.4 s | — | — |
+| **Plain `Microsoft.Data.Sqlite`** (open + query) | **~0.04–0.1 s** | — | — |
+
+Findings:
+- EF Core itself works in the trimmed + AOT Release APK (migrations, writes, LINQ), but its first use costs seconds on Mono.
+- The generated compiled model initializes on a second thread inside a static constructor and `Join`s it. **Mono
+  deadlocks** on this (CoreCLR doesn't), with or without trimming or AOT. EF's `Issue31751` switch restores
+  same-thread initialization.
+- Android Release builds already use profiled AOT; EF isn't in the startup profile, so it runs JIT-compiled.
+- ILLink trim warnings are suppressed by default for Android apps, so a clean build says nothing about trim safety;
+  only running the APK does.
+- The unpackaged Windows app stores app data under `%LOCALAPPDATA%\User Name\com.akus0ni.lldguide\Data` (the
+  default publisher name). Harmless; noted for later.
+
+**Decision (owner, 2026-10-16):** no EF Core on the device. The device database uses `Microsoft.Data.Sqlite` with
+hand-written, parameterised SQL behind the same ports. EF Core stays on the API. Recorded as PRD R67.

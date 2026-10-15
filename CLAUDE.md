@@ -32,7 +32,7 @@ built spec by spec. The app's own code is lesson material. See `docs/PRD.md` and
 - `src/Lld.App`: .NET MAUI with `HybridWebView` hosting the React build.
 - `web/`: React + Vite + TypeScript. One UI; data access goes through the
   `DataSource` abstraction (`HttpDataSource` in browser, `BridgeDataSource` in MAUI).
-- SQLite everywhere: EF Core on the API and on device.
+- SQLite everywhere: EF Core on the API; plain `Microsoft.Data.Sqlite` on device (EF Core was too slow on Android, spec 003 T1).
 - Auth: ASP.NET Core Identity (email = username) + custom JWT access / rotating refresh tokens.
   No self-registration: Request access → `Lld.Admin` console approves → temporary password → forced change.
 - Hosting: owner's PC (daytime only) behind ngrok (Dev Tunnels fallback); server status via signed ntfy.sh topic.
