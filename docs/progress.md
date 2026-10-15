@@ -14,7 +14,7 @@ _Last updated: 2026-10-16_
 | Spec 000 Foundation | ✅ Merged (PR #2) |
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
-| Spec 003 Content engine | 📝 Spec drafted on `spec/003-content-engine`, open questions answered, waiting for owner approval |
+| Spec 003 Content engine | 🚧 Spec approved; plan + tasks written; implementing on `spec/003-content-engine` |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -23,7 +23,7 @@ _Last updated: 2026-10-16_
 | 000 | Foundation | ✅ merged (PR #2) |
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
 | 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
-| 003 | Content engine (reader) | 📝 spec in review |
+| 003 | Content engine (reader) | 🚧 in progress |
 | 004 | OOP & SOLID content | planned |
 | 005 | Progress | planned |
 | 006 | GoF patterns content | planned |
@@ -85,6 +85,5 @@ ngrok agent 3.39.11 (winget `Ngrok.Ngrok` + `ngrok update`), domain `doodle-dioc
 account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`.
 
 ## How to resume (next session)
-1. `git switch spec/003-content-engine`; read `specs/003-content-engine/spec.md`.
-2. If the owner approved the spec: write `plan.md` + `tasks.md`, then implement task by task.
-   Otherwise resolve the review comments first.
+1. `git switch spec/003-content-engine`; read `specs/003-content-engine/tasks.md` (first unchecked task) and `plan.md`.
+2. T1 is a go / no-go spike (EF Core SQLite in the trimmed Android Release APK): if it fails, ask the owner before going on.

@@ -1,0 +1,23 @@
+# Spec 003: Tasks
+
+- [ ] T1 Spike: EF Core SQLite + a migration in the trimmed Android Release APK and the Windows app (go / no-go; ask the owner if no-go)
+- [ ] T2 Contracts: content DTOs; `Lld.Content`: pack model, source-generated JSON context, `IContentCatalog`, `InMemoryContentCatalog`
+- [ ] T3 `Lld.Content.Authoring`: files abstraction, reader, slugger (+ shared vector), outline, reading time, link resolver + rewriter; tests
+- [ ] T4 Validation rules (one class each) + fixtures; packer (deterministic version); `ContentPipeline`; tests
+- [ ] T5 Content migration: `module.yml` for `case-studies` + `start`, Auth front-matter, `lld-case-study` skill template; "repo content is valid" test green
+- [ ] T6 `Lld.Content.Cli` (`validate`, `pack`, `snapshot`) + `PackContent` target in `Lld.App.csproj`; a broken lesson fails the app build
+- [ ] T7 `Lld.App.Data`: `DeviceDbContext`, `InitialContent` migration, `SqliteContentCatalog`, `ContentPackLoader`; catalog contract suite + loader tests green
+- [ ] T8 MAUI: content assets, `ContentGate`, bridge content methods + `OpenExternal`
+- [ ] T9 API: dev-only content endpoints, watcher reload, `content.invalid`; AppHost `Content__Path`; API + Aspire tests green
+- [ ] T10 CI: content tests in `backend`; snapshot step in `web`
+- [ ] T11 Web data: types, `DataSource` content methods (HTTP + bridge), `useContent`; Vitest
+- [ ] T12 Web Learn: routes, module list, module page; sections updated
+- [ ] T13 Web reader: `MarkdownView`, `CodeBlock` (Shiki), `MermaidDiagram`, `Outline` (desktop + phone sheet), cheat sheet button, prev / next
+- [ ] T14 Web reader preferences: text size, reading position; Vitest
+- [ ] T15 Web Revise: grouped list, module filter, cheat sheet page
+- [ ] T16 Playwright: A5–A8 from the snapshot (phone + desktop)
+- [ ] T17 Content: "How to use LLD Guide" lesson + cheat sheet (owner reviews the text)
+- [ ] T18 UI pass with the skills (`emil-design-eng`, `apple-design`, `mobile-native`, `break-ui`); fixes
+- [ ] T19 Manual run: A1 airplane-mode fresh install (Android Release), A2 add a lesson + rebuild (Windows, Android, browser), A5 on devices, A9 restart, A10 timing; screenshots
+- [ ] T20 Docs: PRD (F2, F3, §13 new decisions, v0.5), `docs/plan.md` decisions, README authoring section, plan §4 outcomes, progress log
+- [ ] T21 PR with acceptance-criteria table

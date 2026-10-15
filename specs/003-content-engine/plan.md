@@ -1,0 +1,188 @@
+# Spec 003: Implementation plan
+
+Companion to [`spec.md`](./spec.md). Versions checked against NuGet and npm on 2026-10-16.
+
+## 1. Packages
+| Package | Version | Used by |
+|---|---|---|
+| `Markdig` | 1.4.0 | Content.Authoring (Markdown AST: front-matter block, headings, links, code fences, with line numbers) |
+| `YamlDotNet` | 18.1.0 | Content.Authoring (front-matter, `module.yml`) |
+| `Microsoft.EntityFrameworkCore.Sqlite` | 10.0.13 (already pinned) | App.Data (device database) |
+| `Microsoft.EntityFrameworkCore.Design` | 10.0.13 (already pinned) | App.Data (migrations, design time only) |
+
+| npm package | Version | Why |
+|---|---|---|
+| `react-markdown` | 10.1.0 | Markdown → React elements; no raw HTML (safe by default) |
+| `remark-gfm` | 4.0.1 | Tables, strikethrough, autolinks |
+| `shiki` | 4.5.0 | C# and other highlighting (`shiki/core` + JavaScript regex engine, only the languages we use, no WASM) |
+| `mermaid` | 12.2.0 | Diagrams; loaded with `import()` only when a lesson has a diagram |
+| `github-slugger` | 2.0.0 | Heading anchors, same algorithm as GitHub (C# port shares a test vector) |
+
+Markdown parsing is **build-time only** (and the dev API). The device never parses YAML or Markdown structure, so
+Markdig and YamlDotNet never ship inside the app.
+
+## 2. Design
+
+### 2.1 Projects
+```
+Lld.Contracts            + ContentContracts.cs (DTOs shared by API, App, web types)
+Lld.Content              pack model + IContentCatalog + InMemoryContentCatalog   (BCL + Contracts only; App uses it)
+Lld.Content.Authoring    NEW: read content/ → validate → pack                     (Markdig, YamlDotNet; API + CLI)
+Lld.Content.Cli          NEW: `lld-content validate | pack | snapshot`            (build tool, CI, Playwright data)
+Lld.App.Data             NEW: device SQLite (EF Core) + SqliteContentCatalog + ContentPackLoader (net10.0, testable)
+tests/Lld.Content.Tests  NEW: authoring, rules, packer, both catalogs (one shared contract suite), loader
+```
+Dependency direction: `Contracts ← Content ← Content.Authoring ← {Api, Cli}` and `Content ← App.Data ← App`.
+
+### 2.2 Contracts (`Lld.Contracts/ContentContracts.cs`)
+```
+ModuleSummary      Slug, Title, Summary, Order, LessonCount
+ModuleDetail       Slug, Title, Summary, Lessons: LessonSummary[]
+LessonSummary      Id, ModuleSlug, Slug, Title, Summary, Order, ReadingMinutes, Tags[]
+LessonDetail       LessonSummary fields + ModuleTitle, BodyMarkdown, Outline: OutlineEntry[], CheatSheetTitle,
+                   Previous?: LessonLink, Next?: LessonLink
+OutlineEntry       Level (2|3), Text, Anchor
+LessonLink         Id, ModuleSlug, Slug, Title
+CheatSheetSummary  LessonId, ModuleSlug, ModuleTitle, LessonSlug, LessonTitle, Title
+CheatSheetDetail   CheatSheetSummary fields + BodyMarkdown
+```
+Mirrored by hand in `web/src/data/types.ts`, as for the existing DTOs.
+
+### 2.3 Pack model and catalog (`Lld.Content`)
+- `ContentPack { Format = 1, Version, Modules: PackedModule[] }`. `PackedModule { Slug, Title, Summary, Order, Lessons }`.
+  `PackedLesson { Id, Slug, Title, Summary, Order, Tags, Source?, ReadingMinutes, BodyMarkdown, Outline, CheatSheet { Title, BodyMarkdown } }`.
+- `ContentPackJson`: a System.Text.Json **source-generated** context, so (de)serialization survives Android trimming.
+- `IContentCatalog` (the port both sides implement, Repository + Strategy):
+  `GetModulesAsync`, `GetModuleAsync(slug)`, `GetLessonAsync(id)`, `GetCheatSheetsAsync(moduleSlug?)`, `GetCheatSheetAsync(lessonId)`.
+  "Not found" returns `null`; callers map it to `content.not_found`.
+- `InMemoryContentCatalog(ContentPack)`: used by the dev API and by the CLI `snapshot` command. Previous / next =
+  neighbours in module order (no crossing into another module).
+
+### 2.4 Authoring pipeline (`Lld.Content.Authoring`)
+Pipeline: **read → validate → pack**. Each step is a small class, so a new rule never edits the others (Open/Closed).
+
+| Class | Responsibility |
+|---|---|
+| `ContentRepository` (`IContentFiles`) | Lists module folders, lesson folders and files. Physical implementation + an in-memory one for tests |
+| `ContentReader` | Parses `module.yml` and each Markdown file into a `SourceDocument` (front-matter map with line numbers, Markdig AST, path). YAML syntax errors become issues, not exceptions |
+| `HeadingSlugger` | Port of `github-slugger` (lower-case, strip punctuation, spaces → `-`, de-duplicate with `-1`, `-2`). Shared vector: `tests/fixtures/content/slugs.json`, also run by Vitest |
+| `OutlineBuilder` | h2/h3 → `OutlineEntry[]` with slugger anchors |
+| `ReadingTime` | Prose words / 200 (code blocks excluded), rounded up, at least 1 minute |
+| `LinkResolver` | Classifies each link: lesson / cheat sheet (with optional anchor), repo file, external, or broken |
+| `LinkRewriter` | Rewrites URLs inside the Markdown text by their source spans (see below) |
+| `IContentRule` × N | One class per validation rule; returns `ContentIssue { Path, Line?, Code, Message }` |
+| `ContentValidator` | Runs every registered rule and collects all issues |
+| `ContentPacker` | Builds the `ContentPack`, ordered by `order`; `Version` = SHA-256 of the canonical pack JSON (without the version), so the same content always gives the same version |
+| `ContentPipeline` | Facade: `Build(contentRoot, repoRoot) → Result<ContentPack, ContentIssue[]>` |
+
+**Rules (spec §3.2):** `ModuleFileRequired`, `LessonFileRequired`, `CheatSheetRequired`, `ModuleFrontMatter`,
+`LessonFrontMatter`, `CheatSheetFrontMatter` (required keys, types, unknown keys rejected), `LessonIdUnique`,
+`LessonIdFormat` (kebab-case), `OrderUnique` (modules, and lessons within a module), `InternalLinkResolves`
+(target lesson / cheat sheet exists, and the anchor exists in it), `RepoLinkResolves` (file exists under the repo root),
+`MermaidNotEmpty`.
+
+**Link rewriting** (the app uses a hash router, so `#fragment` can't carry an in-page anchor):
+| Link in Markdown | Rewritten to |
+|---|---|
+| `../../oop-solid/srp/lesson.md#liskov` | `/learn/oop-solid/srp?at=liskov` |
+| `../srp/cheatsheet.md` | `/revise/oop-solid/srp` |
+| `#some-heading` (same file) | `?at=some-heading` |
+| `../../../src/Lld.Domain/Access/AccessRequest.cs` | `https://github.com/Akus0ni/LowLevelDesignGuide/blob/main/src/Lld.Domain/Access/AccessRequest.cs` |
+| `https://…` | unchanged |
+The GitHub base URL is an option (`ContentOptions.RepositoryFileUrl`), not a literal in the rewriter.
+
+### 2.5 Build tool and app packaging (`Lld.Content.Cli`, `Lld.App.csproj`)
+- Commands (System.CommandLine, already used by `Lld.Admin`):
+  - `validate [--content <dir>]` → prints `path:line: code: message` per issue; exit code 1 when any.
+  - `pack --out <dir>` → `content-pack.json` + `content-version.txt`; fails like `validate`.
+  - `snapshot --out <dir>` → every API response as static JSON (`modules.json`, `modules/<slug>.json`,
+    `lessons/<id>.json`, `cheatsheets.json`, `cheatsheets/<lessonId>.json`) via `InMemoryContentCatalog`. Used by
+    Playwright, so the e2e tests read real content without duplicating catalog logic in TypeScript.
+- `Lld.App.csproj`:
+  - `ProjectReference` to the CLI with `ReferenceOutputAssembly=false` (built first, never shipped).
+  - Target `PackContent` (before `BeforeBuild`, `Inputs="content/**"`, `Outputs="$(IntermediateOutputPath)content/content-pack.json"`)
+    runs `dotnet <cli>.dll pack`. **A content error fails the app build**, showing the issue list.
+  - The two files are added as `MauiAsset` under `content/` (same pattern as the web bundle).
+
+### 2.6 Device database (`Lld.App.Data`)
+- `DeviceDbContext` (EF Core SQLite) at `<AppDataDirectory>/lld-device.db`; migrations from the start
+  (`InitialContent`), applied with `MigrateAsync()` on launch, because specs 005/007/010 add user tables later.
+- Tables: `Modules` (Slug PK, Title, Summary, Order), `Lessons` (Id PK, ModuleSlug FK, Slug, Title, Summary, Order,
+  TagsJson, Source, ReadingMinutes, BodyMarkdown, OutlineJson, CheatSheetTitle, CheatSheetMarkdown),
+  `DeviceMeta` (Key PK, Value) holding `content.version`. Unique index (ModuleSlug, Slug).
+- `ContentPackLoader.EnsureLoadedAsync(IContentPackSource)`:
+  1. Read `content-version.txt` (a few bytes). Equal to `DeviceMeta[content.version]` → done (no pack parse).
+  2. Otherwise deserialize the pack and, **in one transaction**, delete content rows, insert the new ones and set the
+     version. Any failure rolls back and leaves the old content in place.
+- `SqliteContentCatalog : IContentCatalog` (AsNoTracking queries, prev / next by `Order`).
+- `IContentPackSource` is the seam: MAUI implements it with `FileSystem.OpenAppPackageFileAsync`, tests with files on disk.
+
+### 2.7 MAUI (`Lld.App`)
+- DI: `DeviceDbContext` (factory), `ContentPackLoader`, `SqliteContentCatalog`, `MauiContentPackSource`.
+- `ContentGate`: a `Lazy<Task>` that migrates + loads once; every content bridge method awaits it, so the first call
+  waits for the load and later calls don't.
+- `BridgeService` gains `GetModules`, `GetModule(slug)`, `GetLesson(id)`, `GetCheatSheets(moduleSlug?)`,
+  `GetCheatSheet(lessonId)` → `BridgeResult<T>` (`content.not_found` when missing), and `OpenExternal(url)`
+  (`Launcher.OpenAsync`, only `https://` allowed).
+- **Spike first (T1):** EF Core + SQLite + migrations inside the **trimmed Android Release APK** and the Windows app.
+  If it doesn't work cleanly, I stop and bring the options to the owner before going on.
+
+### 2.8 API (`Lld.Api`, `Lld.AppHost`)
+- `ContentEndpoints` mapped **only when `IsDevelopment()`**:
+  `GET /api/content/modules`, `/modules/{slug}`, `/lessons/{id}`, `/cheatsheets?module=`, `/cheatsheets/{lessonId}`.
+  Anonymous; excluded from the tunnel budget meter (never hosted anyway).
+- `DevContentCatalog`: builds the pack with `ContentPipeline` from `Content:Path`. A `FileSystemWatcher` marks it stale;
+  the next request rebuilds it (debounced 200 ms), so a saved file shows up on the next page load.
+- Invalid content in dev → `500` problem details, code `content.invalid`, with the issue list (shown in the browser
+  so the author sees what to fix).
+- AppHost passes `Content__Path` = the repo's `content/` folder.
+
+### 2.9 Web (`web/`)
+- **Data:** `DataSource` gains the five content methods (§2.2) and `openExternal(url)`. `HttpDataSource` → `/api/content/...`
+  (`window.open` for external links); `BridgeDataSource` → `InvokeDotNet`. A small `useContent(key, load)` hook caches
+  results per session (content can't change while the app runs), so going back is instant.
+- **Routes** (hash router): `/learn`, `/learn/:module`, `/learn/:module/:lesson?at=<anchor>`, `/revise?module=<slug>`,
+  `/revise/:module/:lesson`. Learn and Revise lose their "coming in" placeholder.
+- **`features/content/`:**
+  | Component | Notes |
+  |---|---|
+  | `ModuleList`, `ModulePage` | Cards with title, summary, lesson count / reading time |
+  | `LessonPage` | Header (module, title, reading time, **Cheat sheet** button, `Aa` text size), body, prev / next |
+  | `MarkdownView` | react-markdown + remark-gfm; custom `h2`/`h3` (slugger ids), `a` (internal → router link, `?at=` → scroll, external → `openExternal`), `table` (own horizontal scroll), `pre`/`code` (→ `CodeBlock` or `MermaidDiagram`) |
+  | `CodeBlock` | Plain text first, then Shiki output in the same box (same font and line height, so nothing jumps). Dual light / dark theme with CSS variables. Unknown language → plain |
+  | `MermaidDiagram` | `import('mermaid')` on first use; `securityLevel: 'strict'`; theme follows `prefers-color-scheme` and re-renders on change; on error shows the source and "Diagram failed to render"; scrolls horizontally |
+  | `Outline` | Desktop (≥ `lg`): sticky side column with the current section highlighted. Phone: "On this page" button → bottom sheet (base-ui Dialog) |
+  | `CheatSheetPage` | Body + "Read the lesson" link |
+  | `RevisePage` | Grouped by module, filter chips (`?module=`) |
+- **Reader preferences (`readerPrefs.ts`, device only):** text size `s | m | l` (CSS variable on the reader: 15 / 17 / 19 px)
+  and reading position per lesson `{ anchor, offset }` (nearest heading above the top of the screen + pixels past it,
+  so it survives text size changes and late diagram rendering). Stored in `localStorage` with try/catch. If the
+  WebView doesn't keep it across restarts on a platform (checked in T20), it moves behind the bridge (MAUI `Preferences`).
+- Highlighter warm-up: after first paint, `requestIdleCallback` creates the Shiki highlighter, so the first lesson
+  open doesn't pay for it (A10).
+- Bundle: Mermaid and Shiki languages are separate lazy chunks; `chunkSizeWarningLimit` raised only for the Mermaid chunk.
+
+### 2.10 Content
+- `content/case-studies/module.yml`, `content/start/module.yml` (order 0).
+- Auth lesson: drop `module:`, add `summary`. Auth cheat sheet: only `title`.
+- `content/start/how-to-use/{lesson.md, cheatsheet.md}`: modules and their order, lesson ↔ cheat sheet, how to
+  revise before an interview, reading offline.
+- `.claude/skills/lld-case-study/SKILL.md`: front-matter template updated to the new contract.
+
+## 3. Testing
+| Area | Tests |
+|---|---|
+| Authoring | Reader (front-matter lines, YAML errors), slugger (shared vector), outline, reading time, link resolver + rewriter, **one fixture per rule** (`tests/fixtures/content/<rule>/`), packer determinism, and "the repo's real `content/` is valid" |
+| Catalogs | One contract suite run against `InMemoryContentCatalog` and `SqliteContentCatalog` (ordering, prev / next at module edges, filters, not found) |
+| Loader | Same version → nothing parsed or written; new version → replaced; a failure mid-load → old content intact |
+| API | Endpoints in Development; 404 in Production (A11); file added → visible on the next request (A2); invalid content → `content.invalid` |
+| Aspire | `GET /api/content/modules` through the AppHost returns `start` and `case-studies` |
+| Vitest | Content methods on both data sources, `useContent` cache, `MarkdownView` (ids, links, tables, Mermaid fallback with a mocked module), `readerPrefs`, Revise filter, prev / next |
+| Playwright | Routes served from the CLI `snapshot`: A5 (Auth lesson: outline, highlighted C#, 4 diagrams, light + dark), A6 (no sideways scroll at 320 px), A7, A8 (cheat sheet heights: ≤ 3 × 844 px, case studies ≤ 5 ×), phone + desktop |
+| Manual | A1 airplane-mode fresh install (Android Release), A2 add a lesson + rebuild (Windows, Android, browser), A5 on devices, A9 restart, A10 timing; screenshots |
+
+CI: `backend` gains `tests/Lld.Content.Tests`; `web` gains `setup-dotnet` and runs `lld-content snapshot` before Playwright;
+`maui-windows-android` packs content as part of the app build (so content errors fail it too).
+
+## 4. Outcomes
+_Filled in at the end of the spec: deviations, findings, verification table._
