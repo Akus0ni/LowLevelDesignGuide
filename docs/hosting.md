@@ -95,6 +95,7 @@ C:\LldGuide\admin\lld-admin.exe status budget
 | Task | Command |
 |---|---|
 | Is it running? | `Get-Service LldGuideApi, ngrok` |
+| See and approve access requests | `C:\LldGuide\admin\lld-admin.exe requests list`, then `requests approve <ID or email>` (prints a temporary password once) |
 | Stop / start the API | `Stop-Service LldGuideApi` / `Start-Service LldGuideApi` (apps switch to offline / online) |
 | Planned maintenance notice | `C:\LldGuide\admin\lld-admin.exe status publish offline` |
 | Backup now / list | `C:\LldGuide\admin\lld-admin.exe backup run` / `backup list` |

@@ -97,7 +97,7 @@ console on the PC (it talks to the same SQLite file as the API; there are no adm
 dotnet run --project src/Lld.Admin -- users create you@example.com --role admin
 
 dotnet run --project src/Lld.Admin -- requests list            # pending requests (--all for every status)
-dotnet run --project src/Lld.Admin -- requests approve 83c8    # id or its first characters → temporary password
+dotnet run --project src/Lld.Admin -- requests approve 83c8    # ID column of 'requests list' (first characters), or the email → temporary password
 dotnet run --project src/Lld.Admin -- requests reject 83c8
 dotnet run --project src/Lld.Admin -- users list | reset-password <email> | disable <email>
 dotnet run --project src/Lld.Admin -- audit list --take 20

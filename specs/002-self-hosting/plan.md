@@ -165,6 +165,15 @@ The spec's `status keygen` becomes `hosting init` for first-time setup (it creat
 ### Findings
 - **Content root:** `Host.CreateApplicationBuilder` and `WebApplication.CreateBuilder` read `appsettings*.json` from the **current directory**. The installer runs `lld-admin` from the repo, and a Windows service starts in `C:\Windows\System32`, so both now use the executable's folder (the API only when `WindowsServiceHelpers.IsWindowsService()`, so tests keep their content root).
 - **Hidden prompts:** in Windows PowerShell 5.1, Ctrl+V at `Read-Host -AsSecureString` stores a control character (0x16) instead of pasting. The installer now validates the ngrok authtoken and says to paste with right-click or Ctrl+Shift+V.
+- **App-inferred outages need their own recovery** (found by the owner on a real phone): with mobile data off, a
+  failed call marks the server "unreachable", but the server never went down, so no signed "online" ever follows
+  and the banner stayed until the app restarted. `ReachabilityRecovery` (shared rules, .NET + TS) re-checks with
+  one `/health` call when the connection may be back: the device regains internet (MAUI `Connectivity`, browser
+  `online` event), the ntfy stream reconnects, or the app resumes. At most one probe per 10 s, never on a timer,
+  and never for a signed "offline" (shutdown, quota, manual). Verified on the Release APK: the banner cleared and
+  the saved request arrived about 5 s after the network came back, without reopening the app.
+- **Admin console:** `requests approve|reject` take the ID shown by `requests list` (first characters are
+  enough) and now also the email of a pending request.
 - **ntfy.sh cache** is 12 hours (`expires` = `time` + 43,200 s on a real message), which confirms the 6 h heartbeat / 7 h stale design.
 - **ngrok agent** from winget is 3.3.x; the `endpoints:` config needs `ngrok update` (3.39.11 used). A domain shows "Offline" in the dashboard until an agent connects; no dashboard endpoint is needed.
 - **Windows virtual service accounts** work with `sc.exe create ... obj= "NT SERVICE\LldGuideApi"` (no password).
@@ -173,14 +182,16 @@ The spec's `status keygen` becomes `hosting init` for first-time setup (it creat
 ### Verification
 | Check | Result |
 |---|---|
-| Tests | 23 server-status, 38 application, 19 API, 10 admin console, 23 domain, 3 Aspire integration, 62 Vitest, 4 Playwright (× phone/desktop) |
+| Tests | 30 server-status, 38 application, 19 API, 11 admin console, 23 domain, 3 Aspire integration, 68 Vitest, 4 Playwright (× phone/desktop) |
 | Install (A10, idempotency) | `install.ps1` run three times on the owner PC (two failed runs fixed, then a clean run); services `LldGuideApi` (auto, `NT SERVICE\LldGuideApi`) and `ngrok` running; local + public health OK |
 | Public URL | `https://doodle-diocese-revenue.ngrok-free.dev/health` → `Healthy` |
 | Signed status (A5, live) | Startup message on ntfy verifies with the committed public key; a forged message is rejected (`BadSignature`) |
 | Android Release APK (trimmed) | Emulator: bridge works, request access through ngrok reaches the hosted DB (screenshot `android-release-request-sent.png`) |
 | Offline → online (A3/A4, signed manual messages) | Emulator: banner within seconds of `status publish offline`; a request made offline is saved; after `status publish online` it reaches the server in ~1 s with a toast (`android-release-*.png`) |
+| Network off → request → network on (owner report) | Owner's phone: banner stuck until restart (bug). After the fix, on the Release APK in the emulator: request saved while offline, then banner cleared and the request arrived ~5 s after the network returned, app left open (`android-release-network-*.png`) |
+| Windows app, real service stop/start (A3, owner) | Works |
 | Banner layout | Phone: above the tab bar (also at 320 px); desktop: top (`web-*-offline-banner.png`) |
 | LAN (A8) | Listens on `127.0.0.1:5280` / `[::1]:5280` only; LAN address refused |
 | Secrets (A11) | `secrets\` ACL: SYSTEM, Administrators, `NT SERVICE\LldGuideApi`, owner; `ngrok.yml` unreadable without elevation; no token or topic in the repo |
 | Budget (A7, live) | `status budget` counted the 3 tunnelled requests after install |
-| Owner checks still to run | A1 reboot without login; A2 real phone on mobile data; A3 real `Stop-Service` / `Start-Service` flip on Windows app, browser and phone; A6 kill the API process; A10 `uninstall.ps1` |
+| Owner checks still to run | A1 reboot without login; A2 sign-in on the real phone over mobile data; A3 real stop/start flip on browser and phone; A6 kill the API process; A10 `uninstall.ps1` |
