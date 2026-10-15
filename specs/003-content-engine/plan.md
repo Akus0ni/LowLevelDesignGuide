@@ -64,7 +64,7 @@ Pipeline: **read → validate → pack**. Each step is a small class, so a new r
 |---|---|
 | `ContentRepository` (`IContentFiles`) | Lists module folders, lesson folders and files. Physical implementation + an in-memory one for tests |
 | `ContentReader` | Parses `module.yml` and each Markdown file into a `SourceDocument` (front-matter map with line numbers, Markdig AST, path). YAML syntax errors become issues, not exceptions |
-| `HeadingSlugger` | Port of `github-slugger` (lower-case, strip punctuation, spaces → `-`, de-duplicate with `-1`, `-2`). Shared vector: `tests/fixtures/content/slugs.json`, also run by Vitest |
+| `HeadingSlugger` | Port of `github-slugger`: its removal regex is copied verbatim into `GithubSluggerPattern.cs` by `web/scripts/port-slugger.mjs` (.NET and JS both match UTF-16 code units). Shared vector `tests/fixtures/content/slugs.json`, generated from the real library by `web/scripts/generate-slug-fixture.mjs`, also run by Vitest |
 | `OutlineBuilder` | h2/h3 → `OutlineEntry[]` with slugger anchors |
 | `ReadingTime` | Prose words / 200 (code blocks excluded), rounded up, at least 1 minute |
 | `LinkResolver` | Classifies each link: lesson / cheat sheet (with optional anchor), repo file, external, or broken |
@@ -214,3 +214,10 @@ Findings:
 
 **Decision (owner, 2026-10-16):** no EF Core on the device. The device database uses `Microsoft.Data.Sqlite` with
 hand-written, parameterised SQL behind the same ports. EF Core stays on the API. Recorded as PRD R67.
+
+### T3 notes
+- `github-slugger` was added to `web/` in T3 (not T13) so the fixture and the regex port can be regenerated.
+- Markdig 1.x exposes source positions as **fields** (`LinkInline.UrlSpan`, `MarkdownObject.Span`), not properties.
+  A reference-style use (`[text][id]`) reports its definition's `UrlSpan`, so the rewriter only touches inline links
+  without a reference plus the definitions themselves.
+- Folders starting with `.` or `_` under `content/` are ignored (drafts, editor folders).

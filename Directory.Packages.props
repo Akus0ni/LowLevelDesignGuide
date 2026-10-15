@@ -33,6 +33,10 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.13" />
     <PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="10.0.13" />
   </ItemGroup>
+  <ItemGroup Label="Content">
+    <PackageVersion Include="Markdig" Version="1.4.0" />
+    <PackageVersion Include="YamlDotNet" Version="18.1.0" />
+  </ItemGroup>
   <ItemGroup Label="MAUI">
     <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.110" />
     <PackageVersion Include="Microsoft.Maui.Core" Version="10.0.110" />
