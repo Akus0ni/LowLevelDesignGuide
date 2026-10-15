@@ -20,7 +20,6 @@ export const SECTIONS: Section[] = [
   {
     path: 'revise',
     label: 'Revise',
-    comingIn: 'Spec 003',
     summary: 'One-screen cheat sheets for quick revision before an interview.',
     icon: <Icon d={['M13 2 4 14h7l-1 8 9-12h-7l1-8Z']} />,
   },

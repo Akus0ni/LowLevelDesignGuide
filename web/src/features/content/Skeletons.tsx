@@ -60,3 +60,17 @@ export function LessonSkeleton() {
     </Loading>
   );
 }
+
+/** Revise: chips and a box of rows. */
+export function ListSkeleton() {
+  return (
+    <Loading className="mt-6">
+      <div className="flex gap-2">
+        {[14, 24, 20].map((width) => (
+          <div key={width} className={cn(bar, 'h-9 rounded-full')} style={{ width: `${width * 4}px` }} />
+        ))}
+      </div>
+      <div className={cn(box, 'mt-6 h-40')} />
+    </Loading>
+  );
+}

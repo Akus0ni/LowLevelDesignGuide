@@ -17,8 +17,8 @@
 - [x] T13c Code callouts: entities-table term extraction at pack time (`LessonDetail.terms`), underline + popover in code blocks
 - [x] T14 Web reader preferences: text size, reading position; Vitest
 - [x] T14b Guided reading flow: outline scroll-spy, section ticks (device-only), "Next up" card
-- [ ] T15 Web Revise: grouped list, module filter, cheat sheet page
-- [ ] T15b Recall mode on cheat sheets (fold / reveal / reveal all, remembered on the device)
+- [x] T15 Web Revise: grouped list, module filter, cheat sheet page
+- [x] T15b Recall mode on cheat sheets (fold / reveal / reveal all, remembered on the device)
 - [ ] T16 Playwright: A5–A8 from the snapshot (phone + desktop)
 - [ ] T17 Content: "How to use LLD Guide" lesson + cheat sheet (owner reviews the text)
 - [ ] T18 UI pass with the skills (`emil-design-eng`, `apple-design`, `mobile-native`, `break-ui`); fixes

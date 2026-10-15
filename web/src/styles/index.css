@@ -201,8 +201,12 @@
       display: none;
     }
 
-    & > :first-child {
+    /* Content that opens with a section heading: the page header's rule already separates it. */
+    & > :first-child,
+    & > section:first-child > h2:first-child {
       margin-top: 0;
+      border-top: 0;
+      padding-top: 0;
     }
 
     & h2,
@@ -647,6 +651,33 @@
       &[data-ending-style] {
         transform: none;
       }
+    }
+  }
+}
+
+/* Recall mode: a revealed section opens like an accordion (height is allowed here); reduced motion opens at once. */
+@layer components {
+  .recall-panel {
+    height: var(--collapsible-panel-height);
+    overflow: hidden;
+    transition:
+      height 200ms var(--ease-out),
+      opacity 200ms var(--ease-out);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      height: 0;
+      opacity: 0;
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .recall-panel {
+      transition: none;
     }
   }
 }

@@ -71,6 +71,10 @@ export const loadReadSections = (lessonId: string) =>
 export const saveReadSections = (lessonId: string, anchors: Set<string>) =>
   write(`${PREFIX}read.${lessonId}`, [...anchors]);
 
+export const loadRecall = (): boolean => read<boolean>(`${PREFIX}recall`) === true;
+
+export const saveRecall = (on: boolean) => write(`${PREFIX}recall`, on);
+
 /** Test seam: forget the cached text size so the next read comes from storage again. */
 export function resetReaderStoreForTests(): void {
   textSize = null;

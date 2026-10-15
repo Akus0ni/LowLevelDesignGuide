@@ -74,7 +74,8 @@ Output: `content/case-studies/<slug>/cheatsheet.md`. Its front-matter is only
 `title: "Cheat sheet: <Title>"`; everything else comes from the lesson.
 Case-study cheat sheets fit a phone screen with at most 4 scrolls (concept
 cheat sheets: 2): requirements in 5 bullets, entity list, the class diagram,
-patterns with one-line reasons, 3 gotchas, 30-second pitch.
+patterns with one-line reasons, 3 gotchas, 30-second pitch. Each block is a `##`
+section (recall mode folds the cheat sheet section by section).
 
 ## Step 5 — Verify
 

@@ -3,15 +3,17 @@ import { ComingSoon } from '../features/ComingSoon';
 import { ProfilePage } from '../features/auth/screens';
 import { LearnPage } from '../features/content/LearnPage';
 import { ModulePage } from '../features/content/ModulePage';
+import { RevisePage } from '../features/content/RevisePage';
 import { AppShell } from './AppShell';
 import { SECTIONS } from './sections';
 
 /** The reader's code; imported on first lesson open, or earlier by `warmUpReader`. */
 const loadReader = () => import('../features/content/LessonPage');
+const loadCheatSheet = () => import('../features/content/CheatSheetPage');
 
 /** Starts loading the reader when the browser is idle, so the first lesson opens without waiting for code. */
 export function warmUpReader(): void {
-  const start = () => void loadReader().catch(() => {});
+  const start = () => void Promise.all([loadReader(), loadCheatSheet()]).catch(() => {});
   if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 3000 });
   else setTimeout(start, 1);
 }
@@ -35,6 +37,13 @@ const BUILT: Record<string, RouteObject> = {
         lazy: async () => ({ Component: (await loadReader()).LessonPage }),
         handle: { wide: true } satisfies RouteHandle,
       },
+    ],
+  },
+  revise: {
+    path: 'revise',
+    children: [
+      { index: true, element: <RevisePage /> },
+      { path: ':module/:lesson', lazy: async () => ({ Component: (await loadCheatSheet()).CheatSheetPage }) },
     ],
   },
   profile: { path: 'profile', element: <ProfilePage /> },

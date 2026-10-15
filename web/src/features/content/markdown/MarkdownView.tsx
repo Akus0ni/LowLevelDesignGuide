@@ -1,5 +1,5 @@
 import type { Element, ElementContent, Root } from 'hast';
-import type { ComponentProps, MouseEvent } from 'react';
+import { Children, type ComponentProps, type MouseEvent } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import { Link } from 'react-router';
 import rehypeSlug from 'rehype-slug';
@@ -9,6 +9,8 @@ import { isWebLink } from '../../../data/camelCase';
 import type { LessonTerm } from '../../../data/types';
 import { CodeBlock } from './CodeBlock';
 import { TermsContext } from './terms';
+import { rehypeRecallSections } from '../reader/recall';
+import { RecallSection } from '../reader/RecallSection';
 import { MermaidDiagram } from './MermaidDiagram';
 
 /**
@@ -20,18 +22,21 @@ export function MarkdownView({
   markdown,
   terms = NO_TERMS,
   textSize = 'm',
+  recall = false,
 }: {
   markdown: string;
   terms?: LessonTerm[];
   /** Reader setting (T14): s / m / l. */
   textSize?: 's' | 'm' | 'l';
+  /** Cheat sheets: group `##` sections so recall mode can fold them. */
+  recall?: boolean;
 }) {
   return (
     <TermsContext value={terms}>
       <div className="reader-prose" data-text-size={textSize}>
         <Markdown
           remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeSlug, rehypeDropLeadingTitle]}
+          rehypePlugins={recall ? RECALL_PLUGINS : PLUGINS}
           components={components}
           skipHtml
         >
@@ -53,6 +58,9 @@ function rehypeDropLeadingTitle() {
   };
 }
 
+const PLUGINS = [rehypeSlug, rehypeDropLeadingTitle];
+const RECALL_PLUGINS = [...PLUGINS, rehypeRecallSections];
+
 function textOf(node: ElementContent): string {
   if (node.type === 'text') return node.value;
   return node.type === 'element' ? node.children.map(textOf).join('') : '';
@@ -60,6 +68,12 @@ function textOf(node: ElementContent): string {
 
 const components: Components = {
   a: ContentLink,
+  section: ({ node, children, ...props }) => {
+    const id = node?.properties.dataRecall;
+    if (typeof id !== 'string') return <section {...props}>{children}</section>;
+    const [heading, body] = Children.toArray(children);
+    return <RecallSection id={id} heading={heading} body={body} />;
+  },
   table: ({ node, ...props }) => (
     // Wide tables scroll inside their own box; the page never scrolls sideways.
     <div className="table-scroll" tabIndex={0} role="region" aria-label="Table">

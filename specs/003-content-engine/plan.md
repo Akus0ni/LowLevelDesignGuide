@@ -356,3 +356,15 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
 - Text size S / M / L (15 / 17 / 19 px) from the "Aa" popover; instant (a setting, not an animation).
 - "Next up" replaces the previous/next cards: the next lesson, or the cheat sheet on the last lesson; it rises 8 px +
   fades in (320 ms ease-out) the first time it scrolls into view; previous stays as a plain link.
+
+### T15 / T15b notes
+- Revise fetches every cheat sheet once and filters on the client (instant chips); `?module=` keeps the filter across
+  Back. Groups use the same box-of-rows style as a module.
+- Cheat sheet page: back to Revise, "from <lesson> →" under the title (keeps the action row to one line on phones),
+  Recall switch (`role=switch`), Reveal all, text size. Lazy route, warmed on idle with the reader.
+- Recall: a rehype step wraps each `##` and its content in a section; Base UI Collapsible folds the body behind a
+  dashed "think first, then reveal" button; revealing animates height (the sanctioned accordion case), none with
+  reduced motion. The switch is remembered on the device.
+- **Content change for owner review:** the Auth cheat sheet's bold labels (`**Requirements (5 bullets)**` …) became
+  `##` sections, wording unchanged, so recall mode can fold them; the `lld-case-study` skill now asks for `##` blocks.
+  Real cheat sheet height on a Pixel 7: 3.08 screens (case-study limit ≤ 5).
