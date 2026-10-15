@@ -141,8 +141,10 @@ The GitHub base URL is an option (`ContentOptions.RepositoryFileUrl`), not a lit
 - `ContentEndpoints` mapped **only when `IsDevelopment()`**:
   `GET /api/content/modules`, `/modules/{slug}`, `/lessons/{id}`, `/cheatsheets?module=`, `/cheatsheets/{lessonId}`.
   Anonymous; excluded from the tunnel budget meter (never hosted anyway).
-- `DevContentCatalog`: builds the pack with `ContentPipeline` from `Content:Path`. A `FileSystemWatcher` marks it stale;
-  the next request rebuilds it (debounced 200 ms), so a saved file shows up on the next page load.
+- `DevContentCatalog`: builds the pack with `ContentPipeline` from `Content:Path` (default: the repository found above the
+  API's folder). Each request fingerprints `content/` (paths, sizes, write times); when the fingerprint changed it
+  rebuilds, so a saved, added or deleted file shows up on the next page load. (Changed from a `FileSystemWatcher`,
+  which can miss events or fire after the request and needs debouncing; listing a few dozen files costs nothing.)
 - Invalid content in dev → `500` problem details, code `content.invalid`, with the issue list (shown in the browser
   so the author sees what to fix).
 - AppHost passes `Content__Path` = the repo's `content/` folder.
@@ -268,3 +270,10 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
   | `OpenExternal('javascript:…')` → `link.not_allowed` | ✅ | ✅ |
   | `OpenExternal('https://github.com/…')` | not run (would open a desktop browser) | ✅ Chrome on top; Back returns to the app |
   | Lesson read time after start-up | 2–11 ms | 21–76 ms (Debug, JIT) |
+
+### T9 notes
+- Endpoints are mapped only when `IsDevelopment()`; the test for A11 runs the API as `Staging` (not `Production`,
+  whose settings file points at the hosted database and secrets on the owner's PC) and gets 404.
+- `content.invalid` responses carry an `issues` array with the same `path:line: code: message` lines the build prints.
+- Tests: 7 API tests (endpoints, 404s, add + delete a lesson while running, invalid content, not mapped outside
+  Development) and 1 Aspire test (the AppHost passes `Content__Path`, real content is served).

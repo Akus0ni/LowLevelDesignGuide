@@ -12,7 +12,9 @@ var jwtSigningKey = builder.AddParameter(
 var api = builder.AddProject<Projects.Lld_Api>("api")
     .WithEnvironment("Jwt__SigningKey", jwtSigningKey)
     // Health over http so checks pass without a trusted dev certificate (local + Linux CI).
-    .WithHttpHealthCheck("/health", endpointName: "http");
+    .WithHttpHealthCheck("/health", endpointName: "http")
+    // Browser dev mode reads lessons straight from the repository and picks up edits on the next page load (spec 003).
+    .WithEnvironment("Content__Path", Path.GetFullPath(Path.Combine(builder.AppHostDirectory, "..", "..", "content")));
 
 // Optional override of the SQLite file (tests use a temp file); default: %LOCALAPPDATA%/LldGuide/lld.db.
 var databasePath = builder.Configuration["Lld:DatabasePath"];

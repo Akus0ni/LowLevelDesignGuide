@@ -1,4 +1,5 @@
 using Lld.Api.Auth;
+using Lld.Api.Content;
 using Lld.Api.Endpoints;
 using Lld.Api.Hosting;
 using Lld.Application;
@@ -22,6 +23,7 @@ builder.Services.AddLldApplication();
 builder.Services.AddLldInfrastructure(builder.Configuration);
 builder.Services.AddLldAuth(builder.Configuration);
 builder.Services.AddLldSelfHosting(builder.Configuration);
+builder.Services.AddLldDevContent(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
@@ -40,6 +42,12 @@ var api = app.MapGroup("/api");
 api.MapInfoEndpoints();
 api.MapAccessRequestEndpoints();
 api.MapAuthEndpoints();
+if (app.Environment.IsDevelopment())
+{
+    // Browser dev mode only (spec 003): devices read their bundled copy; the hosted API serves no content.
+    api.MapContentEndpoints();
+}
+
 app.MapDefaultEndpoints();
 
 await app.RunAsync();
