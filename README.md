@@ -163,6 +163,7 @@ dotnet test --project tests/Lld.Domain.Tests
 dotnet test --project tests/Lld.Application.Tests
 dotnet test --project tests/Lld.Api.Tests
 dotnet test --project tests/Lld.Admin.Tests
+dotnet test --project tests/Lld.Content.Tests  # authoring rules, packer, device content store
 dotnet test --project tests/Lld.IntegrationTests   # starts the AppHost (API only)
 
 # Web (from web/)
@@ -175,6 +176,33 @@ npm run test:e2e     # Playwright smoke tests (phone + desktop)
 dotnet build src/Lld.App -f net10.0-windows10.0.19041.0
 dotnet build src/Lld.App -f net10.0-android
 ```
+
+## Writing content
+Lessons live in `content/<module>/<lesson-slug>/` (the folder names are the slugs):
+
+```
+content/
+  start/
+    module.yml          # title, order, summary (one sentence)
+    how-to-use/
+      lesson.md         # front-matter: id, title, order, summary, tags, optional source
+      cheatsheet.md     # front-matter: title only; body in ## blocks (recall mode folds them)
+```
+
+- `id` is permanent once published (progress, notes and bookmarks point at it).
+- Link another lesson with a relative path (`../../oop-solid/srp/lesson.md#anchor`), repo code with a relative path
+  to `src/` (opens on GitHub), anything else with an absolute `https://` link.
+- Cheat sheets: one screen + at most 2 scrolls; case-study cheat sheets up to 4.
+- Case studies start with the `lld-case-study` skill, which asks the owner first.
+
+```bash
+dotnet run --project src/Lld.Content.Cli -- validate                       # file:line: reason, exit 1 on any issue
+dotnet run --project src/Lld.Content.Cli -- pack --out <file>              # what the app build runs
+dotnet run --project src/Lld.Content.Cli -- snapshot --out web/e2e/.content  # what Playwright reads
+```
+
+Building `Lld.App` validates and packs automatically (an invalid lesson fails the build). In browser dev mode the API
+serves `content/` directly and picks up edits on reload.
 
 ## Contributing
 `main` is protected. Every change goes through a branch and a PR; see `CLAUDE.md`.

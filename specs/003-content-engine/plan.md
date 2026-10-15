@@ -394,3 +394,31 @@ desktop and 200 % text. Instead of a dev-only toggle in the app, the fixture is 
 
 Held up: Learn boxes with long titles/summaries, "1 lesson" / "no lessons yet", member list truncation, chips
 scrolling sideways in their own row, Revise with 10 groups, the 40-entry outline (scrolls in its sticky column).
+
+### T19 notes: manual run (2026-10-16)
+| Check | Where | Result |
+|---|---|---|
+| A1 offline, never signed in | Android emulator (API 35), **Release** APK (trimmed + AOT, 37 MB), fresh install, airplane mode | ✅ Learn shows both modules, the Auth lesson and its cheat sheet open (`screenshots/android-release-*.png`) |
+| A2 add a lesson + rebuild | Windows Debug and Android Debug, installed over the T8 build | ✅ "How to use LLD Guide" appeared after the rebuild; schema V1 → V2 upgrade ran; browser dev mode reload covered by the API integration test |
+| A5 Auth lesson | Windows WebView2; Android WebView (Chrome 124) | ✅ 4 / 4 diagrams, 0 failed, 31 highlighted blocks, 5 callouts, no sideways scroll |
+| A9 restart | Windows | ✅ Large text and the saved section (`3-core-entities`) restored after closing and reopening the app |
+| A10 lesson open | Android emulator, Debug build, CPU profiler attached, time to the first frame with the lesson | ✅ 137–171 ms for later opens. The first open in a session takes about 360 ms (highlighter warm-up and bridge, Debug build). Release WebView can't be attached to DevTools, so Release wasn't timed |
+
+**Found and fixed during the run:**
+1. **Diagrams held up the first paint.** React runs a click's effects before painting, and drawing a diagram
+   takes about 100 ms on the emulator, so the Auth lesson appeared only after its diagrams (413–492 ms). `renderMermaid`
+   now waits for a painted frame before each diagram (`afterPaint`), so text first and diagrams after.
+2. **Android Back left the app from any screen.** The whole app is one MAUI page, so MAUI's default closed the
+   app. `MainPage.OnBackButtonPressed` now calls `history.back()` while react-router's `history.state.idx > 0`, and
+   on the first screen sends the app to the background, as Android does. Verified: cheat sheet → lesson → module →
+   Learn → home screen. Not handled: Back while a sheet or the diagram viewer is open navigates instead of closing it
+   (follow-up).
+3. **Windows build warnings (PRI249)** from lazy chunks named `mermaid.core-….js`, `rough.esm-….js`: the WinAppSDK
+   resource indexer reads the middle segment as a resource qualifier. Vite now names chunks without dots
+   (`chunkFileNames` in `web/vite.config.ts`); the solution builds with 0 warnings.
+
+### T21: final checks (2026-10-16)
+.NET: Domain 23, Application 38, Api 26, Admin 11, ServerStatus 30, Content 151, Integration 4: all green; solution
+build 0 warnings. Web: lint + guardrails clean, `tsc -b` clean, Vitest 127, build, Playwright 37. MAUI: Windows and
+Android Debug builds, Android Release publish (0 warnings), Back re-checked on the Release APK.
+
