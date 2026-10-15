@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, waiting for owner review |
+| **Status** | Draft; open questions answered (2026-10-16), waiting for owner approval |
 | **Branch** | `spec/003-content-engine` |
 | **Covers** | R20, R25, R34 (content part) (PRD §13); PRD F2, F3 |
 | **Depends on** | Spec 000 (shell, `DataSource`), spec 002 (merged, PR #4) |
@@ -115,7 +115,7 @@ content/
 | A5 | The Auth lesson renders all headings, the outline, highlighted C#, all 4 Mermaid diagrams (light and dark), tables and quotes; in-app and GitHub links go to the right place | Playwright + manual (Windows, Android) |
 | A6 | At 320 px no page scrolls sideways; long code, tables and diagrams scroll inside their own box | Playwright (phone viewport) + `break-ui` pass |
 | A7 | Lesson → cheat sheet in one tap and back; Revise lists every cheat sheet and filters by module | Playwright |
-| A8 | Each shipped cheat sheet fits one phone screen with at most 2 scrolls (height ≤ 3 × a 390 × 844 viewport at medium text size) | Playwright |
+| A8 | Each shipped cheat sheet fits one phone screen with at most 2 scrolls (height ≤ 3 × a 390 × 844 viewport at medium text size); **case-study** cheat sheets may use up to 4 scrolls (≤ 5 × viewport) | Playwright |
 | A9 | Previous / next follow module order; reading position and text size survive an app restart | Vitest + manual |
 | A10 | Opening a lesson takes under **300 ms** on the Android emulator (Release, after first launch, diagrams excluded) | Manual measurement |
 | A11 | The hosted API (non-Development) returns 404 for `/api/content/*` | API test |
@@ -138,11 +138,11 @@ content/
 | Rendering | C# parses, validates and packs; React renders Markdown (react-markdown + Shiki + lazy Mermaid) |
 | Shipped content | Auth case study + a new "How to use LLD Guide" lesson and cheat sheet |
 | Reader extras | Remember reading position, text size setting, previous / next links (no copy button on code) |
+| Welcome content | New "Start here" module (`content/start/`, first) with a normal lesson + cheat sheet |
+| Front-matter | Lessons drop `module:` (folder decides); cheat sheets keep only `title` |
+| Cheat sheet length | Concept cheat sheets: one screen + at most 2 scrolls (F3). Case-study cheat sheets: up to 4 scrolls. PRD F3 updated to match |
+| Packaging | Validate + pack at build time into `content-pack.json`; invalid content fails the build |
 
-## 8. Open questions (for the owner's review)
-1. **"Start here" module:** OK to add a fifth module (`start`, shown first) for the welcome lesson? The alternative is a
-   welcome card on the Learn page instead of a lesson.
-2. **Front-matter changes:** OK to drop `module:` from lessons (folder decides) and reduce cheat sheet front-matter to `title`?
-3. **Auth cheat sheet length:** if it fails A8 (≤ 2 scrolls on a phone), may I tighten it, or should A8 allow an exception for case studies?
-4. **Packing at build time** (one `content-pack.json`, invalid content fails the build) instead of shipping raw `.md`
-   files and parsing them on the device: OK?
+## 8. Open questions
+None. Resolved on 2026-10-16 (see §7): "Start here" module, simpler front-matter, case-study cheat sheet exception,
+packing at build time.

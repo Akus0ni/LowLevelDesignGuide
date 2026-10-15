@@ -14,7 +14,7 @@ _Last updated: 2026-10-16_
 | Spec 000 Foundation | ✅ Merged (PR #2) |
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
-| Spec 003 Content engine | 📝 Spec drafted on `spec/003-content-engine`, waiting for owner review |
+| Spec 003 Content engine | 📝 Spec drafted on `spec/003-content-engine`, open questions answered, waiting for owner approval |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
