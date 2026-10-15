@@ -196,14 +196,14 @@ internal static class HostingCommands
 
     private static void PrintBudget(TextWriter output, BudgetUsage usage)
     {
-        output.WriteLine($"Window: {usage.Window.Key} → resets {usage.Window.ResetsAt:yyyy-MM-dd} (UTC)");
+        output.WriteLine($"Window: {usage.Window.Key}, resets {usage.Window.ResetsAt:yyyy-MM-dd} (UTC)");
         Table.Write(output, ["", "USED", "LIMIT", "%"],
         [
             ["Requests", usage.Requests.ToString("N0", CultureInfo.InvariantCulture), usage.Limits.MonthlyRequests.ToString("N0", CultureInfo.InvariantCulture), Percent(usage.RequestsPercent)],
             ["Data", Size(usage.Bytes), Size(usage.Limits.MonthlyBytes), Percent(usage.BytesPercent)],
         ]);
         output.WriteLine(usage.IsNearLimit
-            ? $"Near the limit (≥ {usage.Limits.ThresholdPercent}%): apps are told the server is offline until the reset."
+            ? $"Near the limit (>= {usage.Limits.ThresholdPercent}%): apps are told the server is offline until the reset."
             : $"Apps are stopped at {usage.Limits.ThresholdPercent}%. Figures are an estimate; compare with the ngrok dashboard.");
     }
 

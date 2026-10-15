@@ -10,7 +10,9 @@ using Microsoft.Extensions.Logging;
 // There are deliberately no admin HTTP endpoints. Usage: lld-admin --help
 // `dotnet run` uses the Development profile (dev database); the installed copy runs as Production and reads
 // appsettings.Production.json + the protected secrets, so it manages the hosted API's database.
-var builder = Host.CreateApplicationBuilder();
+// Settings are read from the executable's folder, not the current directory: the installer and the backup task
+// run it from elsewhere.
+var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { ContentRootPath = AppContext.BaseDirectory });
 builder.Configuration.AddProtectedSecrets();
 builder.Logging.SetMinimumLevel(LogLevel.Warning);
 builder.Services.AddLldApplication();
