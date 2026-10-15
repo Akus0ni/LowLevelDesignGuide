@@ -3,17 +3,18 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-15_
+_Last updated: 2026-10-16_
 
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.4 (spec 002 decisions R61–R66, on branch `spec/002-self-hosting`) |
+| PRD | v0.4 (spec 002 decisions R61–R66) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
-| Spec 002 Self-hosting | 🚧 Built (T1–T13); manual checks (T14) in progress; branch `spec/002-self-hosting`, not pushed yet |
+| Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
+| Spec 003 Content engine | 📝 Spec drafted on `spec/003-content-engine`, waiting for owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -21,8 +22,8 @@ _Last updated: 2026-10-15_
 |---|---|---|
 | 000 | Foundation | ✅ merged (PR #2) |
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
-| 002 | Self-hosting & server status (ngrok, ntfy) | 🚧 built; manual checks, then PR |
-| 003 | Content engine (reader) | planned |
+| 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
+| 003 | Content engine (reader) | 📝 spec in review |
 | 004 | OOP & SOLID content | planned |
 | 005 | Progress | planned |
 | 006 | GoF patterns content | planned |
@@ -84,6 +85,6 @@ ngrok agent 3.39.11 (winget `Ngrok.Ngrok` + `ngrok update`), domain `doodle-dioc
 account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`.
 
 ## How to resume (next session)
-1. `git switch spec/002-self-hosting`; read `specs/002-self-hosting/tasks.md` (first unchecked task).
-2. Finish T14 manual checks (spec §5 A1–A11) with the owner, fill `plan.md` §4 "Verification", then push and open the PR (T16).
-3. After the owner merges: Spec 003 (content engine). Ask before starting it.
+1. `git switch spec/003-content-engine`; read `specs/003-content-engine/spec.md`.
+2. If the owner approved the spec: write `plan.md` + `tasks.md`, then implement task by task.
+   Otherwise resolve the review comments first.

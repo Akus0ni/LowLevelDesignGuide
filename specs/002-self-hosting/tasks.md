@@ -13,6 +13,6 @@
 - [x] T11 Web: types, TS verifier + tracker, `BridgeDataSource`/`HttpDataSource` status + outbox, `ServerStatusProvider`, `useServerStatus`
 - [x] T12 Web: `ServerOfflineBanner`, request-access queued UX, outbox toast; Vitest + Playwright green
 - [x] T13 Owner setup (with guide): ngrok account + static domain, run `install.ps1`, commit the public key printed by `hosting init`
-- [ ] T14 Manual run: A1 reboot, A2 phone on mobile data, A3 stop/start flip (Windows app, browser, phone), A6 kill, A8 LAN check, A10 install twice + uninstall, A11 ACL check; screenshots
+- [x] T14 Manual run: A1 reboot, A2 phone on mobile data, A3 stop/start flip (Windows app, browser, phone), A6 kill, A8 LAN check, A10 install twice + uninstall, A11 ACL check; screenshots
 - [x] T15 Docs: README (hosting section link), PRD §13 new decisions, plan §4 outcomes, progress log
-- [ ] T16 PR with acceptance-criteria table
+- [x] T16 PR with acceptance-criteria table
