@@ -1,5 +1,7 @@
 using CommunityToolkit.Maui;
 using Lld.App.Auth;
+using Lld.App.Hosting;
+using Lld.ServerStatus;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -14,13 +16,35 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit();
 
+        HostingSettings.AddTo(builder.Configuration);
         builder.AddServiceDefaults();
+
+#if DEBUG
+        const bool isDebugBuild = true;
+#else
+        const bool isDebugBuild = false;
+#endif
+        var hosting = HostingSettings.From(builder.Configuration, isDebugBuild);
+        builder.Services.AddSingleton(hosting);
+        builder.Services.AddSingleton(TimeProvider.System);
+        builder.Services.AddSingleton(sp => new ServerStatusTracker(
+            sp.GetRequiredService<TimeProvider>(),
+            hosting.MonitorsStatus ? ServerState.Unknown : ServerState.Online));
+        builder.Services.AddSingleton<ServerStatusMonitor>();
+        builder.Services.AddTransient<TunnelHeadersHandler>();
+        builder.Services.AddTransient<ServerReachabilityHandler>();
 
         builder.Services.AddSingleton(AppInfo.Current);
         builder.Services.AddSingleton(DeviceInfo.Current);
         builder.Services.AddSingleton(SecureStorage.Default);
         builder.Services.AddSingleton<ITokenStore, SecureTokenStore>();
-        builder.Services.AddHttpClient<ApiClient>(http => http.BaseAddress = new Uri(ApiClient.ServiceAddress));
+        // Base URL (Strategy): the tunnel when hosted, Aspire service discovery in development.
+        builder.Services.AddHttpClient<ApiClient>(http =>
+                http.BaseAddress = hosting.UseHostedServer ? hosting.BaseUrl : new Uri(ApiClient.ServiceAddress))
+            .AddHttpMessageHandler<TunnelHeadersHandler>()
+            .AddHttpMessageHandler<ServerReachabilityHandler>();
+        builder.Services.AddSingleton(sp => new AccessRequestOutbox(
+            sp.GetRequiredService<ApiClient>(), sp.GetRequiredService<ServerStatusTracker>(), FileSystem.AppDataDirectory));
         builder.Services.AddSingleton<SessionService>();
         builder.Services.AddSingleton<BridgeService>();
         builder.Services.AddTransient<MainPage>();

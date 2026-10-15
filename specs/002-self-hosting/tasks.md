@@ -8,8 +8,8 @@
 - [x] T6 `Lld.Api.Tests` for T4–T5 green
 - [x] T7 Admin: `hosting init`, `status keygen --force`, `status publish`, `status budget`, `backup run/list` + tests
 - [x] T8 `deploy/install.ps1`, `uninstall.ps1`, `ngrok.template.yml`; `docs/hosting.md` (ngrok sign-up, Dev Tunnels fallback, troubleshooting)
-- [ ] T9 MAUI: embedded settings (+ optional local file), base-URL strategy, `TunnelHeadersHandler`, `ServerReachabilityHandler`
-- [ ] T10 MAUI: `ServerStatusMonitor` (poll + stream + lifecycle), bridge push via `SendRawMessage` (verify API first), `AccessRequestOutbox`
+- [x] T9 MAUI: embedded settings (+ optional local file), base-URL strategy, `TunnelHeadersHandler`, `ServerReachabilityHandler`
+- [x] T10 MAUI: `ServerStatusMonitor` (poll + stream + lifecycle), bridge push via `SendRawMessage` (verify API first), `AccessRequestOutbox`
 - [ ] T11 Web: types, TS verifier + tracker, `BridgeDataSource`/`HttpDataSource` status + outbox, `ServerStatusProvider`, `useServerStatus`
 - [ ] T12 Web: `ServerOfflineBanner`, request-access queued UX, outbox toast; Vitest + Playwright green
 - [ ] T13 Owner setup (with guide): ngrok account + static domain, run `install.ps1`, commit the public key printed by `hosting init`
