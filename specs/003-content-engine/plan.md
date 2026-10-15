@@ -409,16 +409,18 @@ scrolling sideways in their own row, Revise with 10 groups, the 40-entry outline
    takes about 100 ms on the emulator, so the Auth lesson appeared only after its diagrams (413–492 ms). `renderMermaid`
    now waits for a painted frame before each diagram (`afterPaint`), so text first and diagrams after.
 2. **Android Back left the app from any screen.** The whole app is one MAUI page, so MAUI's default closed the
-   app. `MainPage.OnBackButtonPressed` now calls `history.back()` while react-router's `history.state.idx > 0`, and
-   on the first screen sends the app to the background, as Android does. Verified: cheat sheet → lesson → module →
-   Learn → home screen. Not handled: Back while a sheet or the diagram viewer is open navigates instead of closing it
-   (follow-up).
+   app. `MainPage.OnBackButtonPressed` asks the web app (`window.lldBack()`, `web/src/app/hardwareBack.ts`): it closes
+   the topmost open overlay (outline sheet, diagram viewer, popover: Base UI `[role=dialog][data-open]`, dismissed
+   with Escape), else calls `history.back()` while react-router's `history.state.idx > 0`, else answers "first" and
+   the app goes to the background, as Android does. Verified with the hardware key on the emulator: sheet, viewer
+   and popover each close without leaving the lesson; then lesson → module → Learn → home screen. Vitest (3) and
+   Playwright (phone + desktop) cover it.
 3. **Windows build warnings (PRI249)** from lazy chunks named `mermaid.core-….js`, `rough.esm-….js`: the WinAppSDK
    resource indexer reads the middle segment as a resource qualifier. Vite now names chunks without dots
    (`chunkFileNames` in `web/vite.config.ts`); the solution builds with 0 warnings.
 
 ### T21: final checks (2026-10-16)
 .NET: Domain 23, Application 38, Api 26, Admin 11, ServerStatus 30, Content 151, Integration 4: all green; solution
-build 0 warnings. Web: lint + guardrails clean, `tsc -b` clean, Vitest 127, build, Playwright 37. MAUI: Windows and
+build 0 warnings. Web: lint + guardrails clean, `tsc -b` clean, Vitest 130, build, Playwright 39. MAUI: Windows and
 Android Debug builds, Android Release publish (0 warnings), Back re-checked on the Release APK.
 

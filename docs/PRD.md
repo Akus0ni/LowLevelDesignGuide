@@ -289,7 +289,7 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R72 | Concept cheat sheets: one screen + at most 2 scrolls; case-study cheat sheets: up to 4 scrolls; every cheat sheet uses `##` blocks (recall mode folds them) | F3 | 003 |
 | R73 | Visual identity "the curriculum as a class diagram": Bricolage Grotesque + JetBrains Mono (bundled), blueprint blue accent, class-box cards, diagrams themed from the same tokens | F2, §11 | 003 |
 | R74 | Interactive learning without grading: interactive class and sequence diagrams, code callouts, guided reading (current section, read ticks, Next up), recall mode on cheat sheets; no quizzes or scores (R21) | F2, F3 | 003 |
-| R75 | Reader comfort: reading position and text size survive a restart; Android Back walks the app's history and leaves only from the first screen | F2 | 003 |
+| R75 | Reader comfort: reading position and text size survive a restart; Android Back closes an open sheet, viewer or popover first, then walks the app's history, and leaves only from the first screen | F2 | 003 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.

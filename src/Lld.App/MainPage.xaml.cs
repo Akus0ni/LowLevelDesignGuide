@@ -22,13 +22,15 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Android Back walks the app's own history (Learn → module → lesson → cheat sheet) and only leaves the app from
-    /// the first screen. MAUI's default would leave from anywhere, since the whole app is one native page.
+    /// Android Back first closes whatever is open on top (outline sheet, diagram viewer, popover), then walks the app's
+    /// own history (Learn → module → lesson → cheat sheet), and only leaves the app from the first screen. MAUI's
+    /// default would leave from anywhere, since the whole app is one native page. The decision lives in the web app
+    /// (`web/src/app/hardwareBack.ts`), which knows what is open.
     /// </summary>
     protected override bool OnBackButtonPressed()
     {
 #if ANDROID
-        _ = GoBackOrLeaveAsync();
+        _ = HandleBackAsync();
         return true;
 #else
         return base.OnBackButtonPressed();
@@ -36,14 +38,13 @@ public partial class MainPage : ContentPage
     }
 
 #if ANDROID
-    // react-router keeps its position in history.state.idx; 0 means the first screen of this session.
-    private const string GoBackScript =
-        "(window.history.state && window.history.state.idx > 0) ? (window.history.back(), 'back') : 'first'";
+    private const string BackScript = "window.lldBack ? window.lldBack() : 'first'";
+    private const string FirstScreen = "first";
 
-    private async Task GoBackOrLeaveAsync()
+    private async Task HandleBackAsync()
     {
-        var result = await hybridWebView.EvaluateJavaScriptAsync(GoBackScript);
-        if (result != "back")
+        var result = await hybridWebView.EvaluateJavaScriptAsync(BackScript);
+        if (result == FirstScreen)
         {
             // What Android itself does on a root screen: send the app to the background, keep it warm.
             Platform.CurrentActivity?.MoveTaskToBack(true);

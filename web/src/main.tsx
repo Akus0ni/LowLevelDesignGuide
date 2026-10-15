@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router';
 import { Toaster } from 'sonner';
+import { installBackHandler } from './app/hardwareBack';
 import { routes, warmUpReader } from './app/routes';
 import { createDataSource } from './data/createDataSource';
 import { warmUpHighlighter } from './features/content/markdown/highlighter';
@@ -14,6 +15,7 @@ import './styles/index.css';
 
 // Hash routing: the MAUI WebView has no server to answer deep-link reloads.
 const router = createHashRouter(routes);
+installBackHandler();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

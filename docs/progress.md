@@ -92,7 +92,7 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Content API (Development only) for browser dev mode, reloads on edit; the bridge serves the same contracts on device.
 - Reader: Learn as a class diagram, module pages, lesson reader (Shiki, themed Mermaid with expand viewer, outline
   with current section and read ticks, text size, saved position, Next up), Revise + cheat sheets with recall mode,
-  interactive class / sequence diagrams, code callouts; Android Back walks the history.
+  interactive class / sequence diagrams, code callouts; Android Back closes open sheets / viewer / popovers first, then walks the history.
 - Content: "Start here" module with "How to use LLD Guide"; Auth case study adapted to the contract.
 - Details, measurements and findings: `specs/003-content-engine/plan.md` §4.
 
@@ -100,5 +100,5 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 1. If PR for spec 003 is merged: `git switch main && git pull`, then ask the owner before starting spec 004
    (OOP & SOLID content: use the content contract in the README "Writing content").
 2. If changes were requested: `git switch spec/003-content-engine`, apply them, push, and update the PR.
-3. Follow-ups noted in the PR: Android Back should close an open sheet / diagram viewer first; first lesson open per
-   session is ~360 ms in Debug (time it on a Release build with a real phone).
+3. Follow-up noted in the PR: first lesson open per session is ~360 ms in Debug (time it on a Release build with a
+   real phone).

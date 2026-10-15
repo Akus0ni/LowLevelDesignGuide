@@ -168,3 +168,49 @@ test('A17: recall folds the cheat sheet, reveals on tap, and is remembered', asy
   await page.getByRole('button', { name: 'Reveal all' }).click();
   await expect(folded).toHaveCount(0);
 });
+
+test('Android Back closes what is open first, then walks back, then lets the app leave', async ({
+  page,
+  isMobile,
+}) => {
+  // The handler MainPage calls on Android (src/app/hardwareBack.ts).
+  const back = () => page.evaluate(() => (window as unknown as { lldBack: () => string }).lldBack());
+  await page.goto('/#/learn');
+  await page
+    .getByRole('link', { name: /Case studies/ })
+    .first()
+    .click();
+  await page
+    .getByRole('link', { name: /Case Study 1/ })
+    .first()
+    .click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Case Study 1: Authentication & Access');
+
+  if (isMobile) {
+    await page.getByRole('button', { name: 'On this page' }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    expect(await back()).toBe('closed');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+  }
+
+  await page.getByRole('button', { name: 'Text size' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  expect(await back()).toBe('closed');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page).toHaveURL(/#\/learn\/case-studies\/auth$/);
+
+  await page
+    .getByRole('button', { name: /^Expand/ })
+    .first()
+    .click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  expect(await back()).toBe('closed');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page).toHaveURL(/#\/learn\/case-studies\/auth$/);
+
+  expect(await back()).toBe('back');
+  await expect(page).toHaveURL(/#\/learn\/case-studies$/);
+  expect(await back()).toBe('back');
+  await expect(page).toHaveURL(/#\/learn$/);
+  expect(await back()).toBe('first');
+});
