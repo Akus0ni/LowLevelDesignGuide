@@ -9,8 +9,8 @@
 - [x] T7 `Lld.App.Data` (Microsoft.Data.Sqlite): `DeviceDatabase`, `SchemaMigrator` + step 1 (content tables), `SqliteContentCatalog`, `ContentPackLoader`; catalog contract suite + migrator + loader tests green
 - [x] T8 MAUI: content assets, `ContentGate`, bridge content methods + `OpenExternal`
 - [x] T9 API: dev-only content endpoints, watcher reload, `content.invalid`; AppHost `Content__Path`; API + Aspire tests green
-- [ ] T10 CI: content tests in `backend` (added in T2); snapshot step in `web`
-- [ ] T11 Web data: types, `DataSource` content methods (HTTP + bridge), `useContent`; Vitest
+- [ ] T10 CI: content tests in `backend` (added in T2); snapshot step in `web` (done together with T16)
+- [x] T11 Web data: types, `DataSource` content methods (HTTP + bridge), `useContent`; Vitest
 - [ ] T12 Web Learn: routes, module list, module page; sections updated
 - [ ] T13 Web reader: `MarkdownView`, `CodeBlock` (Shiki), `MermaidDiagram`, `Outline` (desktop + phone sheet), cheat sheet button, prev / next
 - [ ] T14 Web reader preferences: text size, reading position; Vitest

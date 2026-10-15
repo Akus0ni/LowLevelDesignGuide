@@ -151,8 +151,10 @@ The GitHub base URL is an option (`ContentOptions.RepositoryFileUrl`), not a lit
 
 ### 2.9 Web (`web/`)
 - **Data:** `DataSource` gains the five content methods (§2.2) and `openExternal(url)`. `HttpDataSource` → `/api/content/...`
-  (`window.open` for external links); `BridgeDataSource` → `InvokeDotNet`. A small `useContent(key, load)` hook caches
-  results per session (content can't change while the app runs), so going back is instant.
+  (`window.open` for external links); `BridgeDataSource` → `InvokeDotNet`, converting C#'s PascalCase keys once
+  (`toCamelCaseDeep`). `useContent(key, load)` reads through React 19's `use()` from a per-session promise cache
+  (content can't change while the app runs), so going back is instant; typed helpers `useModules`, `useModule`,
+  `useLesson`, `useCheatSheets`, `useCheatSheet`, plus `preloadContent` and `forgetContent` ("Try again").
 - **Routes** (hash router): `/learn`, `/learn/:module`, `/learn/:module/:lesson?at=<anchor>`, `/revise?module=<slug>`,
   `/revise/:module/:lesson`. Learn and Revise lose their "coming in" placeholder.
 - **`features/content/`:**
@@ -277,3 +279,12 @@ hand-written, parameterised SQL behind the same ports. EF Core stays on the API.
 - `content.invalid` responses carry an `issues` array with the same `path:line: code: message` lines the build prints.
 - Tests: 7 API tests (endpoints, 404s, add + delete a lesson while running, invalid content, not mapped outside
   Development) and 1 Aspire test (the AppHost passes `Content__Path`, real content is served).
+
+### T11 notes
+- Screens read content inside `<Suspense>` + an error boundary. React Router wraps navigations in transitions, so
+  moving between lessons keeps the current page until the next one is ready (no loading flash).
+- A failed request stays cached as failed until `forgetContent` (the error UI's "Try again"); otherwise every
+  re-render would ask again.
+- **Testing note:** with React 19, a first render (or a retry) that suspends must run inside `await act(async () => …)`,
+  or React never schedules the retry and the test sees the fallback forever. `content.test.tsx` shows the pattern.
+- T10 (the CI snapshot step) moves to T16, where the Playwright tests that read the snapshot are written.

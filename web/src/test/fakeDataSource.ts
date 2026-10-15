@@ -31,6 +31,12 @@ export function fakeDataSource(overrides: Partial<DataSource> = {}): DataSource 
     getServerStatus: vi.fn().mockResolvedValue(onlineStatus),
     onServerStatusChanged: vi.fn().mockReturnValue(() => {}),
     onAccessRequestSent: vi.fn().mockReturnValue(() => {}),
+    getModules: vi.fn().mockResolvedValue([]),
+    getModule: vi.fn().mockRejectedValue(new AppError('content.not_found', 'Not found.', 404)),
+    getLesson: vi.fn().mockRejectedValue(new AppError('content.not_found', 'Not found.', 404)),
+    getCheatSheets: vi.fn().mockResolvedValue([]),
+    getCheatSheet: vi.fn().mockRejectedValue(new AppError('content.not_found', 'Not found.', 404)),
+    openExternal: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
