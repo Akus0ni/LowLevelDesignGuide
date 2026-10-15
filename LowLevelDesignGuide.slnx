@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Lld.Admin/Lld.Admin.csproj" />
     <Project Path="src/Lld.Api/Lld.Api.csproj" />
     <Project Path="src/Lld.App.ServiceDefaults/Lld.App.ServiceDefaults.csproj" />
     <Project Path="src/Lld.App/Lld.App.csproj" />
@@ -12,7 +13,10 @@
     <Project Path="src/Lld.ServiceDefaults/Lld.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Lld.Admin.Tests/Lld.Admin.Tests.csproj" />
     <Project Path="tests/Lld.Api.Tests/Lld.Api.Tests.csproj" />
+    <Project Path="tests/Lld.Application.Tests/Lld.Application.Tests.csproj" />
+    <Project Path="tests/Lld.Domain.Tests/Lld.Domain.Tests.csproj" />
     <Project Path="tests/Lld.IntegrationTests/Lld.IntegrationTests.csproj" />
   </Folder>
 </Solution>

@@ -17,6 +17,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Lld.AppHost\Lld.AppHost.csproj" />
     <ProjectReference Include="..\..\src\Lld.Contracts\Lld.Contracts.csproj" />
+    <!-- Lets the end-to-end test approve requests the way the admin console does. -->
+    <ProjectReference Include="..\..\src\Lld.Infrastructure\Lld.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

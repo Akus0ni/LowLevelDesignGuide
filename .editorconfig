@@ -395,3 +395,11 @@ dotnet_diagnostic.CA1707.severity = none
 # MAUI platform bootstrap code: "AppDelegate" is the iOS/Mac Catalyst naming convention.
 [src/Lld.App/Platforms/**.cs]
 dotnet_diagnostic.CA1711.severity = none
+
+# C#-only codebase: Visual Basic keyword clashes (e.g. a type named Error) do not matter.
+[*.cs]
+dotnet_diagnostic.CA1716.severity = none
+
+# EF Core migrations are generated code.
+[src/Lld.Infrastructure/Persistence/Migrations/**.cs]
+generated_code = true

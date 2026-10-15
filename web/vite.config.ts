@@ -17,20 +17,18 @@ function hybridWebViewBridge(mode: string): Plugin {
   };
 }
 
+const apiTarget = process.env.API_HTTP || process.env.API_HTTPS;
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), hybridWebViewBridge(mode)],
   // Relative asset URLs so the app bundle works from the WebView's virtual origin.
   base: mode === 'maui' ? './' : '/',
   server: {
-    proxy: {
-      // Aspire injects the API endpoints; the proxy avoids CORS in browser dev mode.
-      // Prefer http: this is local-only, and it works without a trusted dev certificate.
-      '/api': {
-        target: process.env.API_HTTP || process.env.API_HTTPS,
-        changeOrigin: true,
-      },
-    },
+    // Aspire injects the API endpoints; the proxy avoids CORS in browser dev mode.
+    // Prefer http: this is local-only, and it works without a trusted dev certificate.
+    // No target (e.g. Playwright against `vite preview` with mocked routes) → no proxy.
+    proxy: apiTarget ? { '/api': { target: apiTarget, changeOrigin: true } } : undefined,
   },
   test: {
     environment: 'jsdom',

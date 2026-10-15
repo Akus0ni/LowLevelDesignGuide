@@ -1,4 +1,6 @@
 import { NavLink, Outlet } from 'react-router';
+import { useAuth } from '../features/auth/AuthContext';
+import { ForcedPasswordChange } from '../features/auth/screens';
 import { cn } from '../ui/cn';
 import { SECTIONS } from './sections';
 
@@ -6,6 +8,13 @@ const linkTone = ({ isActive }: { isActive: boolean }) =>
   isActive ? 'text-accent' : 'text-muted hover:text-fg';
 
 export function AppShell() {
+  const { state } = useAuth();
+
+  // A temporary password must be replaced before anything else is shown.
+  if (state.status === 'signedIn' && state.user.mustChangePassword) {
+    return <ForcedPasswordChange />;
+  }
+
   return (
     <div className="min-h-dvh bg-bg text-fg md:pl-64">
       {/* Tablet/desktop: translucent sidebar (apple-design §12). */}

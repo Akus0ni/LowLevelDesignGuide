@@ -20,7 +20,7 @@ describe('HttpDataSource', () => {
     const fetchFn = vi.fn().mockResolvedValue(new Response(JSON.stringify(info)));
 
     await expect(new HttpDataSource('', fetchFn).getInfo()).resolves.toEqual(info);
-    expect(fetchFn).toHaveBeenCalledWith('/api/info');
+    expect(fetchFn).toHaveBeenCalledWith('/api/info', expect.objectContaining({ method: 'GET' }));
   });
 
   it('throws on a failed response', async () => {
@@ -44,5 +44,52 @@ describe('BridgeDataSource', () => {
       environment: 'Android',
     });
     expect(bridge.InvokeDotNet).toHaveBeenCalledWith('GetInfo');
+  });
+});
+
+describe('BridgeDataSource auth', () => {
+  it('unwraps an ok BridgeResult (PascalCase from C#)', async () => {
+    const bridge = {
+      InvokeDotNet: vi.fn().mockResolvedValue({
+        Ok: true,
+        Value: {
+          Id: 'u1',
+          Email: 'a@example.com',
+          DisplayName: 'A',
+          Roles: ['Learner'],
+          MustChangePassword: true,
+        },
+      }),
+    };
+
+    const user = await new BridgeDataSource(bridge).login('a@example.com', 'pw');
+
+    expect(bridge.InvokeDotNet).toHaveBeenCalledWith('Login', ['a@example.com', 'pw']);
+    expect(user).toEqual({
+      id: 'u1',
+      email: 'a@example.com',
+      displayName: 'A',
+      roles: ['Learner'],
+      mustChangePassword: true,
+    });
+  });
+
+  it('throws an AppError for a failed BridgeResult', async () => {
+    const bridge = {
+      InvokeDotNet: vi
+        .fn()
+        .mockResolvedValue({ ok: false, error: { code: 'auth.locked_out', message: 'Locked' } }),
+    };
+
+    await expect(new BridgeDataSource(bridge).login('a@example.com', 'pw')).rejects.toMatchObject({
+      code: 'auth.locked_out',
+      message: 'Locked',
+    });
+  });
+
+  it('restoreSession returns null when C# has no session', async () => {
+    const bridge = { InvokeDotNet: vi.fn().mockResolvedValue({ ok: true, value: null }) };
+
+    await expect(new BridgeDataSource(bridge).restoreSession()).resolves.toBeNull();
   });
 });
