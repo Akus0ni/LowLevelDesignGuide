@@ -33,6 +33,7 @@ jobs:
           dotnet test --project tests/Lld.Application.Tests
           dotnet test --project tests/Lld.Api.Tests
           dotnet test --project tests/Lld.Admin.Tests
+          dotnet test --project tests/Lld.ServerStatus.Tests
       - name: Aspire integration tests (API only)
         run: dotnet test --project tests/Lld.IntegrationTests
 
