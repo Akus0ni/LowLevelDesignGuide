@@ -8,18 +8,20 @@ _Last updated: 2026-10-15_
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.2 merged (PR #1) |
+| PRD | v0.4 (spec 002 decisions R61–R66, on branch `spec/002-self-hosting`) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
-| Spec 001 Auth & access | ✅ Built + verified on browser, Windows and Android; PR open for owner review (branch `spec/001-auth`) |
+| Spec 001 Auth & access | ✅ Merged (PR #3) |
+| Spec 002 Self-hosting | 🚧 Built (T1–T13); manual checks (T14) in progress; branch `spec/002-self-hosting`, not pushed yet |
+| Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
 | # | Spec | Status |
 |---|---|---|
 | 000 | Foundation | ✅ merged (PR #2) |
-| 001 | Auth & access (Case Study #1) + admin console | ✅ built; PR awaiting owner merge |
-| 002 | Self-hosting & server status (ngrok, ntfy) | ⏭ next |
+| 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
+| 002 | Self-hosting & server status (ngrok, ntfy) | 🚧 built; manual checks, then PR |
 | 003 | Content engine (reader) | planned |
 | 004 | OOP & SOLID content | planned |
 | 005 | Progress | planned |
@@ -64,10 +66,24 @@ Pending: `aspire certs trust` (optional, for the dashboard over HTTPS).
 - Case study #1: `content/case-studies/auth/lesson.md` + `cheatsheet.md`.
 - Details, deviations and findings: `specs/001-auth/plan.md` §4.
 
+## Spec 002: what was delivered
+- `Lld.ServerStatus`: signed status messages (ECDSA P-256), verifier, anti-replay tracker; shared test vector used by .NET and Vitest.
+- API: Windows service on `localhost:5280`, DPAPI secrets, forwarded headers, global per-IP rate limit, tunnel request
+  budget (flushed to SQLite), signed online / heartbeat / quota / shutdown announcements to ntfy.sh.
+- `lld-admin`: `hosting init`, `status keygen|publish|budget`, `backup run|list`.
+- `deploy/install.ps1` / `uninstall.ps1`; guide in `docs/hosting.md`.
+- MAUI: hosted vs Aspire target, ngrok header, reachability handler, ntfy status monitor, access-request outbox, events to React.
+- Web: status provider + `useServerStatus().canSync`, "Server offline" banner, offline request-access queue.
+- Details, deviations and findings: `specs/002-self-hosting/plan.md` §4.
+
+## Owner machine: hosting (done on 2026-10-15)
+ngrok agent 3.39.11 (winget `Ngrok.Ngrok` + `ngrok update`), domain `doodle-diocese-revenue.ngrok-free.dev`,
+`install.ps1` run: services `LldGuideApi` + `ngrok`, data in `C:\ProgramData\LldGuide`, backups in
+`D:\Applications\LldGuide\backups`. Local app settings (topic + base URL) in the git-ignored
+`src/Lld.App/appsettings.local.json`. The hosted database is separate from the dev database: create the admin
+account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`.
+
 ## How to resume (next session)
-1. Confirm the Spec 001 PR is merged: `gh pr list --state merged --limit 3`.
-2. `git switch main && git pull`, then `git switch -c spec/002-self-hosting`.
-3. Draft `specs/002-self-hosting/spec.md` from PRD F8 (ngrok + Dev Tunnels fallback, Windows services, signed ntfy.sh
-   status, offline request queue, request budget, backups). Ask the open questions before coding (e.g. ngrok
-   account/domain, ntfy topic name, signing key handling for status messages, backup folder).
-4. Follow the per-spec workflow in `docs/plan.md` §4 (spec → owner review → plan + tasks → build → PR; owner merges).
+1. `git switch spec/002-self-hosting`; read `specs/002-self-hosting/tasks.md` (first unchecked task).
+2. Finish T14 manual checks (spec §5 A1–A11) with the owner, fill `plan.md` §4 "Verification", then push and open the PR (T16).
+3. After the owner merges: Spec 003 (content engine). Ask before starting it.

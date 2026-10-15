@@ -149,5 +149,38 @@ The spec's `status keygen` becomes `hosting init` for first-time setup (it creat
 | HybridWebView raw-message API differs from expectations | Verify early (task T10); fall back to `InvokeJavaScriptAsync` |
 | Budget count differs from ngrok's own count | Header allowance + 95 % threshold; `status budget` documents that it's an estimate; compare with the ngrok dashboard after a week |
 
-## 4. Outcomes
-_Filled in after implementation._
+## 4. Outcomes (2026-10-15)
+
+### Deviations from this plan
+| Plan | Built | Why |
+|---|---|---|
+| `status keygen` for first-time setup | `hosting init` creates every missing secret (JWT key, status key pair, topic, public URL); `status keygen --force` only rotates | The hosted API also needs a JWT key, which Aspire supplies only in dev |
+| Publisher reacts to `BudgetExhausted` / `BudgetRestored` events | A 1-minute reconcile loop compares the desired status with the last one published | Simpler, no event plumbing, self-heals after a failed publish |
+| Announcer as a typed `HttpClient` | Singleton `NtfyStatusAnnouncer` over `IHttpClientFactory` | A typed client in a hosted service broke at shutdown (provider already disposed) and would cache DNS for months |
+| `/health` mapped only in Development (Aspire template) | Mapped in every environment | The publisher probes the tunnel's `/health` before announcing "online"; the response has no details |
+| Debug = Aspire, Release = hosted | Plus `Api:Target` (`aspire` / `hosted`) in the local settings | Lets a Debug build talk to the hosted server when testing the monitor |
+| Banner at the top on every layout | Phone: above the tab bar; desktop: top | Screenshots showed the pill covering the page heading on phones |
+| `Lld.App` logic in testable classes in `Lld.ServerStatus` | Tracker and verifier are shared and tested; the app's outbox and monitor are MAUI glue, covered by the web equivalents' tests and manual runs | There is no MAUI test project yet |
+
+### Findings
+- **Content root:** `Host.CreateApplicationBuilder` and `WebApplication.CreateBuilder` read `appsettings*.json` from the **current directory**. The installer runs `lld-admin` from the repo, and a Windows service starts in `C:\Windows\System32`, so both now use the executable's folder (the API only when `WindowsServiceHelpers.IsWindowsService()`, so tests keep their content root).
+- **Hidden prompts:** in Windows PowerShell 5.1, Ctrl+V at `Read-Host -AsSecureString` stores a control character (0x16) instead of pasting. The installer now validates the ngrok authtoken and says to paste with right-click or Ctrl+Shift+V.
+- **ntfy.sh cache** is 12 hours (`expires` = `time` + 43,200 s on a real message), which confirms the 6 h heartbeat / 7 h stale design.
+- **ngrok agent** from winget is 3.3.x; the `endpoints:` config needs `ngrok update` (3.39.11 used). A domain shows "Offline" in the dashboard until an agent connects; no dashboard endpoint is needed.
+- **Windows virtual service accounts** work with `sc.exe create ... obj= "NT SERVICE\LldGuideApi"` (no password).
+- **Shell tooling:** Python edit scripts in a Bash heredoc turn `\a` in Windows paths into a bell character (it broke a csproj and the README once); files with backslash paths are edited with the editor tools instead. A test now parses `appsettings.Production.json`.
+
+### Verification
+| Check | Result |
+|---|---|
+| Tests | 23 server-status, 38 application, 19 API, 10 admin console, 23 domain, 3 Aspire integration, 62 Vitest, 4 Playwright (× phone/desktop) |
+| Install (A10, idempotency) | `install.ps1` run three times on the owner PC (two failed runs fixed, then a clean run); services `LldGuideApi` (auto, `NT SERVICE\LldGuideApi`) and `ngrok` running; local + public health OK |
+| Public URL | `https://doodle-diocese-revenue.ngrok-free.dev/health` → `Healthy` |
+| Signed status (A5, live) | Startup message on ntfy verifies with the committed public key; a forged message is rejected (`BadSignature`) |
+| Android Release APK (trimmed) | Emulator: bridge works, request access through ngrok reaches the hosted DB (screenshot `android-release-request-sent.png`) |
+| Offline → online (A3/A4, signed manual messages) | Emulator: banner within seconds of `status publish offline`; a request made offline is saved; after `status publish online` it reaches the server in ~1 s with a toast (`android-release-*.png`) |
+| Banner layout | Phone: above the tab bar (also at 320 px); desktop: top (`web-*-offline-banner.png`) |
+| LAN (A8) | Listens on `127.0.0.1:5280` / `[::1]:5280` only; LAN address refused |
+| Secrets (A11) | `secrets\` ACL: SYSTEM, Administrators, `NT SERVICE\LldGuideApi`, owner; `ngrok.yml` unreadable without elevation; no token or topic in the repo |
+| Budget (A7, live) | `status budget` counted the 3 tunnelled requests after install |
+| Owner checks still to run | A1 reboot without login; A2 real phone on mobile data; A3 real `Stop-Service` / `Start-Service` flip on Windows app, browser and phone; A6 kill the API process; A10 `uninstall.ps1` |

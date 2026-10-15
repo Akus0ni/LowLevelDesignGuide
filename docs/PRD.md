@@ -16,6 +16,7 @@
 | v0.1 | 2026-10-14 | First draft: vision, MVP features F1–F7, architecture, data model |
 | v0.2 | 2026-10-14 | Content bundled in app; self-hosting on owner's PC via ngrok (F8); access by request + admin console (F9); email as username; server status via signed ntfy.sh topic; development process requirements; full requirements register (§13) |
 | v0.3 | 2026-10-14 | Spec 001 decisions: lockout, sign out of all devices, roles, audit log, token storage and lifetimes, password policy (R53–R60) |
+| v0.4 | 2026-10-15 | Spec 002 decisions: status signing and freshness, quota stop at 95 %, DPAPI secrets + installer, daily local backup, localhost-only API (R61–R66) |
 
 ---
 
@@ -131,7 +132,7 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 - **While offline:** every app shows "Server offline", the **Sync button is disabled for everyone**, reading/notes/progress keep working locally, and access requests are queued.
 - **When back online:** the Sync button is re-enabled, and pending changes and queued access requests are sent automatically.
 - **Request budget:** the app must stay under ngrok's free limits (C7) at 500 users. Means: bundled content, one combined sync call, no polling, ~1-hour access tokens, API rate limiting, client retry with back-off. If a limit is hit, the app behaves as "server offline" until the monthly reset.
-- **Operations:** API and ngrok run as **Windows services** (start at boot, no login needed); nightly SQLite backup to a synced folder; health endpoint; sleep disabled while plugged in.
+- **Operations:** API and ngrok run as **Windows services** (start at boot, no login needed); daily SQLite backup at 13:00 to a local folder, catching up after a missed run (the PC is off at night; decided in spec 002); health endpoint; sleep disabled while plugged in.
 - **Acceptance:** stopping the API flips all open apps to "Server offline" with Sync disabled; starting it flips them back and pending changes sync without user action; a spoofed ntfy message has no effect.
 
 ### F9. Admin console (`Lld.Admin`)
@@ -184,7 +185,7 @@ See `docs/plan.md` for diagrams, solution layout and the spec roadmap.
 - **Availability:** the server is up only while the owner's PC is on. The app must be fully usable offline and recover automatically when the server returns.
 - **Security:** Identity password hashing; refresh tokens and temporary passwords stored hashed; HTTPS via Aspire in dev and via ngrok when hosted; no admin endpoints exposed; API rate limiting; signed server-status messages; no secrets in the repo (user-secrets).
 - **Request budget:** stay under 20,000 requests and 1 GB per month at 500 users.
-- **Backups:** nightly SQLite backup.
+- **Backups:** daily SQLite backup (13:00, catch-up after a missed run), 14 days kept.
 - **Performance:** app cold start under 3 s on a mid-range Android; lesson open under 300 ms.
 - **Accessibility:** WCAG 2.1 AA contrast, keyboard navigation on desktop, respects reduced motion.
 - **Quality:** each spec ships with unit tests plus at least one end-to-end test through Aspire; CI builds Windows + Android (Apple builds join in Phase 2).
@@ -267,6 +268,12 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R58 | Lifetimes: access token 60 min; refresh token 30 days, rotating, reuse revokes the family | F1 | 001 |
 | R59 | Password policy: at least 12 characters, no composition rules, not equal to the email | F1 | 001 |
 | R60 | Auth case study: self-referential, deep-dive lesson + interview cheat sheet, showcasing State, Strategy, Repository + Unit of Work, Result + domain events | §7 | 001 |
+| R61 | Server status messages signed with ECDSA P-256; the public key is committed in the app settings, the ntfy topic is injected at build time from a git-ignored file | F8 | 002 |
+| R62 | Status freshness: heartbeat every 6 h; with no news for 7 h the app shows "unknown" (treated as offline, but sign-in and access requests are still attempted) | F8 | 002 |
+| R63 | At 95 % of either ngrok monthly limit the API announces "offline (quota)" until the reset; usage shown by `lld-admin status budget` | F8, C7 | 002 |
+| R64 | Hosted secrets (JWT key, status private key, topic) live in DPAPI-protected, ACL-restricted files; one idempotent installer, `deploy/install.ps1` | F8 | 002 |
+| R65 | Daily backup at 13:00 (catches up after a missed run) to a local folder, `D:\Applications\LldGuide\backups`, keeping 14 days | F8 | 002 |
+| R66 | Hosted API listens on localhost only (ngrok is the only way in); `/health` is public without details; global per-client-IP rate limit | F8 | 002 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.
