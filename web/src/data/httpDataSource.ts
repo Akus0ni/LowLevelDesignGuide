@@ -1,4 +1,5 @@
 import { AccessRequestOutbox } from './serverStatus/accessRequestOutbox';
+import { ReachabilityRecovery } from './serverStatus/reachabilityRecovery';
 import { ServerStatusTracker } from './serverStatus/serverStatusTracker';
 import {
   AppError,
@@ -14,10 +15,15 @@ type Fetch = typeof fetch;
 
 /** Status wiring for browser dev mode; without a status source the server is assumed online. */
 export interface HttpStatusOptions {
-  /** Starts listening (e.g. ntfy) and returns a stop function. */
-  connectStatus?: (tracker: ServerStatusTracker) => () => void;
+  /**
+   * Starts listening (e.g. ntfy) and returns a stop function. `onReconnected` is called whenever the status
+   * stream (re)opens: the connection is back, so an app-inferred outage is re-checked.
+   */
+  connectStatus?: (tracker: ServerStatusTracker, onReconnected: () => void) => () => void;
   tracker?: ServerStatusTracker;
   outbox?: AccessRequestOutbox;
+  /** Source of the browser's `online` event (default: window). */
+  events?: EventTarget;
 }
 
 const EVALUATE_INTERVAL_MS = 60_000;
@@ -42,7 +48,9 @@ export class HttpDataSource implements DataSource {
   private refreshInFlight: Promise<UserSummary | null> | null = null;
   private readonly tracker: ServerStatusTracker;
   private readonly outbox: AccessRequestOutbox;
-  private readonly connectStatus?: (tracker: ServerStatusTracker) => () => void;
+  private readonly connectStatus?: HttpStatusOptions['connectStatus'];
+  private readonly events?: EventTarget;
+  private readonly recovery: ReachabilityRecovery;
   private readonly sentListeners = new Set<(email: string) => void>();
   private stopStatus: (() => void) | null = null;
   private statusSubscribers = 0;
@@ -54,6 +62,8 @@ export class HttpDataSource implements DataSource {
     this.tracker =
       options.tracker ?? new ServerStatusTracker(Date.now, options.connectStatus ? 'unknown' : 'online');
     this.outbox = options.outbox ?? new AccessRequestOutbox();
+    this.events = options.events ?? (typeof window === 'undefined' ? undefined : window);
+    this.recovery = new ReachabilityRecovery(this.tracker, () => this.request('GET', '/health'));
     this.tracker.subscribe((status) => {
       if (status.state === 'online') void this.flushOutbox();
     });
@@ -122,12 +132,15 @@ export class HttpDataSource implements DataSource {
   }
 
   private startStatus(): void {
-    const stopSource = this.connectStatus?.(this.tracker);
+    const recover = () => void this.recovery.tryRecover();
+    const stopSource = this.connectStatus?.(this.tracker, recover);
     const timer = setInterval(() => this.tracker.evaluate(), EVALUATE_INTERVAL_MS);
+    this.events?.addEventListener('online', recover); // e.g. Wi-Fi back
     void this.flushOutbox();
     this.stopStatus = () => {
       stopSource?.();
       clearInterval(timer);
+      this.events?.removeEventListener('online', recover);
       this.stopStatus = null;
     };
   }
@@ -177,6 +190,12 @@ export class HttpDataSource implements DataSource {
   }
 
   private async send(method: string, path: string, body?: unknown, authorized = false): Promise<unknown> {
+    const response = await this.request(method, path, body, authorized);
+    return response.status === 204 ? undefined : response.json();
+  }
+
+  /** Every call reports its outcome to the status tracker; failures become AppErrors. */
+  private async request(method: string, path: string, body?: unknown, authorized = false): Promise<Response> {
     const headers: Record<string, string> = { 'X-Lld-Client': 'web' };
     if (body !== undefined) headers['Content-Type'] = 'application/json';
     if (authorized && this.accessToken) headers.Authorization = `Bearer ${this.accessToken}`;
@@ -199,7 +218,7 @@ export class HttpDataSource implements DataSource {
     else this.tracker.reportCallSucceeded();
 
     if (!response.ok) throw await toAppError(response);
-    return response.status === 204 ? undefined : response.json();
+    return response;
   }
 }
 

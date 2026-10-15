@@ -30,6 +30,11 @@ public static class MauiProgram
         builder.Services.AddSingleton(sp => new ServerStatusTracker(
             sp.GetRequiredService<TimeProvider>(),
             hosting.MonitorsStatus ? ServerState.Unknown : ServerState.Online));
+        builder.Services.AddSingleton(Connectivity.Current);
+        builder.Services.AddSingleton(sp => new ReachabilityRecovery(
+            sp.GetRequiredService<ServerStatusTracker>(),
+            ct => sp.GetRequiredService<ApiClient>().PingAsync(ct),
+            sp.GetRequiredService<TimeProvider>()));
         builder.Services.AddSingleton<ServerStatusMonitor>();
         builder.Services.AddTransient<TunnelHeadersHandler>();
         builder.Services.AddTransient<ServerReachabilityHandler>();

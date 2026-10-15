@@ -17,10 +17,12 @@ export function connectNtfyStatus(
   settings: NtfySettings,
   verifier: StatusVerifier,
   tracker: ServerStatusTracker,
+  onOpen: () => void = () => {},
   open: EventSourceFactory = (url) => new EventSource(url),
 ): () => void {
   const url = `${settings.baseUrl.replace(/\/$/, '')}/${encodeURIComponent(settings.topic)}/sse?since=12h`;
   const source = open(url);
+  source.addEventListener('open', onOpen); // first connect and every automatic reconnect
 
   source.addEventListener('message', (event) => {
     void (async () => {

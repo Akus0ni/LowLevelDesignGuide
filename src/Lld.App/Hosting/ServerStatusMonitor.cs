@@ -10,6 +10,8 @@ namespace Lld.App.Hosting;
 /// <item>On start and resume: reads the topic's cached messages (ntfy keeps 12 h) and applies every valid one.</item>
 /// <item>While in the foreground: keeps one streaming subscription open, reconnecting with back-off.</item>
 /// <item>Every minute: lets the tracker downgrade old news to Unknown (local, no network).</item>
+/// <item>When this app had concluded "unreachable", it re-checks once the connection may be back
+/// (internet regained, stream reconnected, app resumed): see <see cref="ReachabilityRecovery"/>.</item>
 /// </list>
 /// Strategy: when the hosted server isn't used (Debug / Aspire), status is assumed online and only failed
 /// API calls change it.
@@ -28,12 +30,22 @@ public sealed partial class ServerStatusMonitor : IDisposable
     private readonly ILogger<ServerStatusMonitor> _logger;
     private readonly HttpClient _http;
     private readonly StatusVerifier? _verifier;
+    private readonly ReachabilityRecovery _recovery;
+    private readonly IConnectivity _connectivity;
     private readonly Lock _gate = new();
     private CancellationTokenSource? _running;
 
-    public ServerStatusMonitor(HostingSettings settings, ServerStatusTracker tracker, TimeProvider time, ILogger<ServerStatusMonitor> logger)
+    public ServerStatusMonitor(
+        HostingSettings settings,
+        ServerStatusTracker tracker,
+        ReachabilityRecovery recovery,
+        IConnectivity connectivity,
+        TimeProvider time,
+        ILogger<ServerStatusMonitor> logger)
     {
         _settings = settings;
+        _recovery = recovery;
+        _connectivity = connectivity;
         _time = time;
         _logger = logger;
         Tracker = tracker;
@@ -60,7 +72,9 @@ public sealed partial class ServerStatusMonitor : IDisposable
             token = _running.Token;
         }
 
+        _connectivity.ConnectivityChanged += OnConnectivityChanged;
         _ = EvaluateLoopAsync(token);
+        _ = _recovery.TryRecoverAsync(token); // resumed while marked unreachable
         if (_verifier is not null)
         {
             _ = ListenAsync(token);
@@ -77,8 +91,17 @@ public sealed partial class ServerStatusMonitor : IDisposable
             _running = null;
         }
 
+        _connectivity.ConnectivityChanged -= OnConnectivityChanged;
         running?.Cancel();
         running?.Dispose();
+    }
+
+    private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
+    {
+        if (e.NetworkAccess == NetworkAccess.Internet)
+        {
+            _ = _recovery.TryRecoverAsync(CancellationToken.None); // e.g. mobile data switched back on
+        }
     }
 
     public void Dispose()
@@ -96,6 +119,7 @@ public sealed partial class ServerStatusMonitor : IDisposable
             try
             {
                 await PollAsync(token);
+                await _recovery.TryRecoverAsync(token); // ntfy answers again, so the connection is back
                 await StreamAsync(token);
                 delay = FirstReconnectDelay; // the stream ended normally: reconnect promptly
             }

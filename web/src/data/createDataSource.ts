@@ -27,11 +27,11 @@ export function browserStatusOptions(env: ImportMetaEnv): HttpStatusOptions {
 
   const settings = { baseUrl: env.VITE_NTFY_BASE_URL ?? DEFAULT_NTFY_BASE_URL, topic };
   return {
-    connectStatus: (tracker) => {
+    connectStatus: (tracker, onReconnected) => {
       let stop: (() => void) | null = null;
       let stopped = false;
       void createStatusVerifier(publicKey).then((verifier) => {
-        if (!stopped) stop = connectNtfyStatus(settings, verifier, tracker);
+        if (!stopped) stop = connectNtfyStatus(settings, verifier, tracker, onReconnected);
       });
       return () => {
         stopped = true;

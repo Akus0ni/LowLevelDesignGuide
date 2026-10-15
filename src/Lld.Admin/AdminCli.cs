@@ -50,7 +50,7 @@ internal static class AdminCli
             return Success;
         });
 
-        var approveId = new Argument<string>("id") { Description = "Request id (or its first characters, as shown by 'requests list')." };
+        var approveId = new Argument<string>("id") { Description = "Request id from 'requests list' (its first characters are enough), or the email of a pending request." };
         var approve = new Command("approve", "Approve a request and create the account with a temporary password.") { approveId };
         approve.SetAction(async (parse, ct) =>
         {
@@ -64,7 +64,7 @@ internal static class AdminCli
             return issued.IsSuccess ? PrintCredentials(output, "Approved access for", issued.Value) : Fail(error, issued.Error!);
         });
 
-        var rejectId = new Argument<string>("id") { Description = "Request id (or its first characters)." };
+        var rejectId = new Argument<string>("id") { Description = "Request id from 'requests list' (first characters), or the email of a pending request." };
         var reject = new Command("reject", "Reject a pending request.") { rejectId };
         reject.SetAction(async (parse, ct) =>
         {
@@ -165,12 +165,21 @@ internal static class AdminCli
         return await action(scope.ServiceProvider.GetRequiredService<TUseCase>());
     }
 
-    /// <summary>Accepts a full id or a unique prefix of a pending request's id.</summary>
+    /// <summary>Accepts a full id, a unique prefix of one (as shown by 'requests list'), or the email of a pending request.</summary>
     private static async Task<Result<Guid>> ResolveRequestIdAsync(IServiceProvider services, string input, CancellationToken ct)
     {
         if (Guid.TryParse(input, out var id))
         {
             return id;
+        }
+
+        if (input.Contains('@', StringComparison.Ordinal))
+        {
+            var pending = await Run<ListAccessRequests, IReadOnlyList<AccessRequest>>(services, u => u.ExecuteAsync(AccessRequestStatus.Pending, ct));
+            var byEmail = pending.FirstOrDefault(r => string.Equals(r.Email.Value, input.Trim(), StringComparison.OrdinalIgnoreCase));
+            return byEmail is not null
+                ? byEmail.Id
+                : new Error("access_request.not_found", $"No pending access request for '{input}'.");
         }
 
         var requests = await Run<ListAccessRequests, IReadOnlyList<AccessRequest>>(services, u => u.ExecuteAsync(null, ct));
