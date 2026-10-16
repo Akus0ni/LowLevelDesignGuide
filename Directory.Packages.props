@@ -1,10 +1,17 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Lets a PackageVersion below override a vulnerable transitive dependency (see "Security pins"). -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <AspireVersion>13.6.1</AspireVersion>
     <OpenTelemetryVersion>1.19.1</OpenTelemetryVersion>
     <OpenTelemetryInstrumentationVersion>1.19.0</OpenTelemetryInstrumentationVersion>
   </PropertyGroup>
+  <ItemGroup Label="Security pins">
+    <!-- Aspire.Hosting 13.6.1 brings MessagePack 2.5.302 (GHSA-qhrr-8q5h-9q3h, fixed in 2.5.303). Drop this pin once an
+         Aspire release depends on a fixed version. -->
+    <PackageVersion Include="MessagePack" Version="2.5.307" />
+  </ItemGroup>
   <ItemGroup Label="Aspire">
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.DevTunnels" Version="$(AspireVersion)" />
