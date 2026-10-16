@@ -5,8 +5,8 @@ namespace Lld.Contracts;
 
 public sealed record ModuleSummary(string Slug, string Title, string Summary, int Order, int LessonCount);
 
-/// <param name="Map">Mermaid flowchart of how the lessons relate, node ids = lesson slugs (spec 004); null when the module has none.</param>
-public sealed record ModuleDetail(string Slug, string Title, string Summary, IReadOnlyList<LessonSummary> Lessons, string? Map = null);
+/// <param name="Map">How the lessons relate (spec 004 §3.6); null when the module has none.</param>
+public sealed record ModuleDetail(string Slug, string Title, string Summary, IReadOnlyList<LessonSummary> Lessons, ModuleMap? Map = null);
 
 public sealed record LessonSummary(
     string Id,
@@ -70,3 +70,13 @@ public static class ContentErrorCodes
     /// <summary>Dev mode only: the files under <c>content/</c> failed validation.</summary>
     public const string Invalid = "content.invalid";
 }
+
+/// <summary>A module map (spec 004 §3.6): lessons in titled groups, and labelled links between them.</summary>
+public sealed record ModuleMap(IReadOnlyList<MapGroup> Groups, IReadOnlyList<MapLink> Links);
+
+/// <param name="Title">Empty for lessons the author left outside any group.</param>
+/// <param name="Lessons">Lesson slugs, in the order written.</param>
+public sealed record MapGroup(string Title, IReadOnlyList<string> Lessons);
+
+/// <summary>"<see cref="From"/> <see cref="Label"/> <see cref="To"/>", e.g. "ocp needs lsp". Both are lesson slugs.</summary>
+public sealed record MapLink(string From, string To, string? Label);

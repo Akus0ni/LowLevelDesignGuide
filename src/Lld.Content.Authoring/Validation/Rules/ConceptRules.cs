@@ -76,14 +76,15 @@ public sealed class ModuleMapRule : IContentRule
             yield break;
         }
 
-        if (!ModuleMap.IsFlowchart(map))
+        var parsed = FlowchartMap.Parse(map);
+        if (!parsed.IsFlowchart)
         {
             yield return new(module.ManifestPath, entry.Line, IssueCodes.MapNotFlowchart, "The map must be a Mermaid flowchart ('flowchart LR' or 'flowchart TD').");
             yield break;
         }
 
         var slugs = module.Lessons.Select(l => l.Slug).ToHashSet(StringComparer.Ordinal);
-        var nodes = ModuleMap.Nodes(map);
+        var nodes = parsed.Nodes;
         foreach (var node in nodes.Where(n => !slugs.Contains(n.Id)))
         {
             yield return new(module.ManifestPath, entry.Line + node.Line, IssueCodes.MapUnknownNode,

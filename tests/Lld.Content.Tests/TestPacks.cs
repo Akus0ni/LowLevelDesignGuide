@@ -20,7 +20,7 @@ internal static class TestPacks
             Lesson("solid-ocp", "ocp", "Open/closed", order: 2)) with { Map = SampleMap },
     ]);
 
-    public const string SampleMap = "flowchart LR\n    srp -->|needs| ocp";
+    public static readonly ModuleMap SampleMap = new([new MapGroup("SOLID", ["srp", "ocp"])], [new MapLink("srp", "ocp", "needs")]);
 
     private static PackedModule Module(string slug, string title, int order, params PackedLesson[] lessons) =>
         new(slug, title, $"{title} summary.", order, lessons);

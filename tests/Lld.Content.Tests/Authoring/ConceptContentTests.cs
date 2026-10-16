@@ -146,7 +146,9 @@ public sealed class ConceptContentTests
     {
         var module = Pack().Modules.Single(m => m.Slug == "oop-solid");
 
-        module.Map.Should().Be("flowchart LR\n  srp[\"SRP\"] -->|\"leads to\"| ocp[\"OCP\"]");
+        module.Map.Should().BeEquivalentTo(
+            new ModuleMap([new MapGroup(string.Empty, ["srp", "ocp"])], [new MapLink("srp", "ocp", "leads to")]),
+            o => o.WithStrictOrdering());
         module.Lessons[0].Outline.Should().Equal(new OutlineEntry(2, "Interview questions", "interview-questions"));
         Pack().Modules.Single(m => m.Slug == "start").Map.Should().BeNull();
     }

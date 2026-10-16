@@ -40,7 +40,7 @@ public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource sni
             .ToList();
         return new PackedModule(
             module.Slug, Text(manifest, FrontMatterKeys.Title), Text(manifest, FrontMatterKeys.Summary), Order(manifest), lessons,
-            manifest[FrontMatterKeys.Map]?.Scalar?.TrimEnd());
+            manifest[FrontMatterKeys.Map]?.Scalar is { } map ? FlowchartMap.Parse(map).ToContract() : null);
     }
 
     private PackedLesson PackLesson(SourceLesson lesson)

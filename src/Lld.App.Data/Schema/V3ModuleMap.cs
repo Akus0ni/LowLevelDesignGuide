@@ -7,5 +7,5 @@ public sealed class V3ModuleMap : ISchemaMigration
 
     public string Name => "Module map";
 
-    public string Sql => "ALTER TABLE Modules ADD COLUMN Map TEXT NULL;";
+    public string Sql => "ALTER TABLE Modules ADD COLUMN MapJson TEXT NULL;";
 }

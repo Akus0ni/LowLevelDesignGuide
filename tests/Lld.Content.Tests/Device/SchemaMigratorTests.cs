@@ -66,7 +66,7 @@ public sealed class SchemaMigratorTests : IDisposable
 
         await using var check = await _device.Database.OpenAsync(Ct);
         (await Scalar(check, "SELECT TermsJson FROM Lessons WHERE Id = 'l';")).Should().Be("[]");
-        (await Scalar(check, "SELECT coalesce(Map, 'none') FROM Modules WHERE Slug = 'm';")).Should().Be("none");
+        (await Scalar(check, "SELECT coalesce(MapJson, 'none') FROM Modules WHERE Slug = 'm';")).Should().Be("none");
     }
 
     [Fact]

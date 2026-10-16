@@ -112,16 +112,19 @@ classDiagram
 | `ConceptCodeFromSnippetsRule` (concept) | `code.inline_csharp` (lessons and cheat sheets) |
 | `ModuleMapRule` | `map.not_flowchart`, `map.unknown_node`, `map.lesson_missing` |
 
-`ModuleMapRule` reads node ids with a small flowchart scanner (`ModuleMap.NodeIds`): ids before `[`, `(`, `{` or an
-arrow, `subgraph` / `end` / `classDef` / `class` / `style` lines skipped. Lesson slugs are kebab-case; Mermaid accepts
-`-` in node ids (checked in T7 with a real render; fallback is `_` in the map with a slug mapping).
+`FlowchartMap.Parse` reads the subset of Mermaid flowcharts a map uses: `subgraph id["Title"]` ... `end` (groups),
+nodes with an optional `[label]` (ignored: the app shows lesson titles), links `-->` / `-.->` / `==>` with an optional
+`|label|`, chains and `&`. Tokens are separated by spaces. Mermaid itself accepts kebab-case slugs as node ids
+(checked with a real render), so the same source previews in any Mermaid editor.
 
 ### 2.8 Pack, contracts, device
-- `PackedModule(..., string? Map)`, `ContentPack.CurrentFormat = 2`. The app always ships with its own pack, so the
-  format check only guards against mismatched builds.
-- `ModuleDetail(..., string? Map)`; `web/src/data/types.ts` mirrors it.
-- `V3ModuleMap`: `ALTER TABLE Modules ADD COLUMN Map TEXT NULL;`. The new pack version triggers a reload, which fills it.
-  `SqliteContentCatalog` and `InMemoryContentCatalog` return it; the catalog contract suite covers both (LSP).
+- Contracts: `ModuleMap(Groups, Links)`, `MapGroup(Title, Lessons)`, `MapLink(From, To, Label?)`.
+  `PackedModule(..., ModuleMap? Map)` and `ModuleDetail(..., ModuleMap? Map)`; `web/src/data/types.ts` mirrors them.
+  `ContentPack.CurrentFormat = 2`. The app always ships with its own pack, so the format check only guards against
+  mismatched builds.
+- The map is parsed when content is packed, so the device and the web app never parse Mermaid for it.
+- `V3ModuleMap`: `ALTER TABLE Modules ADD COLUMN MapJson TEXT NULL;`. The new pack version triggers a reload, which
+  fills it. `SqliteContentCatalog` and `InMemoryContentCatalog` return it; the catalog contract suite covers both (LSP).
 
 ### 2.9 Web
 | Piece | What |
@@ -129,10 +132,10 @@ arrow, `subgraph` / `end` / `classDef` / `class` / `style` lines skipped. Lesson
 | `markdown/fenceMeta.ts` | Parses `code.data.meta` (the info string after the language): flags, `title`, `mark` ranges |
 | `markdown/rehypeCompare.ts` | Wraps an adjacent `before` + `after` `<pre>` pair in `<div data-compare>` |
 | `CodeBlock` | + `title`, + line marks (`data-mark="del" \| "add" \| "mark"`) with a `−` / `+` gutter so meaning is not colour-only |
-| `CodeCompare.tsx` | Container query: ≥ 960 px side by side (breaks out of the prose column on desktop), else a *Before / After* segmented switch. Both panes stay rendered (one hidden), so the box keeps the taller height and nothing jumps. Arrow keys move between segments |
+| `CodeCompare.tsx` | Side by side when both panes fit their longest line (measured with a `ResizeObserver`), else a *Before / After* segmented switch. Both panes stay rendered (one hidden), so the box keeps the taller height and nothing jumps. Arrow keys move between segments |
 | `markdown/rehypeCallouts.ts` + `Callout.tsx` | `[!TYPE]` blockquote → `<aside>` with icon and a UML-style stereotype label (`«smell»`, `«interview tip»`, `«in this app»`, ...), one tinted rule per type |
 | `reader/rehypeInterview.ts` + `InterviewQuestions.tsx` | Each h3 under `## Interview questions` becomes a disclosure (`button[aria-expanded]` + region), "Show all" at the top; the height animates with `grid-template-rows` (instant with reduced motion) |
-| `content/ModuleMap.tsx` | Renders `module.map` with Mermaid on the module page; `interactive.ts` gains a flowchart analysis (nodes `flowchart-<id>-n`, edges `L_<from>_<to>_n`), sharing the class-diagram focus logic as one graph model; tap → focus + lesson card (title, summary, minutes, *Open*); Esc / outside clears; nodes are focusable buttons |
+| `content/ModuleMap.tsx` | Draws `module.map` on the module page in the app's identity: one `«package»` box per group, its lessons as members (toggle buttons). Tapping one highlights the lessons it links to, labelled with the relation, dims the rest and shows a lesson card (title, summary, minutes, *Open*); tap again, tap outside or Esc clears. A drawn Mermaid flowchart was rejected: 1480 px wide, unreadable on a phone |
 
 Design work loads `frontend-design`, `emil-design-eng`, `apple-design`, `mobile-native`, `animate`; `break-ui` runs on the
 compare, callouts, Q&A and map with worst-case data (long titles, 120-column code, 9 questions, a 15-node map at 320 px).

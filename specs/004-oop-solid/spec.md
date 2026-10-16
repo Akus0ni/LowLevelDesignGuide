@@ -136,8 +136,12 @@ in a few lines of code) · *In this app* · *Pitfalls* · *Interview one-liners*
 - **Reader:** shown on the module page above the lesson list, themed like the class-diagram identity. Tapping a node
   highlights it and its direct links and shows a small card (title, summary, reading time, *Open*); tap again, tap
   empty space or press Esc to clear. Nodes are reachable by keyboard. The lesson list stays the primary navigation.
-- **Data:** the pack gains the module map (pack format 2; the device schema gets a step for it), `ModuleDetail.map`
-  in the contracts and `web/src/data/types.ts`. Other modules without `map:` look as they do today.
+  *Implementation note (2026-10-16):* a drawn Mermaid flowchart of 15 lessons is ~1480 px wide and unreadable on a
+  phone, so the map is drawn by the app instead: each `subgraph` is a `«package»` box listing its lessons, and the
+  links of the tapped lesson are highlighted and labelled. Authoring stays a Mermaid flowchart.
+- **Data:** the pack gains the module map as groups (from `subgraph`) and labelled links (pack format 2; the device
+  schema gets a step for it), `ModuleDetail.map` in the contracts and `web/src/data/types.ts`. Other modules without
+  `map:` look as they do today.
 
 ### 3.7 UI quality
 New UI follows the visual identity (spec 003 §3.7) and is built and critiqued with the skills: `frontend-design`,

@@ -29,9 +29,9 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
     public async Task<ModuleDetail?> GetModuleAsync(string slug, CancellationToken cancellationToken)
     {
         var module = (await QueryAsync(
-            "SELECT Slug, Title, Summary, Map FROM Modules WHERE Slug = $slug;",
+            "SELECT Slug, Title, Summary, MapJson FROM Modules WHERE Slug = $slug;",
             [("$slug", slug)],
-            r => (Slug: r.GetString(0), Title: r.GetString(1), Summary: r.GetString(2), Map: r.IsDBNull(3) ? null : r.GetString(3)),
+            r => (Slug: r.GetString(0), Title: r.GetString(1), Summary: r.GetString(2), Map: r.IsDBNull(3) ? null : DeviceJson.Map(r.GetString(3))),
             cancellationToken).ConfigureAwait(false)).SingleOrDefault();
         if (module.Slug is null)
         {

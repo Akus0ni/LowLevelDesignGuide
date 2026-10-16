@@ -48,7 +48,7 @@ public abstract class ContentCatalogContract
     {
         var catalog = await SampleAsync();
 
-        (await catalog.GetModuleAsync("oop-solid", Ct))!.Map.Should().Be(TestPacks.SampleMap);
+        (await catalog.GetModuleAsync("oop-solid", Ct))!.Map.Should().BeEquivalentTo(TestPacks.SampleMap, o => o.WithStrictOrdering());
         (await catalog.GetModuleAsync("case-studies", Ct))!.Map.Should().BeNull();
     }
 
