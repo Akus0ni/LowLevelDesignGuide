@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, waiting for owner review |
+| **Status** | Approved by owner (2026-10-16) |
 | **Branch** | `spec/004-oop-solid` |
 | **Covers** | R15 (OOP & SOLID part), R20, R24 (PRD §13); PRD F2, F3, §7 ("C# samples must compile") |
 | **Depends on** | Spec 003 (content engine and reader, merged in PR #5) |
@@ -188,12 +188,10 @@ map in phone light / dark and desktop are reviewed and fixed before the PR.
 | Reader features | Before / After compare, callout boxes, principle map on the module page; folded interview Q&A |
 | Depth | Deep, about 20–30 minutes per lesson |
 | Owner's stories | Optional `WORK` callout slots, filled later by the owner |
+| Snippet lookup | By C# symbol with Roslyn (syntax only); no `#region` markers in production code |
+| Lesson list and order | As in §3.1 |
+| Callout types | The seven in §3.5 |
+| Review flow | Reader features and samples first, then lessons in four batches (pillars, design basics, SOLID, heuristics); the owner reviews each batch on the branch before the next |
 
 ## 8. Open questions
-1. **Snippet selector by C# symbol (Roslyn).** The alternative is `#region` markers, which would have to be added to
-   production code. Proposed: symbols. OK?
-2. **Lesson order and titles** in §3.1: any topic to add, drop or reorder?
-3. **Callout types** in §3.5: are the seven types the right set, and are the labels ("In this app", "From my work",
-   "Interview tip") what you want to see?
-4. **Reviewing 15 deep lessons:** I can push them in batches of 3–5 on this branch (pillars → design basics → SOLID →
-   heuristics) and you review each batch before the next, or you review everything once in the PR. Which?
+None. Resolved on 2026-10-16 (see §7).
