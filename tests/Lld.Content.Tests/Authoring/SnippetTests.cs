@@ -171,6 +171,19 @@ public sealed class SnippetTests
     }
 
     [Fact]
+    public void LineMarks_BridgeBlankLinesInsideAChangedBlock()
+    {
+        var code = "a\nb\n\nc\nd\ne\nf\ng\nh";
+
+        LineMarks.ForDisplay([2, 4], code).Should().Equal(2, 3, 4);
+        LineMarks.ForDisplay([1], code).Should().Equal(1);
+    }
+
+    [Fact]
+    public void LineMarks_NoneWhenMostOfTheSideChanged() =>
+        LineMarks.ForDisplay([1, 2, 3, 4], "a\nb\nc\nd\ne").Should().BeEmpty();
+
+    [Fact]
     public void LineDiff_IgnoresTrailingWhitespace() =>
         LineDiff.Compare("a  \nb", "a\nb").Should().BeEquivalentTo(new LineChanges([], []));
 

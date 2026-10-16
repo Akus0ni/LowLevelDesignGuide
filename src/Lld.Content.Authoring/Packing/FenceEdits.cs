@@ -7,7 +7,8 @@ namespace Lld.Content.Authoring.Packing;
 
 /// <summary>
 /// Rewrites code fences for the reader (spec 004 §3.3–3.4): a snippet fence gets the code it quotes and loses its
-/// <c>snippet</c> attribute; a Before / After pair gets <c>mark</c> attributes for the lines that changed. Other fences
+/// <c>snippet</c> attribute; a Before / After pair gets <c>mark</c> attributes for the lines that changed, when marks
+/// help (<see cref="LineMarks"/>). Other fences
 /// are left exactly as written. Runs only on validated content: an unresolved snippet is a bug, not an author error.
 /// </summary>
 public sealed class FenceEdits(ICodeSnippetSource snippets) : IBodyEditSource
@@ -44,9 +45,11 @@ public sealed class FenceEdits(ICodeSnippetSource snippets) : IBodyEditSource
         var marks = new Dictionary<CodeFence, IReadOnlyList<int>>();
         foreach (var pair in layout.Pairs)
         {
-            var changes = LineDiff.Compare(CodeOf(pair.Before, path), CodeOf(pair.After, path));
-            marks[pair.Before] = changes.Removed;
-            marks[pair.After] = changes.Added;
+            var before = CodeOf(pair.Before, path);
+            var after = CodeOf(pair.After, path);
+            var changes = LineDiff.Compare(before, after);
+            marks[pair.Before] = LineMarks.ForDisplay(changes.Removed, before);
+            marks[pair.After] = LineMarks.ForDisplay(changes.Added, after);
         }
 
         return marks;

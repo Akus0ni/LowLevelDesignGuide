@@ -34,7 +34,7 @@ export function InterviewQuestionList({ count, children }: { count: number; chil
     <div className="qa-list">
       <p className="qa-head">
         <span className="tabular-nums">
-          {count} question{count === 1 ? '' : 's'} · answer in your head, then reveal
+          {count} question{count === 1 ? '' : 's'} · think, then reveal
         </span>
         <button type="button" className="qa-all" onClick={toggleAll}>
           {allOpen ? 'Hide all' : 'Show all'}

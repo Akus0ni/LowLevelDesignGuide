@@ -775,6 +775,15 @@
   /* Before / After: one box; a segmented switch on narrow screens, two panes when both fit. */
   .compare-head {
     padding-block: 0.3rem;
+
+    /* The title says what the refactor is about: wrap to two lines rather than lose it. */
+    & .code-block-title {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-height: 1.4;
+      white-space: normal;
+    }
   }
 
   .compare-switch {
@@ -796,9 +805,9 @@
       inset: 2px auto 2px 2px;
       width: calc(50% - 2px);
       border-radius: 999px;
-      background: var(--surface);
+      background: color-mix(in oklab, var(--accent) 14%, var(--surface));
       box-shadow:
-        0 0 0 1px var(--rule),
+        0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent),
         0 1px 2px rgb(0 0 0 / 0.08);
       transition: transform 200ms var(--ease-out);
     }
@@ -829,12 +838,21 @@
     }
   }
 
+  /* The box keeps the taller pane's height; below the shorter one the drafting grid shows, so the code visibly ends. */
   .compare-panes {
     display: grid;
+    background-image: radial-gradient(color-mix(in oklab, var(--rule) 80%, transparent) 1px, transparent 1px);
+    background-size: 16px 16px;
   }
 
   .compare-pane {
     min-width: 0;
+    align-self: start;
+    background: var(--surface);
+  }
+
+  .compare[data-layout='split'] .compare-pane {
+    align-self: stretch;
   }
 
   .compare[data-layout='tabs'] .compare-pane {
