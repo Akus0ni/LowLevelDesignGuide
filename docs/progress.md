@@ -15,7 +15,7 @@ _Last updated: 2026-10-16 (spec 004 batch 1)_
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
 | Spec 003 Content engine | ✅ Merged (PR #5) |
-| Spec 004 OOP & SOLID | 🚧 Draft PR #6: engine, reader, memory aids done; batches 1–2 (9 lessons) as visual cards, **waiting for owner review of the new style + batch 2** |
+| Spec 004 OOP & SOLID | 🚧 Draft PR #6: engine, reader, memory aids done; batches 1–3 (14 lessons) as visual cards, **waiting for owner review of batch 3 (SOLID)** |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -25,7 +25,7 @@ _Last updated: 2026-10-16 (spec 004 batch 1)_
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
 | 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
-| 004 | OOP & SOLID content | 🚧 draft PR #6 (batches 1–2 of 4 written) |
+| 004 | OOP & SOLID content | 🚧 draft PR #6 (batches 1–3 of 4 written) |
 | 005 | Progress | planned |
 | 006 | GoF patterns content | planned |
 | 007 | Notes & bookmarks | planned |
