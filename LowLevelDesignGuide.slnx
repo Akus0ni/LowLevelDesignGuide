@@ -16,6 +16,9 @@
     <Project Path="src/Lld.ServerStatus/Lld.ServerStatus.csproj" />
     <Project Path="src/Lld.ServiceDefaults/Lld.ServiceDefaults.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Lld.Samples.OopSolid/Lld.Samples.OopSolid.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Lld.Admin.Tests/Lld.Admin.Tests.csproj" />
     <Project Path="tests/Lld.Api.Tests/Lld.Api.Tests.csproj" />
@@ -23,6 +26,7 @@
     <Project Path="tests/Lld.Content.Tests/Lld.Content.Tests.csproj" />
     <Project Path="tests/Lld.Domain.Tests/Lld.Domain.Tests.csproj" />
     <Project Path="tests/Lld.IntegrationTests/Lld.IntegrationTests.csproj" />
+    <Project Path="tests/Lld.Samples.Tests/Lld.Samples.Tests.csproj" />
     <Project Path="tests/Lld.ServerStatus.Tests/Lld.ServerStatus.Tests.csproj" />
   </Folder>
 </Solution>
