@@ -15,7 +15,7 @@ _Last updated: 2026-10-16 (spec 004 batch 1)_
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
 | Spec 003 Content engine | ✅ Merged (PR #5) |
-| Spec 004 OOP & SOLID | 🚧 On `spec/004-oop-solid`: engine + reader features done, batch 1 (four pillars) written, **waiting for owner review of batch 1** |
+| Spec 004 OOP & SOLID | 🚧 Draft PR #6: engine, reader, memory aids done; batches 1–2 (9 lessons) as visual cards, **waiting for owner review of the new style + batch 2** |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -25,7 +25,7 @@ _Last updated: 2026-10-16 (spec 004 batch 1)_
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
 | 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
-| 004 | OOP & SOLID content | 🚧 in progress (batch 1 of 4 written) |
+| 004 | OOP & SOLID content | 🚧 draft PR #6 (batches 1–2 of 4 written) |
 | 005 | Progress | planned |
 | 006 | GoF patterns content | planned |
 | 007 | Notes & bookmarks | planned |
@@ -105,14 +105,16 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   UML-note callouts, Q&A, «package» map), samples project + tests in CI, batch 1 (encapsulation, abstraction,
   inheritance, polymorphism), e2e `web/e2e/concept.spec.ts`.
 - Also on this branch: CI fix for `main` (MessagePack pin, GHSA-qhrr-8q5h-9q3h) and a CRLF-safe test fixture.
-- Decision to confirm with the owner: the module map is drawn by the app (UML packages), not as a Mermaid picture
-  (spec §3.6 note).
+- After batch 1 the owner asked for **simple, visual, little text**: lessons are now a short card (REMEMBER stamp,
+  everyday picture, rule, one Before / After, smells, app example, 5 short interview Qs) + a folded "Go deeper";
+  icon + hook per lesson; module mnemonics drawn as acrostics (A-PIE now, SOLID in batch 3). Spec §3.2 / §3.8.
+- Batch 2 (design basics) done in that style. Draft PR #6 open so CI runs on each push.
 
 ## How to resume (next session)
 1. `git switch spec/004-oop-solid && git pull`. Read `specs/004-oop-solid/tasks.md`.
-2. If the owner reviewed batch 1: apply their comments, then write batch 2 (T14), extending `module.yml`'s map and the
-   `concept.spec.ts` checks. Each lesson: samples + tests first, then lesson + cheat sheet (≤ 3 phone screens, A8),
-   `lld-content validate`, reading time ≥ 15 min.
+2. If the owner reviewed the visual style + batch 2: apply comments, then batch 3 = SRP, OCP, LSP, ISP, DIP (T15):
+   add `"SOLID: srp, ocp, lsp, isp, dip"` to `mnemonics`, a SOLID package to the map, samples + tests first, then
+   lesson (stamp, vertical picture, ≤ 8 min card, Go deeper) + cheat sheet (stamp, ≤ 3 phone screens).
 3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
 4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.
