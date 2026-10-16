@@ -47,8 +47,8 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
         <p className="font-mono text-[12px] tracking-[0.08em] text-muted">
           cheat sheet · {sheet.moduleTitle}
         </p>
-        <div className="mt-1.5 flex items-center gap-3 text-[32px] md:text-[44px]">
-          <LessonIcon icon={sheet.icon} className="lesson-icon-tile" />
+        <div className="mt-1.5 flex items-start gap-3 text-[32px] md:text-[44px]">
+          <LessonIcon icon={sheet.icon} className="lesson-icon-tile mt-[0.05em]" />
           <h1 className="min-w-0 text-[1em] font-semibold">{sheet.title}</h1>
         </div>
         <p className="mt-2 text-[15px] text-muted">

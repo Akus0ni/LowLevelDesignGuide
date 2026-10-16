@@ -36,7 +36,9 @@ export function CodeCompare({ before, after }: { before: Fence; after: Fence }) 
       aria-label={`Before and after${fences[side].meta.title ? `: ${fences[side].meta.title}` : ''}`}
     >
       <figcaption className="code-block-label compare-head">
-        <span className="code-block-title">{split ? 'refactor' : (fences[side].meta.title ?? side)}</span>
+        <span className="code-block-title" title={split ? undefined : fences[side].meta.title}>
+          {split ? 'refactor' : (fences[side].meta.title ?? side)}
+        </span>
         {split ? (
           language && <span>{language}</span>
         ) : (
@@ -76,7 +78,11 @@ export function CodeCompare({ before, after }: { before: Fence; after: Fence }) 
               {split && (
                 <p className="compare-pane-label">
                   <span>{name}</span>
-                  {fence.meta.title && <span className="code-block-title">{fence.meta.title}</span>}
+                  {fence.meta.title && (
+                    <span className="code-block-title" title={fence.meta.title}>
+                      {fence.meta.title}
+                    </span>
+                  )}
                 </p>
               )}
               <CodeLines

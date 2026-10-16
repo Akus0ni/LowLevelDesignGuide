@@ -80,8 +80,8 @@ function LessonHeader({
         lesson {String(position).padStart(2, '0')} of {String(module.lessons.length).padStart(2, '0')} ·{' '}
         {formatMinutes(lesson.readingMinutes)} read
       </p>
-      <div className="mt-1.5 flex items-center gap-3 text-[32px] md:text-[44px]">
-        <LessonIcon icon={lesson.icon} className="lesson-icon-tile" />
+      <div className="mt-1.5 flex items-start gap-3 text-[32px] md:text-[44px]">
+        <LessonIcon icon={lesson.icon} className="lesson-icon-tile mt-[0.05em]" />
         <h1 className="min-w-0 text-[1em] font-semibold">{lesson.title}</h1>
       </div>
       <p className="mt-3 max-w-prose text-[17px] leading-relaxed text-muted">{lesson.summary}</p>

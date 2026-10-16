@@ -1,6 +1,5 @@
 import { Link } from 'react-router';
 import type { LessonSummary, Mnemonic } from '../../data/types';
-import { LessonIcon } from './LessonIcon';
 
 /**
  * Module mnemonics (spec 004 §3.8) drawn as acrostics: the big first letters, read top to bottom, spell the word
@@ -29,7 +28,9 @@ export function ModuleMnemonics({ mnemonics, lessons }: { mnemonics: Mnemonic[];
                       <span aria-hidden="true" className="mnemonic-letter">
                         {letters[index]}
                       </span>
-                      <LessonIcon icon={lesson.icon} className="text-[20px]" />
+                      <span aria-hidden="true" className="lesson-icon mnemonic-icon">
+                        {lesson.icon}
+                      </span>
                       <span className="min-w-0 flex-1">
                         <span className="mnemonic-title">{lesson.title}</span>
                         {lesson.hook && <span className="mnemonic-hook">{lesson.hook}</span>}
