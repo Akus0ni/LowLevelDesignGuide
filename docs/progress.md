@@ -112,10 +112,10 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 
 ## How to resume (next session)
 1. `git switch spec/004-oop-solid && git pull`. Read `specs/004-oop-solid/tasks.md`.
-2. If the owner reviewed batch 3: apply comments, then batch 4 = DRY, KISS & YAGNI (T16, slug `dry-kiss-yagni`, order
-   15): samples + tests first, then lesson (stamp, vertical picture, short card, Go deeper) + cheat sheet; add it to
-   the map (a "Heuristics" package). Then T11 break-ui, T12 README authoring guide, T18 manual Windows + Android run,
-   T19 docs (PRD R76+), T20 mark PR #6 ready.
+2. All 15 lessons are written. Finishing tasks (`specs/004-oop-solid/tasks.md`): T11 `break-ui` worst-case pass,
+   T12 README "Writing content" (snippets, Before / After, callouts, Q&A, Go deeper, map, mnemonics, icon/hook),
+   T18 manual Windows + Android run (incl. upgrade from the spec 003 app, A12), T19 PRD R76+ / plan outcomes,
+   T20 mark PR #6 ready with the acceptance-criteria table.
 3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
 4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.
