@@ -1,0 +1,27 @@
+# Spec 003: Tasks
+
+- [x] T1 Spike: EF Core SQLite + a migration in the trimmed Android Release APK and the Windows app → too slow on Android; owner chose plain SQLite (plan §4)
+- [x] T2 Contracts: content DTOs; `Lld.Content`: pack model, source-generated JSON context, `IContentCatalog`, `InMemoryContentCatalog`
+- [x] T3 `Lld.Content.Authoring`: files abstraction, reader, slugger (+ shared vector), outline, reading time, link resolver + rewriter; tests
+- [x] T4 Validation rules (one class each) + fixtures; packer (deterministic version); `ContentPipeline`; tests
+- [x] T5 Content migration: `module.yml` for `case-studies` + `start`, Auth front-matter, `lld-case-study` skill template; "repo content is valid" test green
+- [x] T6 `Lld.Content.Cli` (`validate`, `pack`, `snapshot`) + `PackContent` target in `Lld.App.csproj`; a broken lesson fails the app build
+- [x] T7 `Lld.App.Data` (Microsoft.Data.Sqlite): `DeviceDatabase`, `SchemaMigrator` + step 1 (content tables), `SqliteContentCatalog`, `ContentPackLoader`; catalog contract suite + migrator + loader tests green
+- [x] T8 MAUI: content assets, `ContentGate`, bridge content methods + `OpenExternal`
+- [x] T9 API: dev-only content endpoints, watcher reload, `content.invalid`; AppHost `Content__Path`; API + Aspire tests green
+- [x] T10 CI: content tests in `backend` (added in T2); snapshot step in `web` (done together with T16)
+- [x] T11 Web data: types, `DataSource` content methods (HTTP + bridge), `useContent`; Vitest
+- [x] T12 Web Learn: routes, module list, module page; sections updated
+- [x] T13 Web reader: `MarkdownView`, `CodeBlock` (Shiki), `MermaidDiagram`, `Outline` (desktop + phone sheet), cheat sheet button, prev / next
+- [x] T13b Interactive diagrams: class highlight, sequence step-through (§3.8); SVG fixture tests
+- [x] T13c Code callouts: entities-table term extraction at pack time (`LessonDetail.terms`), underline + popover in code blocks
+- [x] T14 Web reader preferences: text size, reading position; Vitest
+- [x] T14b Guided reading flow: outline scroll-spy, section ticks (device-only), "Next up" card
+- [x] T15 Web Revise: grouped list, module filter, cheat sheet page
+- [x] T15b Recall mode on cheat sheets (fold / reveal / reveal all, remembered on the device)
+- [x] T16 Playwright: A5–A8 from the snapshot (phone + desktop)
+- [x] T17 Content: "How to use LLD Guide" lesson + cheat sheet (owner reviews the text)
+- [x] T18 UI pass with the skills (`emil-design-eng`, `apple-design`, `mobile-native`, `break-ui`); fixes
+- [x] T19 Manual run: A1 airplane-mode fresh install (Android Release), A2 add a lesson + rebuild (Windows, Android, browser), A5 on devices, A9 restart, A10 timing; screenshots
+- [x] T20 Docs: PRD (F2, F3, §13 new decisions, v0.5), `docs/plan.md` decisions, README authoring section, plan §4 outcomes, progress log
+- [x] T21 PR with acceptance-criteria table

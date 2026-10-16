@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it } from 'vitest';
@@ -9,23 +9,26 @@ import { ServerStatusProvider } from '../features/serverStatus/ServerStatusProvi
 import { fakeDataSource, learner } from '../test/fakeDataSource';
 import { routes } from './routes';
 
-function renderAt(path: string, source: DataSource = fakeDataSource()) {
+/** React 19: screens that suspend (Learn) must first render inside an async act(). */
+async function renderAt(path: string, source: DataSource = fakeDataSource()) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
-  render(
-    <DataSourceProvider source={source}>
-      <ServerStatusProvider>
-        <AuthProvider>
-          <RouterProvider router={router} />
-        </AuthProvider>
-      </ServerStatusProvider>
-    </DataSourceProvider>,
-  );
+  await act(async () => {
+    render(
+      <DataSourceProvider source={source}>
+        <ServerStatusProvider>
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </ServerStatusProvider>
+      </DataSourceProvider>,
+    );
+  });
   return source;
 }
 
 describe('AppShell', () => {
   it('redirects / to Learn and shows all five sections in each nav', async () => {
-    renderAt('/');
+    await renderAt('/');
 
     expect(await screen.findByRole('heading', { name: 'Learn' })).toBeInTheDocument();
     for (const nav of screen.getAllByRole('navigation', { name: 'Main' })) {
@@ -38,7 +41,7 @@ describe('AppShell', () => {
   });
 
   it('shows app info from the data source on Profile', async () => {
-    renderAt('/profile');
+    await renderAt('/profile');
 
     expect(await screen.findByTestId('info-name')).toHaveTextContent('LLD Guide');
     expect(screen.getByTestId('transport')).toHaveTextContent('Native bridge');
@@ -47,7 +50,7 @@ describe('AppShell', () => {
 
 describe('Auth screens', () => {
   it('shows sign in and request access when signed out', async () => {
-    renderAt('/profile');
+    await renderAt('/profile');
 
     expect(await screen.findByRole('tab', { name: 'Sign in' })).toHaveAttribute('aria-selected', 'true');
     await userEvent.click(screen.getByRole('tab', { name: 'Request access' }));
@@ -55,7 +58,7 @@ describe('Auth screens', () => {
   });
 
   it('shows the server error message when sign-in fails', async () => {
-    renderAt('/profile');
+    await renderAt('/profile');
 
     await userEvent.type(await screen.findByLabelText('Email'), 'learner@example.com');
     await userEvent.type(screen.getByLabelText('Password'), 'wrong-password');
@@ -69,7 +72,7 @@ describe('Auth screens', () => {
       login: async () => ({ ...learner, mustChangePassword: true }),
       changePassword: async () => learner,
     });
-    renderAt('/profile', source);
+    await renderAt('/profile', source);
 
     await userEvent.type(await screen.findByLabelText('Email'), learner.email);
     await userEvent.type(screen.getByLabelText('Password'), 'temporary-pass');
@@ -89,7 +92,7 @@ describe('Auth screens', () => {
 
   it('rejects a new password shorter than 12 characters before calling the server', async () => {
     const source = fakeDataSource({ restoreSession: async () => ({ ...learner, mustChangePassword: true }) });
-    renderAt('/learn', source);
+    await renderAt('/learn', source);
 
     await userEvent.type(await screen.findByLabelText('New password'), 'short');
 
@@ -99,7 +102,7 @@ describe('Auth screens', () => {
 
   it('signs out of all devices from the account panel', async () => {
     const source = fakeDataSource({ restoreSession: async () => learner });
-    renderAt('/profile', source);
+    await renderAt('/profile', source);
 
     await userEvent.click(await screen.findByRole('button', { name: 'Sign out of all devices' }));
 

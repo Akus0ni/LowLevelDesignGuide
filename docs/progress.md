@@ -3,17 +3,18 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-15_
+_Last updated: 2026-10-16_
 
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.4 (spec 002 decisions R61–R66, on branch `spec/002-self-hosting`) |
+| PRD | v0.5 (spec 003 decisions R67–R75) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
-| Spec 002 Self-hosting | 🚧 Built (T1–T13); manual checks (T14) in progress; branch `spec/002-self-hosting`, not pushed yet |
+| Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
+| Spec 003 Content engine | 🔍 Built; PR open from `spec/003-content-engine`, waiting for owner review ("For your review" in the PR) |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -21,8 +22,8 @@ _Last updated: 2026-10-15_
 |---|---|---|
 | 000 | Foundation | ✅ merged (PR #2) |
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
-| 002 | Self-hosting & server status (ngrok, ntfy) | 🚧 built; manual checks, then PR |
-| 003 | Content engine (reader) | planned |
+| 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
+| 003 | Content engine (reader) | 🔍 PR open, owner review |
 | 004 | OOP & SOLID content | planned |
 | 005 | Progress | planned |
 | 006 | GoF patterns content | planned |
@@ -83,7 +84,21 @@ ngrok agent 3.39.11 (winget `Ngrok.Ngrok` + `ngrok update`), domain `doodle-dioc
 `src/Lld.App/appsettings.local.json`. The hosted database is separate from the dev database: create the admin
 account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`.
 
+## Spec 003: what was delivered
+- Authoring contract (`module.yml`, lesson / cheat sheet front-matter) and `lld-content validate | pack | snapshot`;
+  every rule is its own class with a test; invalid content fails the app build and CI with `file(line): reason`.
+- Pack built into the app; device loads it into SQLite with plain `Microsoft.Data.Sqlite` (no EF Core, PRD R67),
+  only when the pack version changes, in one transaction; schema steps via `PRAGMA user_version`.
+- Content API (Development only) for browser dev mode, reloads on edit; the bridge serves the same contracts on device.
+- Reader: Learn as a class diagram, module pages, lesson reader (Shiki, themed Mermaid with expand viewer, outline
+  with current section and read ticks, text size, saved position, Next up), Revise + cheat sheets with recall mode,
+  interactive class / sequence diagrams, code callouts; Android Back closes open sheets / viewer / popovers first, then walks the history.
+- Content: "Start here" module with "How to use LLD Guide"; Auth case study adapted to the contract.
+- Details, measurements and findings: `specs/003-content-engine/plan.md` §4.
+
 ## How to resume (next session)
-1. `git switch spec/002-self-hosting`; read `specs/002-self-hosting/tasks.md` (first unchecked task).
-2. Finish T14 manual checks (spec §5 A1–A11) with the owner, fill `plan.md` §4 "Verification", then push and open the PR (T16).
-3. After the owner merges: Spec 003 (content engine). Ask before starting it.
+1. If PR for spec 003 is merged: `git switch main && git pull`, then ask the owner before starting spec 004
+   (OOP & SOLID content: use the content contract in the README "Writing content").
+2. If changes were requested: `git switch spec/003-content-engine`, apply them, push, and update the PR.
+3. Follow-up noted in the PR: first lesson open per session is ~360 ms in Debug (time it on a Release build with a
+   real phone).

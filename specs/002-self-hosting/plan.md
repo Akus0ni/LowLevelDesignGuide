@@ -194,4 +194,4 @@ The spec's `status keygen` becomes `hosting init` for first-time setup (it creat
 | LAN (A8) | Listens on `127.0.0.1:5280` / `[::1]:5280` only; LAN address refused |
 | Secrets (A11) | `secrets\` ACL: SYSTEM, Administrators, `NT SERVICE\LldGuideApi`, owner; `ngrok.yml` unreadable without elevation; no token or topic in the repo |
 | Budget (A7, live) | `status budget` counted the 3 tunnelled requests after install |
-| Owner checks still to run | A1 reboot without login; A2 sign-in on the real phone over mobile data; A3 real stop/start flip on browser and phone; A6 kill the API process; A10 `uninstall.ps1` |
+| Owner checks (A1, A2, A3, A6, A10) | Done by the owner and reported OK (2026-10-16). A1 re-checked: after the 2026-10-16 00:40 reboot both services were running (automatic, restart-on-failure 5 s / 10 s / 60 s) and local + public `/health` answered `Healthy` |

@@ -2,10 +2,13 @@
   <Folder Name="/src/">
     <Project Path="src/Lld.Admin/Lld.Admin.csproj" />
     <Project Path="src/Lld.Api/Lld.Api.csproj" />
+    <Project Path="src/Lld.App.Data/Lld.App.Data.csproj" />
     <Project Path="src/Lld.App.ServiceDefaults/Lld.App.ServiceDefaults.csproj" />
     <Project Path="src/Lld.App/Lld.App.csproj" />
     <Project Path="src/Lld.AppHost/Lld.AppHost.csproj" />
     <Project Path="src/Lld.Application/Lld.Application.csproj" />
+    <Project Path="src/Lld.Content.Authoring/Lld.Content.Authoring.csproj" />
+    <Project Path="src/Lld.Content.Cli/Lld.Content.Cli.csproj" />
     <Project Path="src/Lld.Content/Lld.Content.csproj" />
     <Project Path="src/Lld.Contracts/Lld.Contracts.csproj" />
     <Project Path="src/Lld.Domain/Lld.Domain.csproj" />
@@ -17,6 +20,7 @@
     <Project Path="tests/Lld.Admin.Tests/Lld.Admin.Tests.csproj" />
     <Project Path="tests/Lld.Api.Tests/Lld.Api.Tests.csproj" />
     <Project Path="tests/Lld.Application.Tests/Lld.Application.Tests.csproj" />
+    <Project Path="tests/Lld.Content.Tests/Lld.Content.Tests.csproj" />
     <Project Path="tests/Lld.Domain.Tests/Lld.Domain.Tests.csproj" />
     <Project Path="tests/Lld.IntegrationTests/Lld.IntegrationTests.csproj" />
     <Project Path="tests/Lld.ServerStatus.Tests/Lld.ServerStatus.Tests.csproj" />

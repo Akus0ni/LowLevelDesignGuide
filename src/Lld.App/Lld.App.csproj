@@ -28,8 +28,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#4F46E5" />
-    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#4F46E5" BaseSize="128,128" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#1D5BFF" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1D5BFF" BaseSize="128,128" />
     <MauiFont Include="Resources\Fonts\*" />
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
@@ -44,6 +44,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Lld.Contracts\Lld.Contracts.csproj" />
     <ProjectReference Include="..\Lld.Content\Lld.Content.csproj" />
+    <ProjectReference Include="..\Lld.App.Data\Lld.App.Data.csproj" />
     <ProjectReference Include="..\Lld.App.ServiceDefaults\Lld.App.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Lld.ServerStatus\Lld.ServerStatus.csproj" />
   </ItemGroup>
@@ -86,6 +87,47 @@
     <ItemGroup>
       <_WebAppFile Include="$(WebAppOutputDir)**" />
       <MauiAsset Include="@(_WebAppFile)" LogicalName="wwwroot\%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+    Content (spec 003): validate and pack content/ with the lld-content tool, and ship the pack as MAUI assets under
+    "content/". It runs on every build (a deleted lesson changes no input timestamp, so Inputs/Outputs would miss it);
+    the tool rewrites its files only when the content changed, so the asset copy stays incremental.
+    Broken content fails the build with file(line) errors.
+  -->
+  <PropertyGroup>
+    <ContentCliProject>$(MSBuildThisFileDirectory)..\Lld.Content.Cli\Lld.Content.Cli.csproj</ContentCliProject>
+    <ContentRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..'))</ContentRepositoryRoot>
+    <ContentDotnet Condition="'$(DOTNET_HOST_PATH)' != ''">"$(DOTNET_HOST_PATH)"</ContentDotnet>
+    <ContentDotnet Condition="'$(DOTNET_HOST_PATH)' == ''">dotnet</ContentDotnet>
+  </PropertyGroup>
+
+  <Target Name="PackContent" BeforeTargets="BeforeBuild">
+    <!-- Inside the target: IntermediateOutputPath (per target framework) isn't known when the project body is evaluated. -->
+    <PropertyGroup>
+      <ContentPackDir>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'content-pack'))</ContentPackDir>
+    </PropertyGroup>
+    <!-- The tool isn't a project reference, so restoring the app doesn't restore it (a clean CI checkout has no
+         obj/). Restore it on its own: the extra global property gives the Build call below a fresh evaluation that
+         sees the restore output. -->
+    <MSBuild Projects="$(ContentCliProject)" Targets="Restore" Properties="Configuration=$(Configuration);_LldContentRestore=true"
+             RemoveProperties="TargetFramework;RuntimeIdentifier;SelfContained;Platform;PublishDir;OutputPath;OutDir;_CommandLineDefinedOutputPath;PublishTrimmed;TrimMode;RunAOTCompilation;AndroidEnableProfiledAot;SkipWebBuild" />
+    <!-- Build the tool for this machine, without the app's platform settings (Android RID, trimming, AOT, output folders). -->
+    <MSBuild Projects="$(ContentCliProject)" Targets="Build" Properties="Configuration=$(Configuration)"
+             RemoveProperties="TargetFramework;RuntimeIdentifier;SelfContained;Platform;PublishDir;OutputPath;OutDir;_CommandLineDefinedOutputPath;PublishTrimmed;TrimMode;RunAOTCompilation;AndroidEnableProfiledAot;SkipWebBuild">
+      <Output TaskParameter="TargetOutputs" ItemName="_ContentCliAssembly" />
+    </MSBuild>
+    <Exec Command="$(ContentDotnet) &quot;@(_ContentCliAssembly)&quot; pack --repo &quot;$(ContentRepositoryRoot)&quot; --out &quot;$(ContentPackDir)&quot; --format MSBuild"
+          IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="_ContentPackExitCode" />
+    </Exec>
+    <!-- Content issues are printed above as clickable file(line) errors; this stops the build without MSBuild's
+         generic "command exited with code 1" line. -->
+    <Error Condition="'$(_ContentPackExitCode)' != '0'" Text="lld-content pack failed (exit code $(_ContentPackExitCode)); see the output above." />
+    <ItemGroup>
+      <_ContentPackFile Include="$(ContentPackDir)\content-pack.json;$(ContentPackDir)\content-version.txt" />
+      <MauiAsset Include="@(_ContentPackFile)" LogicalName="content\%(Filename)%(Extension)" />
     </ItemGroup>
   </Target>
 

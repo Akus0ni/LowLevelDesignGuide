@@ -14,14 +14,12 @@ export const SECTIONS: Section[] = [
   {
     path: 'learn',
     label: 'Learn',
-    comingIn: 'Spec 003',
     summary: 'Lessons on OOP, SOLID, design patterns, UML and case studies.',
     icon: <Icon d={['M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z', 'M4 19a2 2 0 0 1 2-2h13']} />,
   },
   {
     path: 'revise',
     label: 'Revise',
-    comingIn: 'Spec 003',
     summary: 'One-screen cheat sheets for quick revision before an interview.',
     icon: <Icon d={['M13 2 4 14h7l-1 8 9-12h-7l1-8Z']} />,
   },

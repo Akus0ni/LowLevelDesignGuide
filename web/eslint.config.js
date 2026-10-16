@@ -18,6 +18,8 @@ export default defineConfig(
       'react-refresh': reactRefresh,
     },
     rules: {
+      // Destructuring a prop next to `...rest` is how a component drops it (e.g. react-markdown's `node`).
+      '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [

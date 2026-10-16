@@ -221,6 +221,10 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | 2026-10-14 | **Email is the username** for requests and login |
 | 2026-10-14 | PRD v0.2 keeps a full requirements register (PRD §13) |
 | 2026-10-14 | **Apple CI deferred to Phase 2**: the `maui-apple` job moved to a manual-only workflow; required checks are `backend`, `web`, `maui-windows-android` (see §8) |
+| 2026-10-16 | **No EF Core on the device**: plain `Microsoft.Data.Sqlite` behind repository ports (EF Core cost 1–5 s per launch on Android; spec 003 plan §4). EF Core stays on the API (PRD R67) |
+| 2026-10-16 | **Open reading**: Learn and Revise need no account; content API only in Development (PRD R68) |
+| 2026-10-16 | Content **validated and packed at build time** by `lld-content`; C# parses and validates, React renders the Markdown (PRD R70, R71) |
+| 2026-10-16 | Visual identity **"the curriculum as a class diagram"** and **interactive learning without quizzes** (spec 003 amendment §3.7–3.8; PRD R73, R74) |
 
 ## 8. Phase 2: Apple builds (deferred 2026-10-14)
 Owner decision: Apple CI does not block PRs until Phase 2. The job is kept, ready to run, in

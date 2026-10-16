@@ -21,6 +21,37 @@ public partial class MainPage : ContentPage
 #endif
     }
 
+    /// <summary>
+    /// Android Back first closes whatever is open on top (outline sheet, diagram viewer, popover), then walks the app's
+    /// own history (Learn → module → lesson → cheat sheet), and only leaves the app from the first screen. MAUI's
+    /// default would leave from anywhere, since the whole app is one native page. The decision lives in the web app
+    /// (`web/src/app/hardwareBack.ts`), which knows what is open.
+    /// </summary>
+    protected override bool OnBackButtonPressed()
+    {
+#if ANDROID
+        _ = HandleBackAsync();
+        return true;
+#else
+        return base.OnBackButtonPressed();
+#endif
+    }
+
+#if ANDROID
+    private const string BackScript = "window.lldBack ? window.lldBack() : 'first'";
+    private const string FirstScreen = "first";
+
+    private async Task HandleBackAsync()
+    {
+        var result = await hybridWebView.EvaluateJavaScriptAsync(BackScript);
+        if (result == FirstScreen)
+        {
+            // What Android itself does on a root screen: send the app to the background, keep it warm.
+            Platform.CurrentActivity?.MoveTaskToBack(true);
+        }
+    }
+#endif
+
     private void Push(BridgeEvent message) =>
         MainThread.BeginInvokeOnMainThread(() => hybridWebView.SendRawMessage(message.ToJson()));
 }

@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Status** | v0.3 |
+| **Status** | v0.5 |
 | **Owner** | Akus0ni |
-| **Last updated** | 2026-10-14 |
+| **Last updated** | 2026-10-16 |
 | **Platforms** | Android · iOS · Windows · macOS |
 | **App name / ID** | LLD Guide · `com.akus0ni.lldguide` |
 | **License** | MIT |
@@ -17,6 +17,7 @@
 | v0.2 | 2026-10-14 | Content bundled in app; self-hosting on owner's PC via ngrok (F8); access by request + admin console (F9); email as username; server status via signed ntfy.sh topic; development process requirements; full requirements register (§13) |
 | v0.3 | 2026-10-14 | Spec 001 decisions: lockout, sign out of all devices, roles, audit log, token storage and lifetimes, password policy (R53–R60) |
 | v0.4 | 2026-10-15 | Spec 002 decisions: status signing and freshness, quota stop at 95 %, DPAPI secrets + installer, daily local backup, localhost-only API (R61–R66) |
+| v0.5 | 2026-10-16 | Spec 003 decisions: no EF Core on the device, open reading, "Start here" module, authoring contract and build-time packing, case-study cheat sheets up to 4 scrolls, class-diagram identity, interactive learning without quizzes (R67–R75) |
 
 ---
 
@@ -91,13 +92,19 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 - Lessons authored as Markdown with YAML front-matter in `/content` (Phase 1). An in-app admin editor comes in Phase 2.
 - **Content ships inside the app** (packaged as MAUI assets). On first launch, or when the bundled content version changes, the app loads it into **local SQLite**. Reading never needs the network.
 - The API exposes the same content **read-only**, parsed from the same folder by a shared library (`Lld.Content`). It is used only by browser dev mode and tests; devices never depend on it.
-- Reader: code highlighting (C#), Mermaid diagrams (class / sequence / state), table of contents.
-- **Acceptance:** a fresh install in airplane mode shows all lessons; adding a `.md` file and rebuilding the app makes it appear.
+- Modules also include **Start here** (first): how the guide works and how to revise with it.
+- **Open reading:** Learn and Revise work without signing in; an account is only for the user's own data.
+- Authoring contract: `module.yml` (title, order, summary) per module folder; `lesson.md` front-matter `id`, `title`, `order`, `summary`, `tags`, optional `source` (the folder decides the module); `cheatsheet.md` front-matter `title` only. Content is validated and packed at build time (`lld-content`); invalid content fails the build.
+- Reader: code highlighting (C# and others), Mermaid diagrams (class / sequence / state) themed like the app, outline with the current section, reading position and text size remembered, previous / next and a "Next up" card.
+- Interactive learning (no grading): tap a class in a class diagram to see its relationships, step through a sequence diagram, code callouts for the lesson's entities, finished sections ticked in the outline.
+- Visual identity: "the curriculum as a class diagram" (modules as class boxes joined in reading order).
+- **Acceptance:** a fresh install in airplane mode shows all lessons; adding a lesson folder and rebuilding the app makes it appear; opening a lesson takes under 300 ms on the Android emulator.
 
 ### F3. Cheat sheets
 - **Every concept/lesson has a companion `cheatsheet.md`** for quick revision before interviews.
 - Dedicated "Revise" view listing all cheat sheets, filterable by module.
-- **Acceptance:** each lesson links to its cheat sheet in one tap; a cheat sheet fits one phone screen with at most 2 scrolls.
+- Cheat sheets are split into `##` blocks; **recall mode** folds every block so the reader answers first and reveals one block at a time.
+- **Acceptance:** each lesson links to its cheat sheet in one tap; a concept cheat sheet fits one phone screen with at most 2 scrolls; a case-study cheat sheet may use up to 4 scrolls.
 
 ### F4. Progress tracking
 - Mark a lesson done; % complete per module and overall; "continue where you left off".
@@ -158,7 +165,7 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 ## 9. Architecture overview
 - **UI:** React + Vite + TypeScript, one UI for all platforms.
 - **Native shell:** .NET MAUI `HybridWebView` hosts the React build; a C# `BridgeService` is called from JS via `HybridWebView.InvokeDotNet`.
-- **Device data:** EF Core + SQLite in the MAUI app, holding bundled content plus the user's progress, notes, bookmarks and queued access requests.
+- **Device data:** SQLite in the MAUI app through plain `Microsoft.Data.Sqlite` (no EF Core on device, R67), holding bundled content plus the user's progress, notes, bookmarks and queued access requests.
 - **Backend:** ASP.NET Core Minimal API + EF Core + SQLite + Identity + JWT. It owns accounts and access requests and is the sync hub for user data; content is read-only, for browser dev mode.
 - **Hosting:** owner's PC (Windows services) exposed through ngrok (Dev Tunnels fallback); server status published to a signed ntfy.sh topic.
 - **Admin:** `Lld.Admin` console on the PC, sharing the application layer with the API.
@@ -274,6 +281,15 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R64 | Hosted secrets (JWT key, status private key, topic) live in DPAPI-protected, ACL-restricted files; one idempotent installer, `deploy/install.ps1` | F8 | 002 |
 | R65 | Daily backup at 13:00 (catches up after a missed run) to a local folder, `D:\Applications\LldGuide\backups`, keeping 14 days | F8 | 002 |
 | R66 | Hosted API listens on localhost only (ngrok is the only way in); `/health` is public without details; global per-client-IP rate limit | F8 | 002 |
+| R67 | Device database uses plain `Microsoft.Data.Sqlite` (hand-written SQL behind repository ports, `user_version` schema steps), not EF Core: EF Core cost 1–5 s per launch on Android (spec 003 plan §4). EF Core stays on the API | §9 | 003 |
+| R68 | Open reading: Learn and Revise need no account; the content API is anonymous and mapped only in Development (the hosted API returns 404 for `/api/content/*`) | F2 | 003 |
+| R69 | A "Start here" module comes first, with a "How to use LLD Guide" lesson and cheat sheet | F2, §7 | 003 |
+| R70 | Authoring contract: the folder decides the module; lessons carry `id`, `title`, `order`, `summary`, `tags`, optional `source`; cheat sheets only `title`; `id` never changes once published | F2 | 003 |
+| R71 | Content is validated and packed at build time (`lld-content pack`); any issue fails the build and CI with the file, line and reason; the device reloads content only when the pack version changes, in one transaction | F2 | 003 |
+| R72 | Concept cheat sheets: one screen + at most 2 scrolls; case-study cheat sheets: up to 4 scrolls; every cheat sheet uses `##` blocks (recall mode folds them) | F3 | 003 |
+| R73 | Visual identity "the curriculum as a class diagram": Bricolage Grotesque + JetBrains Mono (bundled), blueprint blue accent, class-box cards, diagrams themed from the same tokens | F2, §11 | 003 |
+| R74 | Interactive learning without grading: interactive class and sequence diagrams, code callouts, guided reading (current section, read ticks, Next up), recall mode on cheat sheets; no quizzes or scores (R21) | F2, F3 | 003 |
+| R75 | Reader comfort: reading position and text size survive a restart; Android Back closes an open sheet, viewer or popover first, then walks the app's history, and leaves only from the first screen | F2 | 003 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.

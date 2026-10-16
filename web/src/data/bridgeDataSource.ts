@@ -1,10 +1,16 @@
+import { toCamelCaseDeep } from './camelCase';
 import {
   AppError,
   type AccessRequestInput,
   type AccessRequestOutcome,
   type AppInfo,
+  type CheatSheetDetail,
+  type CheatSheetSummary,
   type DataSource,
   type HybridWebViewBridge,
+  type LessonDetail,
+  type ModuleDetail,
+  type ModuleSummary,
   type ServerStatus,
   type UserSummary,
 } from './types';
@@ -107,6 +113,37 @@ export class BridgeDataSource implements DataSource {
 
   async logoutAll(): Promise<void> {
     await this.call('LogoutAll');
+  }
+
+  // Content: read from the device database by C#, so it works offline.
+
+  getModules(): Promise<ModuleSummary[]> {
+    return this.content('GetModules');
+  }
+
+  getModule(slug: string): Promise<ModuleDetail> {
+    return this.content('GetModule', [slug]);
+  }
+
+  getLesson(id: string): Promise<LessonDetail> {
+    return this.content('GetLesson', [id]);
+  }
+
+  getCheatSheets(moduleSlug?: string): Promise<CheatSheetSummary[]> {
+    return this.content('GetCheatSheets', [moduleSlug ?? null]);
+  }
+
+  getCheatSheet(lessonId: string): Promise<CheatSheetDetail> {
+    return this.content('GetCheatSheet', [lessonId]);
+  }
+
+  async openExternal(url: string): Promise<void> {
+    await this.call('OpenExternal', [url]);
+  }
+
+  /** Content records are nested (outline, previous / next), so convert every key at once instead of picking. */
+  private async content<T>(method: string, args: unknown[] = []): Promise<T> {
+    return toCamelCaseDeep(await this.call(method, args)) as T;
   }
 
   /** Routes C# raw messages by their `type`; ignores anything else on the channel. */

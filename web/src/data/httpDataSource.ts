@@ -1,3 +1,4 @@
+import { isWebLink } from './camelCase';
 import { AccessRequestOutbox } from './serverStatus/accessRequestOutbox';
 import { ReachabilityRecovery } from './serverStatus/reachabilityRecovery';
 import { ServerStatusTracker } from './serverStatus/serverStatusTracker';
@@ -6,7 +7,12 @@ import {
   type AccessRequestInput,
   type AccessRequestOutcome,
   type AppInfo,
+  type CheatSheetDetail,
+  type CheatSheetSummary,
   type DataSource,
+  type LessonDetail,
+  type ModuleDetail,
+  type ModuleSummary,
   type ServerStatus,
   type UserSummary,
 } from './types';
@@ -29,6 +35,7 @@ export interface HttpStatusOptions {
 const EVALUATE_INTERVAL_MS = 60_000;
 const GATEWAY_ERRORS = new Set([502, 503, 504]);
 const NETWORK_ERROR = 'network.unavailable';
+const CONTENT = '/api/content';
 
 interface AuthResponse {
   accessToken: string;
@@ -129,6 +136,39 @@ export class HttpDataSource implements DataSource {
   async logoutAll(): Promise<void> {
     await this.sendAuthorized('POST', '/api/auth/logout-all');
     this.accessToken = null;
+  }
+
+  // Content: the dev API reads content/ from the repository (Development only).
+
+  async getModules(): Promise<ModuleSummary[]> {
+    return (await this.send('GET', `${CONTENT}/modules`)) as ModuleSummary[];
+  }
+
+  async getModule(slug: string): Promise<ModuleDetail> {
+    return (await this.send('GET', `${CONTENT}/modules/${encodeURIComponent(slug)}`)) as ModuleDetail;
+  }
+
+  async getLesson(id: string): Promise<LessonDetail> {
+    return (await this.send('GET', `${CONTENT}/lessons/${encodeURIComponent(id)}`)) as LessonDetail;
+  }
+
+  async getCheatSheets(moduleSlug?: string): Promise<CheatSheetSummary[]> {
+    const query = moduleSlug ? `?module=${encodeURIComponent(moduleSlug)}` : '';
+    return (await this.send('GET', `${CONTENT}/cheatsheets${query}`)) as CheatSheetSummary[];
+  }
+
+  async getCheatSheet(lessonId: string): Promise<CheatSheetDetail> {
+    return (await this.send(
+      'GET',
+      `${CONTENT}/cheatsheets/${encodeURIComponent(lessonId)}`,
+    )) as CheatSheetDetail;
+  }
+
+  openExternal(url: string): Promise<void> {
+    if (!isWebLink(url))
+      return Promise.reject(new AppError('link.not_allowed', 'Only web links can be opened.'));
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return Promise.resolve();
   }
 
   private startStatus(): void {

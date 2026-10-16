@@ -17,4 +17,4 @@
 - [x] T15 Manual run: browser, Windows, Android (screenshots); console approve flow
 - [x] T16 Case study: `content/case-studies/auth/lesson.md` + `cheatsheet.md`; Mermaid validated
 - [x] T17 Docs: README (signing key, admin console usage), plan §4 outcomes, progress log, PRD if needed
-- [ ] T18 PR with acceptance-criteria table
+- [x] T18 PR with acceptance-criteria table

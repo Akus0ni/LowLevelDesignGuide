@@ -56,4 +56,16 @@ public sealed class ApiTests : IAsyncLifetime
         info.Should().NotBeNull();
         info!.Name.Should().Be("LLD Guide API");
     }
+
+    [Fact]
+    public async Task Content_IsServedFromTheRepository_InDevelopment()
+    {
+        using var client = _app!.CreateHttpClient("api", "http");
+
+        var modules = await client.GetFromJsonAsync<List<ModuleSummary>>("/api/content/modules", TestContext.Current.CancellationToken);
+        var auth = await client.GetFromJsonAsync<LessonDetail>("/api/content/lessons/case-study-auth", TestContext.Current.CancellationToken);
+
+        modules!.Select(m => m.Slug).Should().StartWith("start").And.Contain("case-studies");
+        auth!.Outline.Should().NotBeEmpty();
+    }
 }

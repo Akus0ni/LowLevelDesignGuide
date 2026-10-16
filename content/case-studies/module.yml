@@ -1,0 +1,4 @@
+title: Case studies
+# After OOP & SOLID (1), design patterns (2) and UML (3).
+order: 4
+summary: Real systems designed class by class, from requirements to working C# code.

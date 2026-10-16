@@ -1,8 +1,9 @@
-import { NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet, ScrollRestoration, useMatches } from 'react-router';
 import { useAuth } from '../features/auth/AuthContext';
 import { ForcedPasswordChange } from '../features/auth/screens';
 import { ServerOfflineBanner } from '../features/serverStatus/ServerOfflineBanner';
 import { cn } from '../ui/cn';
+import type { RouteHandle } from './routes';
 import { SECTIONS } from './sections';
 
 const linkTone = ({ isActive }: { isActive: boolean }) =>
@@ -10,6 +11,7 @@ const linkTone = ({ isActive }: { isActive: boolean }) =>
 
 export function AppShell() {
   const { state } = useAuth();
+  const wide = useMatches().some((match) => (match.handle as RouteHandle | undefined)?.wide);
 
   // A temporary password must be replaced before anything else is shown.
   if (state.status === 'signedIn' && state.user.mustChangePassword) {
@@ -41,7 +43,14 @@ export function AppShell() {
         </nav>
       </aside>
 
-      <main className="mx-auto w-full max-w-3xl px-5 pt-safe pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-12">
+      {/* New screens open at the top; Back returns to where you were. */}
+      <ScrollRestoration />
+      <main
+        className={cn(
+          'mx-auto w-full px-5 pt-safe pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-12',
+          wide ? 'max-w-3xl lg:max-w-6xl' : 'max-w-3xl',
+        )}
+      >
         <Outlet />
       </main>
 
