@@ -86,7 +86,8 @@ internal sealed class ValidRepo
     /// <summary>Replaces text inside one file (the text must be there, so a typo in a test fails loudly).</summary>
     public ValidRepo Replace(string path, string oldText, string newText)
     {
-        var text = _files[path];
+        // The raw strings above take this file's line endings (CRLF in a Windows checkout); tests write "\n".
+        var text = _files[path].ReplaceLineEndings("\n");
         if (!text.Contains(oldText, StringComparison.Ordinal))
         {
             throw new InvalidOperationException($"'{oldText}' is not in {path}.");
