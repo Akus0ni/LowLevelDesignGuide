@@ -21,4 +21,4 @@
 - [x] T17 Playwright: A1, A6–A10 + memory aids in `e2e/concept.spec.ts` (loops over every lesson in the module)
 - [x] T18 Manual run: Windows + Android (A1, A12 upgrade from format 1); screenshots
 - [x] T19 Docs: PRD (R76–R84, v0.6), `docs/plan.md` decisions, plan §4 outcomes, progress log
-- [ ] T20 PR with the acceptance-criteria table
+- [x] T20 PR with the acceptance-criteria table (PR #6 ready for review)
