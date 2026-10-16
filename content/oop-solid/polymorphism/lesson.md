@@ -15,9 +15,8 @@ hook: "Same button, each plays its own way"
 
 ```mermaid
 flowchart TD
-    you["🧑 You press ▶️ Play"] --> song["🎵 Song<br/>audio"]
-    you --> video["🎬 Video<br/>frames"]
-    you --> podcast["🎙️ Podcast<br/>resumes"]
+    you["🧑 You press ▶️ Play"] --> song["🎵 Song<br/>plays audio"]
+    you --> video["🎬 Video<br/>plays frames"]
 ```
 
 ## The rule
