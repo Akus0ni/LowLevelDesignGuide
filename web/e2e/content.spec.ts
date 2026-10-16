@@ -115,8 +115,10 @@ test('A7: lesson to cheat sheet in one tap and back; Revise lists and filters', 
 
 test('A8: every cheat sheet fits its screen budget at 390 × 844', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'measured on a phone');
+  const sheets = allCheatSheets();
+  test.setTimeout(10_000 + sheets.length * 4_000); // each sheet waits for its diagrams
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const sheet of allCheatSheets()) {
+  for (const sheet of sheets) {
     await page.goto(`/#/revise/${sheet.moduleSlug}/${sheet.lessonSlug}`);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(sheet.title);
     await page.waitForTimeout(1500); // diagrams

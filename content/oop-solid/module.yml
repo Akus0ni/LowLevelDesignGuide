@@ -27,6 +27,9 @@ map: |
       isp["ISP"]
       dip["DIP"]
     end
+    subgraph heuristics["Guard rails"]
+      dry-kiss-yagni["DRY, KISS & YAGNI"]
+    end
     encapsulation -->|"hides the details behind"| abstraction
     inheritance -->|"is one way to get"| polymorphism
     abstraction -->|"lets callers rely on"| polymorphism
@@ -45,3 +48,5 @@ map: |
     isp -->|"helps keep"| lsp
     abstraction -->|"owned by the caller:"| dip
     ocp -->|"is made possible by"| dip
+    dry-kiss-yagni -.->|"keeps in check"| ocp
+    dry-kiss-yagni -.->|"warns against the wrong"| abstraction
