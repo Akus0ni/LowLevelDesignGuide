@@ -1,0 +1,16 @@
+title: OOP & SOLID
+order: 1
+summary: Objects that guard their own rules, and the five principles that keep classes easy to change.
+template: concept
+# Node ids are lesson folder names; the app draws each subgraph as a «package». Put spaces around arrows.
+map: |
+  flowchart TD
+    subgraph pillars["The four pillars"]
+      encapsulation["Encapsulation"]
+      abstraction["Abstraction"]
+      inheritance["Inheritance"]
+      polymorphism["Polymorphism"]
+    end
+    encapsulation -->|"hides the details behind"| abstraction
+    inheritance -->|"is one way to get"| polymorphism
+    abstraction -->|"lets callers rely on"| polymorphism

@@ -19,6 +19,20 @@ public sealed class RepositoryContentTests
         result.Pack.Modules.SelectMany(m => m.Lessons).Select(l => l.Id).Should().Contain("case-study-auth");
     }
 
+    /// <summary>Spec 004 A2: concept lessons are deep (prose alone takes at least 15 minutes; code comes on top).</summary>
+    [Fact]
+    public void OopSolidLessons_AreDeep()
+    {
+        const int MinimumMinutes = 15;
+        var pack = new ContentPipeline(new PhysicalContentFiles(RepositoryRoot()), new ContentOptions()).Build().Pack!;
+
+        var lessons = pack.Modules.Single(m => m.Slug == "oop-solid").Lessons;
+
+        lessons.Should().NotBeEmpty();
+        lessons.Should().AllSatisfy(lesson =>
+            lesson.ReadingMinutes.Should().BeGreaterThanOrEqualTo(MinimumMinutes, $"{lesson.Id} is a deep lesson"));
+    }
+
     internal static string RepositoryRoot()
     {
         for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)
