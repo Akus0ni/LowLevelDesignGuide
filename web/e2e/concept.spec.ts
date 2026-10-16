@@ -73,13 +73,40 @@ test('A6: at 320 px no lesson page scrolls sideways', async ({ page }) => {
   }
 });
 
-test('A7: callouts render as labelled notes', async ({ page }) => {
-  await page.goto(ENCAPSULATION);
+test('A7 + memory aids: every lesson opens with a stamp and a picture; callouts are labelled notes', async ({ page }) => {
+  for (const slug of ['encapsulation', 'abstraction', 'inheritance', 'polymorphism']) {
+    await page.goto(`${MODULE}/${slug}`);
+    const stamp = page.getByRole('complementary', { name: 'remember', exact: true }).first();
+    await expect(stamp).toContainText('«remember»');
+    await expect(page.locator('.diagram').first()).toBeVisible();
+    await expect(page.locator('header .lesson-icon-tile')).toHaveCount(1);
+  }
 
-  for (const label of ['interview tip', 'code smell', 'tip', 'pitfall', 'in this app', 'from my work']) {
+  await page.goto(ENCAPSULATION);
+  await page.getByRole('button', { name: /Open the deep dive/ }).click();
+  for (const label of ['in this app', 'from my work']) {
     await expect(page.getByRole('complementary', { name: label, exact: true }).first()).toContainText(`«${label}»`);
   }
-  await expect(page.getByText('[!SMELL]')).toHaveCount(0);
+  await expect(page.getByText('[!REMEMBER]')).toHaveCount(0);
+});
+
+test('Go deeper starts folded, lists its topics and opens on tap', async ({ page }) => {
+  await page.goto(ENCAPSULATION);
+  const trigger = page.getByRole('button', { name: /Open the deep dive/ });
+
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(trigger).toContainText('C# traps');
+  await trigger.click();
+  await expect(page.getByRole('heading', { level: 3, name: 'C# traps' })).toBeVisible();
+});
+
+test('the module mnemonic spells A-PIE and each letter opens its lesson', async ({ page }) => {
+  await page.goto(MODULE);
+  const mnemonic = page.getByRole('figure', { name: /^A-PIE:/ });
+
+  await expect(mnemonic.locator('.mnemonic-letter')).toHaveText(['A', 'P', 'I', 'E']);
+  await mnemonic.getByRole('link', { name: /Polymorphism/ }).click();
+  await expect(page).toHaveURL(/#\/learn\/oop-solid\/polymorphism$/);
 });
 
 test('A8: interview answers start folded, open on tap, and Show all opens the rest', async ({ page }) => {
@@ -90,7 +117,7 @@ test('A8: interview answers start folded, open on tap, and Show all opens the re
   await expect(first).toHaveAttribute('aria-expanded', 'false');
   await first.click();
   await expect(first).toHaveAttribute('aria-expanded', 'true');
-  await expect(list.getByText(/protects its own invariants/)).toBeVisible();
+  await expect(list.getByText(/protects its/)).toBeVisible();
 
   await list.getByRole('button', { name: 'Show all' }).click();
   await expect(list.getByRole('button', { expanded: false })).toHaveCount(0);

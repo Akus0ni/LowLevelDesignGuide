@@ -2,10 +2,12 @@ title: OOP & SOLID
 order: 1
 summary: Objects that guard their own rules, and the five principles that keep classes easy to change.
 template: concept
+# Each letter starts the title of its lesson; the module page draws them as acrostics.
+mnemonics: ["A-PIE: abstraction, polymorphism, inheritance, encapsulation"]
 # Node ids are lesson folder names; the app draws each subgraph as a «package». Put spaces around arrows.
 map: |
   flowchart TD
-    subgraph pillars["The four pillars"]
+    subgraph pillars["The four pillars (A-PIE)"]
       encapsulation["Encapsulation"]
       abstraction["Abstraction"]
       inheritance["Inheritance"]
