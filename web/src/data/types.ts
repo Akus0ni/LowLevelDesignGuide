@@ -64,6 +64,27 @@ export interface ModuleDetail {
   title: string;
   summary: string;
   lessons: LessonSummary[];
+  /** How the lessons relate (spec 004 §3.6); null when the module has no map. */
+  map?: ModuleMap | null;
+}
+
+/** Mirrors Lld.Contracts.ModuleMap: lessons in titled groups, and labelled links between them. */
+export interface ModuleMap {
+  groups: MapGroup[];
+  links: MapLink[];
+}
+
+/** `title` is empty for lessons outside any group; `lessons` are slugs in the order written. */
+export interface MapGroup {
+  title: string;
+  lessons: string[];
+}
+
+/** "from label to", e.g. "ocp needs lsp" (slugs). */
+export interface MapLink {
+  from: string;
+  to: string;
+  label: string | null;
 }
 
 /** An h2 or h3 of a lesson; `anchor` follows GitHub's heading-id rules (github-slugger). */

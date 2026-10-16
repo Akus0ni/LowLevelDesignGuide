@@ -1,4 +1,4 @@
-import type { Element, ElementContent, Root } from 'hast';
+import type { Element, Root } from 'hast';
 import { Children, type ComponentProps, type MouseEvent } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import { Link } from 'react-router';
@@ -7,10 +7,20 @@ import remarkGfm from 'remark-gfm';
 import { useDataSource } from '../../../data/DataSourceContext';
 import { isWebLink } from '../../../data/camelCase';
 import type { LessonTerm } from '../../../data/types';
+import { Callout } from './Callout';
 import { CodeBlock } from './CodeBlock';
+import { CodeCompare } from './CodeCompare';
+import { fenceOf, markKindOf, sideOf } from './fence';
 import { TermsContext } from './terms';
+import { rehypeCallouts, rehypeCompare, rehypeInterview, type CalloutType } from './rehypeContent';
 import { rehypeRecallSections } from '../reader/recall';
 import { RecallSection } from '../reader/RecallSection';
+import {
+  InterviewAnswer,
+  InterviewQuestion,
+  InterviewQuestionHeading,
+  InterviewQuestionList,
+} from '../reader/InterviewQuestions';
 import { MermaidDiagram } from './MermaidDiagram';
 
 /**
@@ -28,7 +38,7 @@ export function MarkdownView({
   terms?: LessonTerm[];
   /** Reader setting (T14): s / m / l. */
   textSize?: 's' | 'm' | 'l';
-  /** Cheat sheets: group `##` sections so recall mode can fold them. */
+  /** Cheat sheets: group `##` sections so recall mode can fold them (lessons fold interview answers instead). */
   recall?: boolean;
 }) {
   return (
@@ -36,7 +46,7 @@ export function MarkdownView({
       <div className="reader-prose" data-text-size={textSize}>
         <Markdown
           remarkPlugins={[remarkGfm]}
-          rehypePlugins={recall ? RECALL_PLUGINS : PLUGINS}
+          rehypePlugins={recall ? CHEAT_SHEET_PLUGINS : LESSON_PLUGINS}
           components={components}
           skipHtml
         >
@@ -58,21 +68,44 @@ function rehypeDropLeadingTitle() {
   };
 }
 
-const PLUGINS = [rehypeSlug, rehypeDropLeadingTitle];
-const RECALL_PLUGINS = [...PLUGINS, rehypeRecallSections];
-
-function textOf(node: ElementContent): string {
-  if (node.type === 'text') return node.value;
-  return node.type === 'element' ? node.children.map(textOf).join('') : '';
-}
+const COMMON_PLUGINS = [rehypeSlug, rehypeDropLeadingTitle, rehypeCompare, rehypeCallouts];
+const LESSON_PLUGINS = [...COMMON_PLUGINS, rehypeInterview];
+const CHEAT_SHEET_PLUGINS = [...COMMON_PLUGINS, rehypeRecallSections];
 
 const components: Components = {
   a: ContentLink,
   section: ({ node, children, ...props }) => {
-    const id = node?.properties.dataRecall;
-    if (typeof id !== 'string') return <section {...props}>{children}</section>;
-    const [heading, body] = Children.toArray(children);
-    return <RecallSection id={id} heading={heading} body={body} />;
+    const recallId = node?.properties.dataRecall;
+    if (typeof recallId === 'string') {
+      const [heading, body] = Children.toArray(children);
+      return <RecallSection id={recallId} heading={heading} body={body} />;
+    }
+    const qa = node?.properties.dataQa;
+    if (typeof qa === 'string') return <InterviewQuestion index={Number(qa)}>{children}</InterviewQuestion>;
+    return <section {...props}>{children}</section>;
+  },
+  div: ({ node, children, ...props }) => {
+    const properties = node?.properties ?? {};
+    if (properties.dataCompare !== undefined) return <Compare node={node} />;
+    if (typeof properties.dataQaList === 'string') {
+      return <InterviewQuestionList count={Number(properties.dataQaList)}>{children}</InterviewQuestionList>;
+    }
+    if (properties.dataQaAnswer !== undefined) return <InterviewAnswer>{children}</InterviewAnswer>;
+    return <div {...props}>{children}</div>;
+  },
+  h3: ({ node, children, ...props }) =>
+    node?.properties.dataQaQuestion !== undefined ? (
+      <InterviewQuestionHeading id={props.id}>{children}</InterviewQuestionHeading>
+    ) : (
+      <h3 {...props}>{children}</h3>
+    ),
+  blockquote: ({ node, children, ...props }) => {
+    const type = node?.properties.dataCallout;
+    return typeof type === 'string' ? (
+      <Callout type={type as CalloutType}>{children}</Callout>
+    ) : (
+      <blockquote {...props}>{children}</blockquote>
+    );
   },
   table: ({ node, ...props }) => (
     // Wide tables scroll inside their own box; the page never scrolls sideways.
@@ -81,16 +114,28 @@ const components: Components = {
     </div>
   ),
   pre: ({ node }) => {
-    const code = node?.children.find(
-      (child): child is Element => child.type === 'element' && child.tagName === 'code',
+    const fence = fenceOf(node);
+    if (!fence) return null;
+    if (fence.language === 'mermaid') return <MermaidDiagram source={fence.code} />;
+    return (
+      <CodeBlock
+        code={fence.code}
+        info={fence.language}
+        title={fence.meta.title}
+        marks={fence.meta.marks}
+        markKind={markKindOf(sideOf(fence.meta))}
+      />
     );
-    if (!code) return null;
-    const classes = (code.properties.className as string[] | undefined) ?? [];
-    const info = classes.find((name) => name.startsWith('language-'))?.slice('language-'.length);
-    const source = code.children.map(textOf).join('').replace(/\n$/, '');
-    return info === 'mermaid' ? <MermaidDiagram source={source} /> : <CodeBlock code={source} info={info} />;
   },
 };
+
+/** The two `<pre>`s rehypeCompare grouped. */
+function Compare({ node }: { node?: Element }) {
+  const [before, after] = (node?.children ?? []).filter((child): child is Element => child.type === 'element');
+  const beforeFence = fenceOf(before);
+  const afterFence = fenceOf(after);
+  return beforeFence && afterFence ? <CodeCompare before={beforeFence} after={afterFence} /> : null;
+}
 
 /**
  * Links were rewritten when content was packed: lessons and cheat sheets are app routes, headings are `?at=anchor`,
