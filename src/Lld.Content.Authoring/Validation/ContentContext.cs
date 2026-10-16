@@ -2,6 +2,7 @@ using Lld.Content.Authoring.Files;
 using Lld.Content.Authoring.Links;
 using Lld.Content.Authoring.Parsing;
 using Lld.Content.Authoring.Reading;
+using Lld.Content.Authoring.Snippets;
 
 namespace Lld.Content.Authoring.Validation;
 
@@ -12,12 +13,13 @@ public sealed class ContentContext
     private readonly Dictionary<string, IReadOnlySet<string>> _anchors = new(StringComparer.Ordinal);
     private readonly HashSet<string> _unreadable;
 
-    public ContentContext(ContentSet set, IContentFiles files, ContentOptions options)
+    public ContentContext(ContentSet set, IContentFiles files, ContentOptions options, ICodeSnippetSource snippets)
     {
         ArgumentNullException.ThrowIfNull(set);
         Set = set;
         Files = files;
         Options = options;
+        Snippets = snippets;
         Resolver = new LinkResolver(options);
         Lessons = [.. set.Modules.SelectMany(m => m.Lessons)];
         Documents = [.. Lessons.SelectMany(l => new[] { l.Lesson, l.CheatSheet }).OfType<SourceDocument>()];
@@ -32,6 +34,9 @@ public sealed class ContentContext
     public ContentOptions Options { get; }
 
     public LinkResolver Resolver { get; }
+
+    /// <summary>Shared with the packer, so each quoted file is parsed once per build.</summary>
+    public ICodeSnippetSource Snippets { get; }
 
     public IReadOnlyList<SourceLesson> Lessons { get; }
 
