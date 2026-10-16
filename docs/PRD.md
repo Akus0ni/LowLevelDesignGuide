@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Status** | v0.5 |
+| **Status** | v0.6 |
 | **Owner** | Akus0ni |
-| **Last updated** | 2026-10-16 |
+| **Last updated** | 2026-10-17 |
 | **Platforms** | Android · iOS · Windows · macOS |
 | **App name / ID** | LLD Guide · `com.akus0ni.lldguide` |
 | **License** | MIT |
@@ -18,6 +18,7 @@
 | v0.3 | 2026-10-14 | Spec 001 decisions: lockout, sign out of all devices, roles, audit log, token storage and lifetimes, password policy (R53–R60) |
 | v0.4 | 2026-10-15 | Spec 002 decisions: status signing and freshness, quota stop at 95 %, DPAPI secrets + installer, daily local backup, localhost-only API (R61–R66) |
 | v0.5 | 2026-10-16 | Spec 003 decisions: no EF Core on the device, open reading, "Start here" module, authoring contract and build-time packing, case-study cheat sheets up to 4 scrolls, class-diagram identity, interactive learning without quizzes (R67–R75) |
+| v0.6 | 2026-10-17 | Spec 004 decisions: OOP & SOLID module (15 lessons), C# quoted from compiled code by symbol, Before / After, callouts, folded interview questions, module map, visual-card lessons with memory aids (stamp, picture, icon + hook, mnemonics), folded "Go deeper" (R76–R84) |
 
 ---
 
@@ -97,6 +98,7 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 - Authoring contract: `module.yml` (title, order, summary) per module folder; `lesson.md` front-matter `id`, `title`, `order`, `summary`, `tags`, optional `source` (the folder decides the module); `cheatsheet.md` front-matter `title` only. Content is validated and packed at build time (`lld-content`); invalid content fails the build.
 - Reader: code highlighting (C# and others), Mermaid diagrams (class / sequence / state) themed like the app, outline with the current section, reading position and text size remembered, previous / next and a "Next up" card.
 - Interactive learning (no grading): tap a class in a class diagram to see its relationships, step through a sequence diagram, code callouts for the lesson's entities, finished sections ticked in the outline.
+- **Concept lessons are short and visual** (spec 004): a REMEMBER stamp, an everyday picture, the rule in a few lines, one Before / After, smells, one example from this app and 5–8 interview questions with folded answers; the detail waits in a folded "Go deeper". Every concept has an icon and a short hook; modules can carry acrostic mnemonics (A-PIE, SOLID) and a map of how their lessons relate.
 - Visual identity: "the curriculum as a class diagram" (modules as class boxes joined in reading order).
 - **Acceptance:** a fresh install in airplane mode shows all lessons; adding a lesson folder and rebuilding the app makes it appear; opening a lesson takes under 300 ms on the Android emulator.
 
@@ -154,7 +156,8 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 - **Case Study #1 is Auth**, explained using this app's real code (F1).
 - **Every other case study starts by asking the owner** whether to use their own real-work version, plus scope, scale and emphasis. Enforced by the project skill `.claude/skills/lld-case-study`. Nothing is designed silently.
 - Case study template: problem → requirements → entities → class diagram → sequence/state diagrams → patterns and why → SOLID mapping → C# code → trade-offs → interview follow-ups, plus a one-screen cheat sheet.
-- C# samples must compile (real `src/` code or `samples/`).
+- C# samples must compile: lessons quote real `src/` code or `samples/` by symbol (`snippet="path#Type.Member"`), the build inlines the code and fails if a symbol disappears; `samples/` have tests proving each design's claims.
+- Language is simple and memorable: short sentences, everyday words, a picture or code before prose (owner, 2026-10-17).
 
 ## 8. Phase 2 (post-MVP)
 - Admin UI to create and edit lessons in-app (Markdown stays the source of truth or gets imported; decide then).
@@ -290,6 +293,15 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R73 | Visual identity "the curriculum as a class diagram": Bricolage Grotesque + JetBrains Mono (bundled), blueprint blue accent, class-box cards, diagrams themed from the same tokens | F2, §11 | 003 |
 | R74 | Interactive learning without grading: interactive class and sequence diagrams, code callouts, guided reading (current section, read ticks, Next up), recall mode on cheat sheets; no quizzes or scores (R21) | F2, F3 | 003 |
 | R75 | Reader comfort: reading position and text size survive a restart; Android Back closes an open sheet, viewer or popover first, then walks the app's history, and leaves only from the first screen | F2 | 003 |
+| R76 | OOP & SOLID module: 15 lessons (pillars, design basics, SOLID, DRY / KISS / YAGNI), each with a cheat sheet | F2, §7 | 004 |
+| R77 | Lesson C# is quoted from compiled, tested code by symbol (Roslyn, syntax only); concept modules may not contain inline C#; a missing or ambiguous symbol fails the build | §7 | 004 |
+| R78 | Before / After code compare: a switch on narrow screens, side by side when both fit; changed lines marked at pack time, skipped when most of a side changed | F2 | 004 |
+| R79 | Callouts in GitHub alert syntax (`[!REMEMBER]`, `NOTE`, `TIP`, `INTERVIEW`, `SMELL`, `PITFALL`, `APP`, `WORK`), drawn as UML notes; unknown types fail the build | F2 | 004 |
+| R80 | Interview questions: 5–8 per concept lesson, answers folded (reveal only, no scoring, R21) | F2, F3 | 004 |
+| R81 | Module map: authored as a Mermaid flowchart in `module.yml`, packed into groups and labelled links, drawn by the app as «package» boxes (a drawn flowchart is unreadable on a phone) | F2 | 004 |
+| R82 | Content is simple, memorable and visual with little text: a short card (≤ 8 min) + a folded "Go deeper" | F2, §7 | 004 |
+| R83 | Memory aids: REMEMBER stamp on every concept lesson and cheat sheet, an everyday picture, an icon + hook (≤ 40 chars) per concept, acrostic mnemonics per module | F2, F3 | 004 |
+| R84 | "From my work" (`[!WORK]`) slots in every concept lesson, filled by the owner over time | §7 | 004+ |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.

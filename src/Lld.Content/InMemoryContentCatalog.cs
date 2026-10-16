@@ -30,7 +30,7 @@ public sealed class InMemoryContentCatalog : IContentCatalog
 
     public Task<ModuleDetail?> GetModuleAsync(string slug, CancellationToken cancellationToken) =>
         Task.FromResult(_modulesBySlug.TryGetValue(slug, out var module)
-            ? new ModuleDetail(module.Slug, module.Title, module.Summary, [.. module.Lessons.Select(l => ToSummary(module, l))])
+            ? new ModuleDetail(module.Slug, module.Title, module.Summary, [.. module.Lessons.Select(l => ToSummary(module, l))], module.Map, module.Mnemonics ?? [])
             : null);
 
     public Task<LessonDetail?> GetLessonAsync(string id, CancellationToken cancellationToken)
@@ -57,14 +57,15 @@ public sealed class InMemoryContentCatalog : IContentCatalog
             lesson.CheatSheet.Title,
             index > 0 ? ToLink(module, module.Lessons[index - 1]) : null,
             index < module.Lessons.Count - 1 ? ToLink(module, module.Lessons[index + 1]) : null,
-            lesson.Terms));
+            lesson.Terms,
+            lesson.Icon));
     }
 
     public Task<IReadOnlyList<CheatSheetSummary>> GetCheatSheetsAsync(string? moduleSlug, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<CheatSheetSummary>>(
             [.. _modules
                 .Where(m => moduleSlug is null || m.Slug == moduleSlug)
-                .SelectMany(m => m.Lessons.Select(l => new CheatSheetSummary(l.Id, m.Slug, m.Title, l.Slug, l.Title, l.CheatSheet.Title)))]);
+                .SelectMany(m => m.Lessons.Select(l => new CheatSheetSummary(l.Id, m.Slug, m.Title, l.Slug, l.Title, l.CheatSheet.Title, l.Icon)))]);
 
     public Task<CheatSheetDetail?> GetCheatSheetAsync(string lessonId, CancellationToken cancellationToken)
     {
@@ -76,11 +77,11 @@ public sealed class InMemoryContentCatalog : IContentCatalog
         var (module, index) = entry;
         var lesson = module.Lessons[index];
         return Task.FromResult<CheatSheetDetail?>(new CheatSheetDetail(
-            lesson.Id, module.Slug, module.Title, lesson.Slug, lesson.Title, lesson.CheatSheet.Title, lesson.CheatSheet.BodyMarkdown));
+            lesson.Id, module.Slug, module.Title, lesson.Slug, lesson.Title, lesson.CheatSheet.Title, lesson.CheatSheet.BodyMarkdown, lesson.Icon));
     }
 
     private static LessonSummary ToSummary(PackedModule module, PackedLesson lesson) =>
-        new(lesson.Id, module.Slug, lesson.Slug, lesson.Title, lesson.Summary, lesson.Order, lesson.ReadingMinutes, lesson.Tags);
+        new(lesson.Id, module.Slug, lesson.Slug, lesson.Title, lesson.Summary, lesson.Order, lesson.ReadingMinutes, lesson.Tags, lesson.Icon, lesson.Hook);
 
     private static LessonLink ToLink(PackedModule module, PackedLesson lesson) =>
         new(lesson.Id, module.Slug, lesson.Slug, lesson.Title);

@@ -29,6 +29,17 @@ function fileFor(url: string): string {
   return path === 'cheatsheets' && module ? `cheatsheets-by-module/${module}.json` : `${path}.json`;
 }
 
+/** Every module in the snapshot, in reading order. */
+export function allModules(): { slug: string; title: string; lessonCount: number }[] {
+  return JSON.parse(readFileSync(join(CONTENT_SNAPSHOT, 'modules.json'), 'utf8'));
+}
+
+/** The lesson slugs of one module, in reading order. */
+export function lessonSlugsOf(moduleSlug: string): string[] {
+  const module = JSON.parse(readFileSync(join(CONTENT_SNAPSHOT, 'modules', `${moduleSlug}.json`), 'utf8'));
+  return module.lessons.map((lesson: { slug: string }) => lesson.slug);
+}
+
 /** Every cheat sheet in the snapshot, for checks that must cover all of them. */
 export function allCheatSheets(): { moduleSlug: string; lessonSlug: string; title: string }[] {
   return JSON.parse(readFileSync(join(CONTENT_SNAPSHOT, 'cheatsheets.json'), 'utf8'));

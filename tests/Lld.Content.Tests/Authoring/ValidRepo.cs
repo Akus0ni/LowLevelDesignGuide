@@ -86,7 +86,8 @@ internal sealed class ValidRepo
     /// <summary>Replaces text inside one file (the text must be there, so a typo in a test fails loudly).</summary>
     public ValidRepo Replace(string path, string oldText, string newText)
     {
-        var text = _files[path];
+        // The raw strings above take this file's line endings (CRLF in a Windows checkout); tests write "\n".
+        var text = _files[path].ReplaceLineEndings("\n");
         if (!text.Contains(oldText, StringComparison.Ordinal))
         {
             throw new InvalidOperationException($"'{oldText}' is not in {path}.");
@@ -95,6 +96,81 @@ internal sealed class ValidRepo
         _files[path] = text.Replace(oldText, newText, StringComparison.Ordinal);
         return this;
     }
+
+    public const string ConceptModule = "content/oop-solid/module.yml";
+    public const string Srp = "content/oop-solid/srp/lesson.md";
+    public const string SrpSheet = "content/oop-solid/srp/cheatsheet.md";
+    public const string Ocp = "content/oop-solid/ocp/lesson.md";
+    public const string OcpSheet = "content/oop-solid/ocp/cheatsheet.md";
+    public const string Sample = "samples/Srp.cs";
+
+    /// <summary>
+    /// Adds a valid concept module (spec 004): snippets, a Before / After pair, callouts, interview questions and a map.
+    /// </summary>
+    public ValidRepo WithConceptModule()
+    {
+        Set(ConceptModule, """
+            title: OOP & SOLID
+            order: 1
+            summary: Principles.
+            template: concept
+            mnemonics: ["SO: srp, ocp"]
+            map: |
+              flowchart LR
+                srp["SRP"] -->|"leads to"| ocp["OCP"]
+            """);
+        Set(Sample, """
+            namespace Samples;
+
+            public sealed class Report
+            {
+                public string Render() => "report";
+
+                public void Save() { }
+            }
+
+            public sealed class ReportRenderer
+            {
+                public string Render() => "report";
+            }
+            """);
+        Set(Srp, $"""
+            ---
+            id: srp
+            title: SRP
+            order: 1
+            summary: One reason to change.
+            tags: [solid]
+            icon: "🎯"
+            hook: One reason to change
+            ---
+            # SRP
+
+            > [!REMEMBER]
+            > One job.
+
+            > [!SMELL]
+            > A class that renders and saves.
+
+            ```csharp before title="Before" snippet="samples/Srp.cs#Report"
+            ```
+            ```csharp after title="After" snippet="samples/Srp.cs#ReportRenderer"
+            ```
+
+            ```csharp snippet="samples/Srp.cs#Report.Save"
+            ```
+
+            {InterviewSection(5)}
+            """);
+        Set(SrpSheet, "---\ntitle: \"Cheat sheet: SRP\"\n---\n# SRP\n\n> [!REMEMBER]\n> One job.\n\n## In one line\n\nOne reason to change.\n");
+        Set(Ocp, "---\nid: ocp\ntitle: OCP\norder: 2\nsummary: Extend, don't edit.\ntags: [solid]\nicon: \"➕\"\nhook: Add, don't edit\n---\n"
+            + $"# OCP\n\n> [!REMEMBER]\n> Extend.\n\n{InterviewSection(5)}");
+        Set(OcpSheet, "---\ntitle: \"Cheat sheet: OCP\"\n---\n# OCP\n\n> [!REMEMBER]\n> Extend.\n\n## In one line\n\nExtend.\n");
+        return this;
+    }
+
+    public static string InterviewSection(int questions) =>
+        "## Interview questions\n\n" + string.Concat(Enumerable.Range(1, questions).Select(i => $"### Question {i}?\n\nAnswer {i}.\n\n"));
 
     /// <summary>Writes the repository to a real folder (for the command-line tool).</summary>
     public void WriteTo(string root)

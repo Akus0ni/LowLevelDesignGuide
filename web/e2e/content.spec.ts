@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 // `page.evaluate` callbacks run in the browser, hence the DOM types.
 import { expect, test, type Page } from '@playwright/test';
-import { allCheatSheets, routeContent } from './content';
+import { allCheatSheets, allModules, routeContent } from './content';
 
 // Spec 003 acceptance criteria A5-A8, A13-A15, A17 against the repository's real content.
 
@@ -20,7 +20,7 @@ test('A13: Learn draws the curriculum as linked class boxes, intro once', async 
   await page.goto('/#/learn');
 
   const boxes = page.getByRole('list', { name: 'Modules in reading order' }).getByRole('article');
-  await expect(boxes).toHaveCount(2);
+  await expect(boxes).toHaveCount(allModules().length);
   await expect(boxes.first()).toContainText('«module»');
   await expect(boxes.first()).toHaveClass(/animate-rise/);
 
@@ -115,14 +115,16 @@ test('A7: lesson to cheat sheet in one tap and back; Revise lists and filters', 
 
 test('A8: every cheat sheet fits its screen budget at 390 × 844', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'measured on a phone');
+  const sheets = allCheatSheets();
+  test.setTimeout(10_000 + sheets.length * 4_000); // each sheet waits for its diagrams
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const sheet of allCheatSheets()) {
+  for (const sheet of sheets) {
     await page.goto(`/#/revise/${sheet.moduleSlug}/${sheet.lessonSlug}`);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(sheet.title);
     await page.waitForTimeout(1500); // diagrams
     const screens = await page.evaluate(() => document.documentElement.scrollHeight / window.innerHeight);
     const budget = sheet.moduleSlug === 'case-studies' ? 5 : 3; // ≤ 4 scrolls for case studies, ≤ 2 otherwise
-    expect(screens, `${sheet.title}: ${screens.toFixed(2)} screens`).toBeLessThanOrEqual(budget);
+    expect.soft(screens, `${sheet.title}: ${screens.toFixed(2)} screens`).toBeLessThanOrEqual(budget);
   }
 });
 

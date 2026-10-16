@@ -23,7 +23,8 @@ public sealed class ContentPackJsonTests
         using var stream = await WriteAsync(TestPacks.Sample());
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
-        json.Should().StartWith("{\"format\":1,\"version\":\"v-sample\",\"modules\":[");
+        json.Should().StartWith($"{{\"format\":{ContentPack.CurrentFormat},\"version\":\"v-sample\",\"modules\":[");
+        json.Should().Contain("\"map\":null");
         json.Should().Contain("\"source\":\"self-referential\"");
         json.Should().Contain("\"source\":null");
     }
@@ -35,7 +36,7 @@ public sealed class ContentPackJsonTests
 
         var read = () => ContentPackJson.ReadAsync(stream, Ct);
 
-        await read.Should().ThrowAsync<InvalidDataException>().WithMessage("*format 2 is not supported*");
+        await read.Should().ThrowAsync<InvalidDataException>().WithMessage($"*format {ContentPack.CurrentFormat + 1} is not supported*");
     }
 
     [Theory]

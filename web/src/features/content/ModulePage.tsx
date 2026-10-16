@@ -4,6 +4,9 @@ import { content, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
 import { ContentBoundary } from './ContentBoundary';
+import { LessonIcon } from './LessonIcon';
+import { ModuleMap } from './ModuleMap';
+import { ModuleMnemonics } from './ModuleMnemonics';
 import { BackLink } from './BackLink';
 import { chevronRight, formatMinutes, plural, usePreload } from './navigation';
 import { ModuleSkeleton } from './Skeletons';
@@ -32,6 +35,10 @@ function ModuleView({ slug }: { slug: string }) {
       <h1 className="mt-1 text-[34px] font-semibold md:text-5xl">{module.title}</h1>
       <p className="mt-2 max-w-prose text-muted">{module.summary}</p>
       <div className="-mx-5 mt-8 bg-drafting px-5 py-6 md:-mx-8 md:rounded-3xl md:px-8 md:py-8">
+        {module.mnemonics && module.mnemonics.length > 0 && (
+          <ModuleMnemonics mnemonics={module.mnemonics} lessons={module.lessons} />
+        )}
+        {module.map && module.lessons.length > 0 && <ModuleMap map={module.map} lessons={module.lessons} />}
         {module.lessons.length === 0 ? (
           <p className="rounded-lg border border-dashed border-rule bg-surface px-4 py-8 text-center text-muted">
             Lessons for this module are being written.
@@ -75,6 +82,7 @@ function LessonRow({ lesson, position }: { lesson: LessonSummary; position: numb
       <span aria-hidden="true" className="mt-0.5 w-6 shrink-0 font-mono text-[13px] text-accent tabular-nums">
         {String(position).padStart(2, '0')}
       </span>
+      <LessonIcon icon={lesson.icon} className="mt-px text-[20px] leading-none" />
       <span className="min-w-0 flex-1">
         <span className="block leading-snug font-semibold wrap-anywhere">{lesson.title}</span>
         <span className="mt-0.5 line-clamp-2 text-[15px] leading-relaxed text-muted">{lesson.summary}</span>

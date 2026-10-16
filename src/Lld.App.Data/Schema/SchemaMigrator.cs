@@ -28,7 +28,7 @@ public sealed class SchemaMigrator
     }
 
     /// <summary>Every step the app knows, in order. A new step is a new class added here.</summary>
-    public static IReadOnlyList<ISchemaMigration> All { get; } = [new V1ContentTables(), new V2LessonTerms()];
+    public static IReadOnlyList<ISchemaMigration> All { get; } = [new V1ContentTables(), new V2LessonTerms(), new V3ModuleMap()];
 
     public int LatestVersion => _migrations.Count;
 

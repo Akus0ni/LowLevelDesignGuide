@@ -3,6 +3,7 @@ import type { CheatSheetSummary } from '../../data/types';
 import { content, useCheatSheets } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
+import { LessonIcon } from './LessonIcon';
 import { ContentBoundary } from './ContentBoundary';
 import { chevronRight, plural, usePreload } from './navigation';
 import { ListSkeleton } from './Skeletons';
@@ -125,9 +126,13 @@ function SheetRow({ sheet }: { sheet: CheatSheetSummary }) {
         'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent',
       )}
     >
-      <span className="shrink-0 text-accent">
-        <Icon d={boltIcon} size={18} />
-      </span>
+      {sheet.icon ? (
+        <LessonIcon icon={sheet.icon} className="w-[18px] text-center text-[18px]" />
+      ) : (
+        <span className="shrink-0 text-accent">
+          <Icon d={boltIcon} size={18} />
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="block leading-snug font-semibold wrap-anywhere">{sheet.title}</span>
         <span className="mt-0.5 block truncate text-[14px] text-muted" title={sheet.lessonTitle}>

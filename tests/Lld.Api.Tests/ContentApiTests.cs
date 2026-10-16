@@ -72,6 +72,19 @@ public sealed class ContentApiTests : IDisposable
     }
 
     [Fact]
+    public async Task EditingAQuotedCodeFile_ShowsUpOnTheNextRequest()
+    {
+        _repo.WriteRepositoryFile("samples/Demo.cs", "public sealed class Demo\n{\n}\n");
+        _repo.Write("start/how-to-use/lesson.md",
+            "---\nid: how-to-use\ntitle: Use\norder: 1\nsummary: Use.\ntags: []\n---\n# Use\n\n```csharp snippet=\"samples/Demo.cs#Demo\"\n```\n");
+        (await LessonBodyAsync()).Should().Contain("public sealed class Demo\n{\n}");
+
+        _repo.WriteRepositoryFile("samples/Demo.cs", "public sealed class Demo\n{\n    public int Size { get; init; }\n}\n");
+
+        (await LessonBodyAsync()).Should().Contain("    public int Size { get; init; }");
+    }
+
+    [Fact]
     public async Task InvalidContent_IsAProblemListingEveryIssue()
     {
         _repo.Write("start/how-to-use/cheatsheet.md", "# no front-matter\n");
@@ -98,6 +111,9 @@ public sealed class ContentApiTests : IDisposable
 
     private async Task<IEnumerable<string>> LessonIdsAsync() =>
         (await _client.GetFromJsonAsync<ModuleDetail>("/api/content/modules/start", Ct))!.Lessons.Select(l => l.Id);
+
+    private async Task<string> LessonBodyAsync() =>
+        (await _client.GetFromJsonAsync<LessonDetail>("/api/content/lessons/how-to-use", Ct))!.BodyMarkdown;
 
     private static async Task<string?> CodeOf(HttpResponseMessage response)
     {
@@ -138,9 +154,14 @@ internal sealed class TempContentRepository : IDisposable
 
     public void DeleteLesson(string slug) => Directory.Delete(Path.Combine(ContentFolder, "start", slug), recursive: true);
 
-    public void Write(string relativePath, string text)
+    public void Write(string relativePath, string text) => WriteAt(ContentFolder, relativePath, text);
+
+    /// <summary>A file outside <c>content/</c>, e.g. a sample a lesson quotes.</summary>
+    public void WriteRepositoryFile(string relativePath, string text) => WriteAt(_root, relativePath, text);
+
+    private static void WriteAt(string folder, string relativePath, string text)
     {
-        var path = Path.Combine(ContentFolder, relativePath.Replace('/', Path.DirectorySeparatorChar));
+        var path = Path.Combine(folder, relativePath.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, text);
     }

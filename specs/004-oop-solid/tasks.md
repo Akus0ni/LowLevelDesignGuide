@@ -1,0 +1,24 @@
+# Spec 004: Tasks
+
+- [x] T0 Fix CI on `main` (MessagePack GHSA-qhrr-8q5h-9q3h pin) and the CRLF-sensitive content test fixture
+- [x] T1 `samples/Lld.Samples.OopSolid` + `tests/Lld.Samples.Tests` skeleton, slnx folder, CI step
+- [x] T2 `FenceInfo`, `LineRanges`; `TextEdit` / `BodyComposer` refactor of `LinkRewriter` (pack version of today's content unchanged)
+- [x] T3 Snippets: `SnippetReference`, `CSharpSymbolFinder`, `Dedent`, `CSharpSnippetSource` (Roslyn); tests
+- [x] T4 Snippet rules + packer inlining + `Dependencies`; dev API fingerprint (A11 test)
+- [x] T5 Before / After: `LineDiff`, marks in the packer (`LineMarks`), `ComparePairRule`, `FenceInfoRule`
+- [x] T6 Callouts rule; `template: concept`; interview questions (outline filter + rule); `ConceptCodeFromSnippetsRule`
+- [x] T7 Module map: `map` key + `ModuleMapRule`, groups and links parsed at pack time (`FlowchartMap`), pack format 2, contracts, device step 3, catalogs, web types
+- [x] T8 Web: `CodeBlock` title + line marks; `CodeCompare`
+- [x] T9 Web: callouts; interview Q&A disclosure
+- [x] T10 Web: `ModuleMap` (UML packages, lesson chips, tracing, walking card)
+- [x] T11 UI pass with the skills: screenshot critique (`7203c23`), break-ui worst case (`8b6c66e`)
+- [x] T12 `content/oop-solid/module.yml` (template, mnemonics, map); README authoring guide for concept lessons
+- [x] T13 Batch 1, pillars: encapsulation, abstraction, inheritance, polymorphism (+ samples, tests) → owner: "simple, visual, less text"
+- [x] T13b Memory aids + visual card template (spec §3.2, §3.8): REMEMBER stamp, picture, icon + hook, A-PIE / SOLID mnemonics, folded Go deeper; batch 1 rewritten
+- [x] T14 Batch 2, design basics: interfaces vs abstract classes, composition, value objects, coupling & cohesion, Law of Demeter → **owner review**
+- [x] T15 Batch 3, SOLID: SRP, OCP, LSP, ISP, DIP (+ SOLID mnemonic, map package) → **owner review**
+- [x] T16 Batch 4, heuristics: DRY / KISS / YAGNI; final map → **owner review**
+- [x] T17 Playwright: A1, A6–A10 + memory aids in `e2e/concept.spec.ts` (loops over every lesson in the module)
+- [x] T18 Manual run: Windows + Android (A1, A12 upgrade from format 1); screenshots
+- [x] T19 Docs: PRD (R76–R84, v0.6), `docs/plan.md` decisions, plan §4 outcomes, progress log
+- [x] T20 PR with the acceptance-criteria table (PR #6 ready for review)
