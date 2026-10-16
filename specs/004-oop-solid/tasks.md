@@ -1,23 +1,23 @@
 # Spec 004: Tasks
 
 - [x] T0 Fix CI on `main` (MessagePack GHSA-qhrr-8q5h-9q3h pin) and the CRLF-sensitive content test fixture
-- [ ] T1 `samples/Lld.Samples.OopSolid` + `tests/Lld.Samples.Tests` skeleton, slnx folder, CI step
-- [ ] T2 `FenceInfo`, `LineRanges`; `TextEdit` / `BodyComposer` refactor of `LinkRewriter` (pack version of today's content unchanged)
-- [ ] T3 Snippets: `SnippetReference`, `CSharpSymbolFinder`, `Dedent`, `CSharpSnippetSource` (Roslyn); tests
-- [ ] T4 Snippet rules + packer inlining + `Dependencies`; dev API fingerprint (A11 test)
-- [ ] T5 Before / After: `LineDiff`, marks in the packer, `ComparePairRule`, `FenceInfoRule`
-- [ ] T6 Callouts rule; `template: concept`; interview questions (outline filter + rule); `ConceptCodeFromSnippetsRule`
-- [ ] T7 Module map: `map` key + `ModuleMapRule`, pack format 2, contracts, device step 3, catalogs, web types
-- [ ] T8 Web: `CodeBlock` title + line marks; `CodeCompare`
-- [ ] T9 Web: callouts; interview Q&A disclosure
-- [ ] T10 Web: `ModuleMap` (flowchart analysis, focus, lesson card)
-- [ ] T11 UI pass with the skills (`frontend-design`, `emil-design-eng`, `apple-design`, `mobile-native`, `animate`, `break-ui`); screenshots phone light / dark + desktop; fixes
-- [ ] T12 `content/oop-solid/module.yml` (template, map); README "Writing content" (snippets, compare, callouts, Q&A, map)
-- [ ] T13 Batch 1, pillars: encapsulation, abstraction, inheritance, polymorphism (+ samples, tests) → **owner review**
+- [x] T1 `samples/Lld.Samples.OopSolid` + `tests/Lld.Samples.Tests` skeleton, slnx folder, CI step
+- [x] T2 `FenceInfo`, `LineRanges`; `TextEdit` / `BodyComposer` refactor of `LinkRewriter` (pack version of today's content unchanged)
+- [x] T3 Snippets: `SnippetReference`, `CSharpSymbolFinder`, `Dedent`, `CSharpSnippetSource` (Roslyn); tests
+- [x] T4 Snippet rules + packer inlining + `Dependencies`; dev API fingerprint (A11 test)
+- [x] T5 Before / After: `LineDiff`, marks in the packer (`LineMarks`), `ComparePairRule`, `FenceInfoRule`
+- [x] T6 Callouts rule; `template: concept`; interview questions (outline filter + rule); `ConceptCodeFromSnippetsRule`
+- [x] T7 Module map: `map` key + `ModuleMapRule`, groups and links parsed at pack time (`FlowchartMap`), pack format 2, contracts, device step 3, catalogs, web types
+- [x] T8 Web: `CodeBlock` title + line marks; `CodeCompare`
+- [x] T9 Web: callouts; interview Q&A disclosure
+- [x] T10 Web: `ModuleMap` (UML packages, lesson chips, tracing, walking card)
+- [ ] T11 UI pass with the skills: screenshots + critique done for batch 1 (fixes in `7203c23`); `break-ui` worst-case pass still to do
+- [ ] T12 `content/oop-solid/module.yml` (done: template, map); README "Writing content" (snippets, compare, callouts, Q&A, map) still to do
+- [x] T13 Batch 1, pillars: encapsulation, abstraction, inheritance, polymorphism (+ samples, tests) → **owner review**
 - [ ] T14 Batch 2, design basics: interfaces vs abstract classes, composition, value objects, coupling & cohesion, Law of Demeter → **owner review**
 - [ ] T15 Batch 3, SOLID: SRP, OCP, LSP, ISP, DIP → **owner review**
 - [ ] T16 Batch 4, heuristics: DRY / KISS / YAGNI; final map → **owner review**
-- [ ] T17 Playwright: A1, A6–A10
+- [ ] T17 Playwright: A1, A6–A10 (written for batch 1 in `e2e/concept.spec.ts`; extend as lessons land)
 - [ ] T18 Manual run: Windows + Android (A1, A12 upgrade from format 1); screenshots
 - [ ] T19 Docs: PRD (R76+, v0.6), `docs/plan.md` decisions, plan §4 outcomes, progress log
 - [ ] T20 PR with the acceptance-criteria table
