@@ -183,4 +183,41 @@ Each lesson's samples and tests land in the same commit as the lesson.
 | Manual | Windows + Android: module, compare, map, Q&A; A12 upgrade from the spec 003 build (format 1) on the emulator |
 
 ## 4. Outcomes
-_Filled in during implementation._
+
+### Deviations from the plan
+| Planned | What happened | Why |
+|---|---|---|
+| Roslyn 5.9.0 | **5.0.0** | Central transitive pinning (added for the MessagePack fix) would force 5.9.0 onto EF Core Design, which requires exactly 5.0.0 |
+| Map rendered by Mermaid | **Parsed at pack time** (`FlowchartMap`) into groups + links; drawn by the app as «package» boxes | The 15-lesson flowchart rendered 1480 px wide: unreadable on a phone |
+| Snippet rules as three classes | `SnippetFenceRule` + `SnippetResolvesRule` | File, symbol and ambiguity problems come from one resolution; splitting it was artificial |
+| Every Before / After marked | Marks skipped when > 60 % of a side changed; blank lines inside a block bridged (`LineMarks`) | Screenshot critique: a full rewrite marked line by line is noise |
+| Deep lessons, 20–30 min | **Visual cards (~2 min of prose + code) + folded "Go deeper"**, memory aids (stamp, picture, icon + hook, A-PIE / SOLID acrostics) | Owner after batch 1: "simple to understand and to remember… too much text is not a good option" (spec §3.2, §3.8 amended) |
+| Interview questions 5–8 | 5 per lesson, two-line answers | Same request: less text |
+
+### Findings
+1. **CI on `main` broke on 2026-10-15** (GHSA-qhrr-8q5h-9q3h, MessagePack 2.5.302 via Aspire 13.6.1; NU1902 as error).
+   Fixed on this branch with central transitive pinning to 2.5.307; drop the pin when Aspire depends on a fixed version.
+2. **A CRLF checkout broke one content test locally** (`ValidRepo.Replace` searched for `\n` in a raw string with CRLF);
+   CI on Linux never saw it. The fixture now normalises line endings.
+3. **Pictures must flow top to bottom.** Left-to-right Mermaid diagrams shrink to ~6 px text on a phone; at most about two
+   boxes per row (README authoring guide).
+4. **Windows has no flag emoji** (`🇮🇳` renders as "IN"); the authoring guide says not to use flags as icons.
+5. **break-ui (T11):** unbreakable titles and hooks pushed the module page 154 px sideways at 320 px (mnemonic rows, map
+   chips, map card). Fixed with `overflow-wrap: anywhere`; plus aligned mnemonic icon column, top-aligned header icons,
+   compare-title tooltips, two-line clamp for deep-dive topics. The worst-case fixture keeps all of it covered.
+6. **Android Debug + plain `adb install` runs stale assemblies.** Debug builds use fast deployment (assemblies outside the
+   APK), so installing the `-Signed.apk` alone loaded old assemblies left on the emulator ("GetModules couldn't be
+   found"). Deploy Debug builds with `dotnet build -t:Install`.
+
+### T18: manual run (2026-10-17)
+| Check | Where | Result |
+|---|---|---|
+| A1 offline, all 15 lessons | Android emulator (API 35), Debug, airplane mode | ✅ both acrostics, 4 map packages, 15 lessons; every lesson: stamp, pictures (0 failed), Before / After, 5 questions, Go deeper, no sideways scroll |
+| A1 desktop | Windows app (WebView2 over CDP) | ✅ same checks, 15 / 15 |
+| A12 upgrade | Windows (spec 003 database on this PC) and Android (installed over the spec 003 Release build) | ✅ device database at schema step 3, `MapJson` and `MnemonicsJson` filled, pack format 2 loaded |
+
+Screenshots: `screenshots/windows-*.png`, `screenshots/android-*.png`.
+
+### Final numbers
+Content tests 250 · API tests 27 · lesson sample tests 63 · Vitest 151 · Playwright 55 · 0 build warnings · lint and
+guardrails clean.

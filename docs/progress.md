@@ -3,19 +3,19 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-16 (spec 004 batch 1)_
+_Last updated: 2026-10-17 (spec 004 ready for review)_
 
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.5 (spec 003 decisions R67–R75) |
+| PRD | v0.6 (spec 004 decisions R76–R84) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
 | Spec 003 Content engine | ✅ Merged (PR #5) |
-| Spec 004 OOP & SOLID | 🚧 Draft PR #6: engine, reader, memory aids done; all 15 lessons written as visual cards; finishing tasks left (T11, T12, T17–T20) |
+| Spec 004 OOP & SOLID | 🚧 Draft PR #6: engine, reader, memory aids done; done; PR #6 ready for owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -25,7 +25,7 @@ _Last updated: 2026-10-16 (spec 004 batch 1)_
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
 | 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
-| 004 | OOP & SOLID content | 🚧 draft PR #6 (all 4 batches written; finishing) |
+| 004 | OOP & SOLID content | 🔍 PR #6, owner review |
 | 005 | Progress | planned |
 | 006 | GoF patterns content | planned |
 | 007 | Notes & bookmarks | planned |
@@ -110,12 +110,17 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   icon + hook per lesson; module mnemonics drawn as acrostics (A-PIE now, SOLID in batch 3). Spec §3.2 / §3.8.
 - Batch 2 (design basics) done in that style. Draft PR #6 open so CI runs on each push.
 
+## Spec 004: what was delivered
+- OOP & SOLID module: 15 lessons + cheat sheets as visual cards (REMEMBER stamp, everyday picture, short card, folded
+  interview answers, folded "Go deeper"), icons + hooks, A-PIE and SOLID acrostics, a «package» map of how lessons relate.
+- Every C# block quoted from compiled code by symbol (`samples/Lld.Samples.OopSolid` + 63 tests, or real `src/`);
+  Before / After marks computed at pack time; 11 new validation rules; pack format 2, device schema step 3.
+- Reader: Before / After compare, UML-note callouts, interview Q&A, Go deeper fold, module map, mnemonics, icons.
+- CI fix for `main` (MessagePack pin). Details, deviations and findings: `specs/004-oop-solid/plan.md` §4.
+
 ## How to resume (next session)
-1. `git switch spec/004-oop-solid && git pull`. Read `specs/004-oop-solid/tasks.md`.
-2. All 15 lessons are written. Finishing tasks (`specs/004-oop-solid/tasks.md`): T11 `break-ui` worst-case pass,
-   T12 README "Writing content" (snippets, Before / After, callouts, Q&A, Go deeper, map, mnemonics, icon/hook),
-   T18 manual Windows + Android run (incl. upgrade from the spec 003 app, A12), T19 PRD R76+ / plan outcomes,
-   T20 mark PR #6 ready with the acceptance-criteria table.
+1. If PR #6 is merged: `git switch main && git pull`, then ask the owner before starting spec 005 (Progress).
+2. If changes were requested: `git switch spec/004-oop-solid`, apply them, push, and update the PR.
 3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
 4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

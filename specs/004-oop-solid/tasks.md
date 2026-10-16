@@ -11,14 +11,14 @@
 - [x] T8 Web: `CodeBlock` title + line marks; `CodeCompare`
 - [x] T9 Web: callouts; interview Q&A disclosure
 - [x] T10 Web: `ModuleMap` (UML packages, lesson chips, tracing, walking card)
-- [ ] T11 UI pass with the skills: screenshots + critique done for batch 1 (fixes in `7203c23`); `break-ui` worst-case pass still to do
-- [ ] T12 `content/oop-solid/module.yml` (done: template, map); README "Writing content" (snippets, compare, callouts, Q&A, map) still to do
+- [x] T11 UI pass with the skills: screenshot critique (`7203c23`), break-ui worst case (`8b6c66e`)
+- [x] T12 `content/oop-solid/module.yml` (template, mnemonics, map); README authoring guide for concept lessons
 - [x] T13 Batch 1, pillars: encapsulation, abstraction, inheritance, polymorphism (+ samples, tests) → owner: "simple, visual, less text"
 - [x] T13b Memory aids + visual card template (spec §3.2, §3.8): REMEMBER stamp, picture, icon + hook, A-PIE / SOLID mnemonics, folded Go deeper; batch 1 rewritten
 - [x] T14 Batch 2, design basics: interfaces vs abstract classes, composition, value objects, coupling & cohesion, Law of Demeter → **owner review**
 - [x] T15 Batch 3, SOLID: SRP, OCP, LSP, ISP, DIP (+ SOLID mnemonic, map package) → **owner review**
 - [x] T16 Batch 4, heuristics: DRY / KISS / YAGNI; final map → **owner review**
-- [ ] T17 Playwright: A1, A6–A10 + memory aids in `e2e/concept.spec.ts` (loops over every lesson in the module)
-- [ ] T18 Manual run: Windows + Android (A1, A12 upgrade from format 1); screenshots
-- [ ] T19 Docs: PRD (R76+, v0.6), `docs/plan.md` decisions, plan §4 outcomes, progress log
+- [x] T17 Playwright: A1, A6–A10 + memory aids in `e2e/concept.spec.ts` (loops over every lesson in the module)
+- [x] T18 Manual run: Windows + Android (A1, A12 upgrade from format 1); screenshots
+- [x] T19 Docs: PRD (R76–R84, v0.6), `docs/plan.md` decisions, plan §4 outcomes, progress log
 - [ ] T20 PR with the acceptance-criteria table
