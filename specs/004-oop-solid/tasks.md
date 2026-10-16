@@ -17,7 +17,7 @@
 - [x] T13b Memory aids + visual card template (spec §3.2, §3.8): REMEMBER stamp, picture, icon + hook, A-PIE / SOLID mnemonics, folded Go deeper; batch 1 rewritten
 - [x] T14 Batch 2, design basics: interfaces vs abstract classes, composition, value objects, coupling & cohesion, Law of Demeter → **owner review**
 - [x] T15 Batch 3, SOLID: SRP, OCP, LSP, ISP, DIP (+ SOLID mnemonic, map package) → **owner review**
-- [ ] T16 Batch 4, heuristics: DRY / KISS / YAGNI; final map → **owner review**
+- [x] T16 Batch 4, heuristics: DRY / KISS / YAGNI; final map → **owner review**
 - [ ] T17 Playwright: A1, A6–A10 + memory aids in `e2e/concept.spec.ts` (loops over every lesson in the module)
 - [ ] T18 Manual run: Windows + Android (A1, A12 upgrade from format 1); screenshots
 - [ ] T19 Docs: PRD (R76+, v0.6), `docs/plan.md` decisions, plan §4 outcomes, progress log
