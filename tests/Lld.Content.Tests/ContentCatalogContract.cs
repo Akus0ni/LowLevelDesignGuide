@@ -44,6 +44,15 @@ public abstract class ContentCatalogContract
     }
 
     [Fact]
+    public async Task Module_CarriesItsMap_OrNullWithoutOne()
+    {
+        var catalog = await SampleAsync();
+
+        (await catalog.GetModuleAsync("oop-solid", Ct))!.Map.Should().Be(TestPacks.SampleMap);
+        (await catalog.GetModuleAsync("case-studies", Ct))!.Map.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Module_Unknown_IsNull()
     {
         var catalog = await SampleAsync();

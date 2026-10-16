@@ -17,8 +17,10 @@ internal static class TestPacks
             Lesson("how-to-use", "how-to-use", "How to use LLD Guide", order: 1)),
         Module("oop-solid", "OOP & SOLID", order: 1,
             Lesson("solid-srp", "srp", "Single responsibility", order: 1),
-            Lesson("solid-ocp", "ocp", "Open/closed", order: 2)),
+            Lesson("solid-ocp", "ocp", "Open/closed", order: 2)) with { Map = SampleMap },
     ]);
+
+    public const string SampleMap = "flowchart LR\n    srp -->|needs| ocp";
 
     private static PackedModule Module(string slug, string title, int order, params PackedLesson[] lessons) =>
         new(slug, title, $"{title} summary.", order, lessons);

@@ -26,10 +26,28 @@ public static class DocumentHeadings
         })];
     }
 
-    public static IReadOnlyList<OutlineEntry> Outline(IEnumerable<DocumentHeading> headings) =>
-        [.. headings
-            .Where(h => h.Level is >= OutlineMinLevel and <= OutlineMaxLevel)
-            .Select(h => new OutlineEntry(h.Level, h.Text, h.Anchor))];
+    /// <summary>h2 and h3 headings, except the questions under "Interview questions": the section is one entry.</summary>
+    public static IReadOnlyList<OutlineEntry> Outline(IEnumerable<DocumentHeading> headings)
+    {
+        ArgumentNullException.ThrowIfNull(headings);
+        var outline = new List<OutlineEntry>();
+        var inInterview = false;
+        foreach (var heading in headings.Where(h => h.Level is >= OutlineMinLevel and <= OutlineMaxLevel))
+        {
+            if (heading.Level == OutlineMinLevel)
+            {
+                inInterview = InterviewQuestions.IsSection(heading);
+            }
+            else if (inInterview)
+            {
+                continue;
+            }
+
+            outline.Add(new OutlineEntry(heading.Level, heading.Text, heading.Anchor));
+        }
+
+        return outline;
+    }
 
     /// <summary>The heading's text as a reader sees it: code, emphasis and link text kept, images and markup dropped.</summary>
     public static string PlainText(ContainerInline? inline)

@@ -20,6 +20,14 @@ public sealed class ContentValidator(IEnumerable<IContentRule> rules)
         new RepositoryLinksRule(),
         new ImagesNotSupportedRule(),
         new MermaidNotEmptyRule(),
+        new FenceInfoRule(),
+        new SnippetFenceRule(),
+        new SnippetResolvesRule(),
+        new ComparePairRule(),
+        new CalloutTypeRule(),
+        new InterviewQuestionsRule(),
+        new ConceptCodeFromSnippetsRule(),
+        new ModuleMapRule(),
     ];
 
     public ContentValidator()

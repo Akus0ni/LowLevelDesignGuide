@@ -22,6 +22,9 @@ public sealed class ContentContext
         Snippets = snippets;
         Resolver = new LinkResolver(options);
         Lessons = [.. set.Modules.SelectMany(m => m.Lessons)];
+        ConceptLessons = [.. set.Modules
+            .Where(m => m.Manifest?[FrontMatterKeys.Template]?.Scalar == ContentSchemas.ConceptTemplate)
+            .SelectMany(m => m.Lessons)];
         Documents = [.. Lessons.SelectMany(l => new[] { l.Lesson, l.CheatSheet }).OfType<SourceDocument>()];
         _documentsByPath = Documents.ToDictionary(d => d.Path, StringComparer.Ordinal);
         _unreadable = [.. set.Issues.Select(i => i.Path)];
@@ -39,6 +42,9 @@ public sealed class ContentContext
     public ICodeSnippetSource Snippets { get; }
 
     public IReadOnlyList<SourceLesson> Lessons { get; }
+
+    /// <summary>Lessons of modules with <c>template: concept</c> (spec 004 §3.2).</summary>
+    public IReadOnlyList<SourceLesson> ConceptLessons { get; }
 
     /// <summary>Every lesson and cheat sheet that exists.</summary>
     public IReadOnlyList<SourceDocument> Documents { get; }

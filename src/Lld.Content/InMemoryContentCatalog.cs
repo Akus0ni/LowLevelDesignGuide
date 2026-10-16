@@ -30,7 +30,7 @@ public sealed class InMemoryContentCatalog : IContentCatalog
 
     public Task<ModuleDetail?> GetModuleAsync(string slug, CancellationToken cancellationToken) =>
         Task.FromResult(_modulesBySlug.TryGetValue(slug, out var module)
-            ? new ModuleDetail(module.Slug, module.Title, module.Summary, [.. module.Lessons.Select(l => ToSummary(module, l))])
+            ? new ModuleDetail(module.Slug, module.Title, module.Summary, [.. module.Lessons.Select(l => ToSummary(module, l))], module.Map)
             : null);
 
     public Task<LessonDetail?> GetLessonAsync(string id, CancellationToken cancellationToken)

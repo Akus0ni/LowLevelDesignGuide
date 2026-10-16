@@ -24,4 +24,31 @@ public static class IssueCodes
 
     public const string MermaidEmpty = "mermaid.empty";
     public const string ImageUnsupported = "image.unsupported";
+
+    public const string FenceSyntax = "fence.syntax";
+    public const string FenceUnknownFlag = "fence.unknown_flag";
+    public const string FenceUnknownAttribute = "fence.unknown_attribute";
+    public const string FenceBadMark = "fence.bad_mark";
+    public const string FenceMarkOnCompare = "fence.mark_on_compare";
+
+    public const string SnippetHasCode = "snippet.has_code";
+    public const string SnippetNotCSharp = "snippet.not_csharp";
+    public const string SnippetBadReference = "snippet.bad_reference";
+    public const string SnippetFileMissing = "snippet.file_missing";
+    public const string SnippetSymbolMissing = "snippet.symbol_missing";
+    public const string SnippetSymbolAmbiguous = "snippet.symbol_ambiguous";
+
+    public const string CompareUnpaired = "compare.unpaired";
+    public const string CompareLanguageMismatch = "compare.language_mismatch";
+
+    public const string CalloutUnknownType = "callout.unknown_type";
+
+    public const string InterviewMissing = "interview.missing";
+    public const string InterviewCount = "interview.count";
+    public const string InterviewNoAnswer = "interview.no_answer";
+    public const string CodeInlineCSharp = "code.inline_csharp";
+
+    public const string MapNotFlowchart = "map.not_flowchart";
+    public const string MapUnknownNode = "map.unknown_node";
+    public const string MapLessonMissing = "map.lesson_missing";
 }

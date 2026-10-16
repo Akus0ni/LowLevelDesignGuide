@@ -5,7 +5,8 @@ namespace Lld.Contracts;
 
 public sealed record ModuleSummary(string Slug, string Title, string Summary, int Order, int LessonCount);
 
-public sealed record ModuleDetail(string Slug, string Title, string Summary, IReadOnlyList<LessonSummary> Lessons);
+/// <param name="Map">Mermaid flowchart of how the lessons relate, node ids = lesson slugs (spec 004); null when the module has none.</param>
+public sealed record ModuleDetail(string Slug, string Title, string Summary, IReadOnlyList<LessonSummary> Lessons, string? Map = null);
 
 public sealed record LessonSummary(
     string Id,
