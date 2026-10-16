@@ -6,7 +6,14 @@ namespace Lld.Contracts;
 public sealed record ModuleSummary(string Slug, string Title, string Summary, int Order, int LessonCount);
 
 /// <param name="Map">How the lessons relate (spec 004 §3.6); null when the module has none.</param>
-public sealed record ModuleDetail(string Slug, string Title, string Summary, IReadOnlyList<LessonSummary> Lessons, ModuleMap? Map = null);
+/// <param name="Mnemonics">Memory hooks over the lessons, e.g. SOLID (spec 004 §3.8); null or empty when none.</param>
+public sealed record ModuleDetail(
+    string Slug,
+    string Title,
+    string Summary,
+    IReadOnlyList<LessonSummary> Lessons,
+    ModuleMap? Map = null,
+    IReadOnlyList<Mnemonic>? Mnemonics = null);
 
 public sealed record LessonSummary(
     string Id,
@@ -16,7 +23,9 @@ public sealed record LessonSummary(
     string Summary,
     int Order,
     int ReadingMinutes,
-    IReadOnlyList<string> Tags);
+    IReadOnlyList<string> Tags,
+    string? Icon = null,
+    string? Hook = null);
 
 /// <summary>An h2 or h3 heading of a lesson; <see cref="Anchor"/> follows GitHub's heading-id rules.</summary>
 public sealed record OutlineEntry(int Level, string Text, string Anchor);
@@ -43,7 +52,8 @@ public sealed record LessonDetail(
     string CheatSheetTitle,
     LessonLink? Previous,
     LessonLink? Next,
-    IReadOnlyList<LessonTerm> Terms);
+    IReadOnlyList<LessonTerm> Terms,
+    string? Icon = null);
 
 public sealed record CheatSheetSummary(
     string LessonId,
@@ -51,7 +61,8 @@ public sealed record CheatSheetSummary(
     string ModuleTitle,
     string LessonSlug,
     string LessonTitle,
-    string Title);
+    string Title,
+    string? Icon = null);
 
 public sealed record CheatSheetDetail(
     string LessonId,
@@ -60,7 +71,8 @@ public sealed record CheatSheetDetail(
     string LessonSlug,
     string LessonTitle,
     string Title,
-    string BodyMarkdown);
+    string BodyMarkdown,
+    string? Icon = null);
 
 public static class ContentErrorCodes
 {
@@ -80,3 +92,8 @@ public sealed record MapGroup(string Title, IReadOnlyList<string> Lessons);
 
 /// <summary>"<see cref="From"/> <see cref="Label"/> <see cref="To"/>", e.g. "ocp needs lsp". Both are lesson slugs.</summary>
 public sealed record MapLink(string From, string To, string? Label);
+
+/// <summary>A word whose letters start the titles of lessons, in order: <c>SOLID</c> → srp, ocp, lsp, isp, dip.</summary>
+/// <param name="Word">As written, e.g. <c>A-PIE</c>; letters only count.</param>
+/// <param name="Lessons">Lesson slugs, one per letter.</param>
+public sealed record Mnemonic(string Word, IReadOnlyList<string> Lessons);

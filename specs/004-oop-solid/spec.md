@@ -56,22 +56,27 @@ equals the folder slug (unique across the app today; permanent once published).
 
 `module.yml`: title "OOP & SOLID", summary one sentence, plus the principle map (§3.6).
 
-### 3.2 Lesson template (deep, about 20–30 minutes each)
-Every lesson follows this order; sections can be merged where it reads better, but none is skipped silently.
-1. **The idea**: one-sentence definition, then why a .NET developer should care.
-2. **The problem it solves**: what goes wrong without it (cost of change, bugs, tests).
-3. **How a violation looks**: smells, with `SMELL` callouts.
-4. **Worked example 1**: Before / After compare (§3.4) + class diagrams where they help.
-5. **Worked example 2**: a different domain, so the idea is not tied to one example.
-6. **In this app**: real `src/` code quoted by snippet (§3.3) and linked to GitHub. Where the app has no honest
-   example, the lesson says so instead of forcing one; where the app *bends* the principle, it explains why.
-7. **C# and .NET specifics**: language and framework features that help or hurt.
-8. **Trade-offs and when not to**: over-engineering, the opposite failure.
-9. **Related**: links to other lessons (and to future pattern lessons by name, unlinked until they exist).
-10. **Interview questions**: 5–8 questions with model answers, folded (§3.5).
+### 3.2 Lesson template: a visual card, then "Go deeper" (amended 2026-10-16)
+The owner asked for simple, memorable language with little text: the lesson is a **card** you can read in about
+5–8 minutes, and the detail lives in a folded **Go deeper** section for when you want it.
 
-Cheat sheet (concept, ≤ 1 screen + 2 scrolls, R72), `##` blocks: *In one line* · *Smells* · *The move* (the refactor
-in a few lines of code) · *In this app* · *Pitfalls* · *Interview one-liners*.
+**The card** (always visible):
+1. **REMEMBER stamp** (`> [!REMEMBER]`): one or two short sentences, the line to repeat in an interview (§3.8).
+2. **The picture**: a small everyday analogy drawn as a diagram (an ATM vault, a TV remote, a power socket).
+3. **The rule**: two or three short lines in plain words.
+4. **See it**: one Before / After (§3.4), with one or two lines on what changed.
+5. **Smell it**: three short bullets.
+6. **In this app**: one snippet and one line.
+7. **Interview questions**: 5 questions, answers of about two lines, folded (§3.5).
+
+**Go deeper** (`## Go deeper`, folded, after the interview questions): the second worked example, C# and .NET
+details, trade-offs, using it in a design interview, common misconceptions and related lessons, written in short
+paragraphs and lists.
+
+Writing style everywhere: short sentences, everyday words, one idea per paragraph, a picture or code before prose.
+
+Cheat sheet (concept, ≤ 1 screen + 2 scrolls, R72): the same REMEMBER stamp first, then `##` blocks *Smells* ·
+*The move* (a few lines of code) · *In this app* · *Traps* · *Interview one-liners*.
 
 ### 3.3 Compiled C# samples and snippets
 - **`samples/Lld.Samples.OopSolid/`** (class library, .NET 10, C# 14), one folder per lesson with `Before` / `After`
@@ -143,6 +148,19 @@ in a few lines of code) · *In this app* · *Pitfalls* · *Interview one-liners*
   schema gets a step for it), `ModuleDetail.map` in the contracts and `web/src/data/types.ts`. Other modules without
   `map:` look as they do today.
 
+### 3.8 Memory aids (amended 2026-10-16)
+Every concept should stick visually.
+- **REMEMBER stamp:** a `[!REMEMBER]` callout drawn as a large stamp card (display font, accent frame). Concept lessons
+  and their cheat sheets must open with one (validation rule).
+- **Everyday picture:** a small diagram under the stamp; authored as Mermaid, themed like every diagram.
+- **Icon per concept:** lesson front-matter `icon` (one emoji) and `hook` (≤ 40 characters, e.g. "Ask, don't
+  touch"); required in concept modules. Shown on the map, module lesson list, Learn page, lesson header, cheat sheet
+  and Revise list.
+- **Module mnemonic:** `mnemonics:` in `module.yml`, e.g. `"A-PIE: abstraction, polymorphism, inheritance,
+  encapsulation"` and `"SOLID: srp, ocp, lsp, isp, dip"`. Each letter must be the first letter of that lesson's
+  title (validation rule). The module page draws each word as big letter tiles (letter, icon, title, hook); a tile
+  opens its lesson.
+
 ### 3.7 UI quality
 New UI follows the visual identity (spec 003 §3.7) and is built and critiqued with the skills: `frontend-design`,
 `emil-design-eng`, `apple-design`, `mobile-native`, `animate`, `break-ui`. Screenshots of the compare, callouts, Q&A and
@@ -160,7 +178,7 @@ map in phone light / dark and desktop are reviewed and fixed before the PR.
 | # | Criterion | How verified |
 |---|---|---|
 | A1 | The OOP & SOLID module shows 15 lessons in order, each with a cheat sheet, offline, in the Windows and Android apps | Manual + Playwright (snapshot) |
-| A2 | Every lesson follows the template (§3.2) and has 5–8 interview questions; reading time is at least 15 minutes | Content review + validation rule (Q&A section) |
+| A2 | Every lesson follows the template (§3.2): REMEMBER stamp, picture, icon and hook, 5–8 interview questions, a "Go deeper" section; the card (without Go deeper) reads in at most 8 minutes | Content review + validation rules + repository test |
 | A3 | Every C# block in the module comes from a snippet; `samples/` builds with zero warnings and `Lld.Samples.Tests` pass in CI | CI (`backend`) + a content test that the module has no inline C# fences |
 | A4 | A renamed or deleted quoted symbol, an ambiguous selector, an unpaired `before` / `after`, an unknown callout type, a bad map node and a missing Q&A section each fail validation with file, line and reason | Unit tests (one fixture per rule) |
 | A5 | Snippets come out de-indented, with doc comments, and identical between the dev API and the packed app | Unit tests + snapshot comparison |
@@ -190,7 +208,9 @@ map in phone light / dark and desktop are reviewed and fixed before the PR.
 | Examples | A classic before/after per lesson + an "In this app" section with real `src/` code |
 | Compiling samples | Snippets pulled from compiled, tested code at pack time; the build fails when they break |
 | Reader features | Before / After compare, callout boxes, principle map on the module page; folded interview Q&A |
-| Depth | Deep, about 20–30 minutes per lesson |
+| Depth | ~~Deep, about 20–30 minutes per lesson~~ → changed after batch 1: a short visual card (≤ 8 min) + folded "Go deeper" |
+| Memory aids | REMEMBER stamp, everyday picture, icon + hook per concept, module mnemonics (A-PIE, SOLID) (§3.8) |
+| Module map | Drawn by the app as «package» boxes (§3.6 note); kept after the batch 1 review (owner: "yes please continue") |
 | Owner's stories | Optional `WORK` callout slots, filled later by the owner |
 | Snippet lookup | By C# symbol with Roslyn (syntax only); no `#region` markers in production code |
 | Lesson list and order | As in §3.1 |

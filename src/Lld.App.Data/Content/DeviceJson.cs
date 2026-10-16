@@ -31,6 +31,12 @@ internal static class DeviceJson
 
     public static ModuleMap? Map(string json) =>
         JsonSerializer.Deserialize(json, DeviceJsonContext.Default.ModuleMap);
+
+    public static string Mnemonics(IReadOnlyList<Mnemonic>? mnemonics) =>
+        JsonSerializer.Serialize([.. mnemonics ?? []], DeviceJsonContext.Default.MnemonicArray);
+
+    public static IReadOnlyList<Mnemonic> Mnemonics(string json) =>
+        JsonSerializer.Deserialize(json, DeviceJsonContext.Default.MnemonicArray) ?? [];
 }
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
@@ -38,4 +44,5 @@ internal static class DeviceJson
 [JsonSerializable(typeof(OutlineEntry[]))]
 [JsonSerializable(typeof(LessonTerm[]))]
 [JsonSerializable(typeof(ModuleMap))]
+[JsonSerializable(typeof(Mnemonic[]))]
 internal sealed partial class DeviceJsonContext : JsonSerializerContext;

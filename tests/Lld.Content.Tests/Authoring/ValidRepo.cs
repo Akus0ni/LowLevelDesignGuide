@@ -114,6 +114,7 @@ internal sealed class ValidRepo
             order: 1
             summary: Principles.
             template: concept
+            mnemonics: ["SO: srp, ocp"]
             map: |
               flowchart LR
                 srp["SRP"] -->|"leads to"| ocp["OCP"]
@@ -140,8 +141,13 @@ internal sealed class ValidRepo
             order: 1
             summary: One reason to change.
             tags: [solid]
+            icon: "🎯"
+            hook: One reason to change
             ---
             # SRP
+
+            > [!REMEMBER]
+            > One job.
 
             > [!SMELL]
             > A class that renders and saves.
@@ -156,9 +162,10 @@ internal sealed class ValidRepo
 
             {InterviewSection(5)}
             """);
-        Set(SrpSheet, "---\ntitle: \"Cheat sheet: SRP\"\n---\n# SRP\n\n## In one line\n\nOne reason to change.\n");
-        Set(Ocp, $"---\nid: ocp\ntitle: OCP\norder: 2\nsummary: Extend, don't edit.\ntags: [solid]\n---\n# OCP\n\n{InterviewSection(5)}");
-        Set(OcpSheet, "---\ntitle: \"Cheat sheet: OCP\"\n---\n# OCP\n\n## In one line\n\nExtend.\n");
+        Set(SrpSheet, "---\ntitle: \"Cheat sheet: SRP\"\n---\n# SRP\n\n> [!REMEMBER]\n> One job.\n\n## In one line\n\nOne reason to change.\n");
+        Set(Ocp, "---\nid: ocp\ntitle: OCP\norder: 2\nsummary: Extend, don't edit.\ntags: [solid]\nicon: \"➕\"\nhook: Add, don't edit\n---\n"
+            + $"# OCP\n\n> [!REMEMBER]\n> Extend.\n\n{InterviewSection(5)}");
+        Set(OcpSheet, "---\ntitle: \"Cheat sheet: OCP\"\n---\n# OCP\n\n> [!REMEMBER]\n> Extend.\n\n## In one line\n\nExtend.\n");
         return this;
     }
 

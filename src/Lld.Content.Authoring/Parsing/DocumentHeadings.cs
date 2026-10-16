@@ -26,19 +26,19 @@ public static class DocumentHeadings
         })];
     }
 
-    /// <summary>h2 and h3 headings, except the questions under "Interview questions": the section is one entry.</summary>
+    /// <summary>h2 and h3 headings, except those inside folded sections (interview questions, Go deeper).</summary>
     public static IReadOnlyList<OutlineEntry> Outline(IEnumerable<DocumentHeading> headings)
     {
         ArgumentNullException.ThrowIfNull(headings);
         var outline = new List<OutlineEntry>();
-        var inInterview = false;
+        var inFolded = false;
         foreach (var heading in headings.Where(h => h.Level is >= OutlineMinLevel and <= OutlineMaxLevel))
         {
             if (heading.Level == OutlineMinLevel)
             {
-                inInterview = InterviewQuestions.IsSection(heading);
+                inFolded = FoldedSections.HidesSubheadings(heading.Level, heading.Text);
             }
-            else if (inInterview)
+            else if (inFolded)
             {
                 continue;
             }

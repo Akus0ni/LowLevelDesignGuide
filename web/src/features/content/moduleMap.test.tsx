@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { LessonSummary, ModuleMap as Map } from '../../data/types';
 import { relationsOf } from './mapRelations';
 import { ModuleMap } from './ModuleMap';
+import { ModuleMnemonics } from './ModuleMnemonics';
 
 const lessons: LessonSummary[] = ['srp', 'ocp', 'lsp', 'dip'].map((slug, index) => ({
   id: slug,
@@ -37,6 +38,24 @@ async function show() {
 
 /** The number is decoration (aria-hidden): a chip is named by its lesson title. */
 const chip = (title: string) => screen.getByRole('button', { name: title });
+
+describe('ModuleMnemonics', () => {
+  it('spells the word down the side, one lesson per letter, each with its icon and hook', async () => {
+    const withAids = lessons.map((lesson) => ({ ...lesson, icon: '🎯', hook: `${lesson.slug} hook` }));
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <ModuleMnemonics mnemonics={[{ word: 'S-O', lessons: ['srp', 'ocp'] }]} lessons={withAids} />
+        </MemoryRouter>,
+      );
+    });
+
+    const figure = screen.getByRole('figure', { name: /S-O/ });
+    const rows = within(figure).getAllByRole('link');
+    expect(rows.map((row) => row.textContent)).toEqual(['S🎯SRPsrp hook', 'O🎯OCPocp hook']);
+    expect(rows[1]).toHaveAttribute('href', '/learn/oop-solid/ocp');
+  });
+});
 
 describe('relationsOf', () => {
   it('lists outgoing links first, then incoming, with a default wording', () => {

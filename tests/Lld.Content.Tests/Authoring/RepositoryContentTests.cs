@@ -19,18 +19,24 @@ public sealed class RepositoryContentTests
         result.Pack.Modules.SelectMany(m => m.Lessons).Select(l => l.Id).Should().Contain("case-study-auth");
     }
 
-    /// <summary>Spec 004 A2: concept lessons are deep (prose alone takes at least 15 minutes; code comes on top).</summary>
+    /// <summary>
+    /// Spec 004 A2 (amended): a concept lesson is a short visual card; the detail waits in "Go deeper", which doesn't
+    /// count towards reading time.
+    /// </summary>
     [Fact]
-    public void OopSolidLessons_AreDeep()
+    public void OopSolidLessons_AreShortCards_WithAGoDeeperSection()
     {
-        const int MinimumMinutes = 15;
+        const int MaximumCardMinutes = 8;
         var pack = new ContentPipeline(new PhysicalContentFiles(RepositoryRoot()), new ContentOptions()).Build().Pack!;
 
         var lessons = pack.Modules.Single(m => m.Slug == "oop-solid").Lessons;
 
         lessons.Should().NotBeEmpty();
         lessons.Should().AllSatisfy(lesson =>
-            lesson.ReadingMinutes.Should().BeGreaterThanOrEqualTo(MinimumMinutes, $"{lesson.Id} is a deep lesson"));
+        {
+            lesson.ReadingMinutes.Should().BeLessThanOrEqualTo(MaximumCardMinutes, $"{lesson.Id}'s card is short");
+            lesson.Outline.Select(o => o.Text).Should().Contain("Go deeper");
+        });
     }
 
     internal static string RepositoryRoot()

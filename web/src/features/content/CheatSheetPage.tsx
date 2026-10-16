@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { useCheatSheet, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { BackLink } from './BackLink';
+import { LessonIcon } from './LessonIcon';
 import { ContentBoundary } from './ContentBoundary';
 import { MarkdownView } from './markdown/MarkdownView';
 import { RecallContext } from './reader/recall';
@@ -46,7 +47,10 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
         <p className="font-mono text-[12px] tracking-[0.08em] text-muted">
           cheat sheet · {sheet.moduleTitle}
         </p>
-        <h1 className="mt-1.5 text-[32px] font-semibold md:text-[44px]">{sheet.title}</h1>
+        <div className="mt-1.5 flex items-center gap-3 text-[32px] md:text-[44px]">
+          <LessonIcon icon={sheet.icon} className="lesson-icon-tile" />
+          <h1 className="min-w-0 text-[1em] font-semibold">{sheet.title}</h1>
+        </div>
         <p className="mt-2 text-[15px] text-muted">
           from{' '}
           <Link

@@ -5,6 +5,7 @@ import type { ModuleSummary } from '../../data/types';
 import { content, preloadContent, useModule, useModules } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
+import { LessonIcon } from './LessonIcon';
 import { ContentBoundary } from './ContentBoundary';
 import { chevronRight, formatMinutes, usePreload } from './navigation';
 import { DiagramSkeleton } from './Skeletons';
@@ -140,9 +141,13 @@ function ModuleBox({
         {members.map((lesson) => (
           <li key={lesson.id}>
             <MemberLink to={`/learn/${lesson.moduleSlug}/${lesson.slug}`} preload={content.lesson(lesson.id)}>
-              <span aria-hidden="true" className="font-mono text-accent">
-                +
-              </span>
+              {lesson.icon ? (
+                <LessonIcon icon={lesson.icon} className="w-[1ch] text-[15px]" />
+              ) : (
+                <span aria-hidden="true" className="font-mono text-accent">
+                  +
+                </span>
+              )}
               <span className="min-w-0 flex-1 truncate">{lesson.title}</span>
               <span className="font-mono text-[12px] text-muted tabular-nums">
                 {formatMinutes(lesson.readingMinutes)}

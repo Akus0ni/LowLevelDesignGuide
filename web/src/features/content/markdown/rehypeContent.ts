@@ -48,7 +48,7 @@ export function rehypeCompare() {
 const EMPTY = { flags: [], marks: new Set<number>() };
 
 /** The callout types the packer accepts (spec 004 §3.5); mirrors `Callouts.Types` in Lld.Content.Authoring. */
-export const CALLOUT_TYPES = ['note', 'tip', 'interview', 'smell', 'pitfall', 'app', 'work'] as const;
+export const CALLOUT_TYPES = ['remember', 'note', 'tip', 'interview', 'smell', 'pitfall', 'app', 'work'] as const;
 export type CalloutType = (typeof CALLOUT_TYPES)[number];
 
 const MARKER = /^\[!([A-Za-z-]+)\][ \t]*(?:\r?\n|$)/;
@@ -73,6 +73,36 @@ export function rehypeCallouts() {
         }
       }
     });
+}
+
+export const GO_DEEPER_ANCHOR = 'go-deeper';
+
+/**
+ * Lessons (spec 004 §3.2): everything under `## Go deeper` (up to the next `##`) folds into
+ * `<div data-go-deeper="topic\ntopic">`, listing its `###` topics so the closed fold says what is inside.
+ */
+export function rehypeGoDeeper() {
+  return (tree: Root) => {
+    const start = tree.children.findIndex((node) => isElement(node, 'h2') && node.properties.id === GO_DEEPER_ANCHOR);
+    if (start < 0) return;
+    let end = start + 1;
+    while (end < tree.children.length && !isElement(tree.children[end], 'h2')) end++;
+    const content = tree.children.slice(start + 1, end) as ElementContent[];
+    if (content.every((node) => node.type === 'text' && node.value.trim() === '')) return;
+
+    const topics = content.filter((node): node is Element => isElement(node, 'h3')).map(plainText);
+    tree.children.splice(start + 1, end - start - 1, {
+      type: 'element',
+      tagName: 'div',
+      properties: { dataGoDeeper: topics.join('\n') },
+      children: content,
+    });
+  };
+}
+
+function plainText(node: ElementContent): string {
+  if (node.type === 'text') return node.value;
+  return node.type === 'element' ? node.children.map(plainText).join('') : '';
 }
 
 export const INTERVIEW_ANCHOR = 'interview-questions';

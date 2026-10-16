@@ -12,9 +12,10 @@ import { CodeBlock } from './CodeBlock';
 import { CodeCompare } from './CodeCompare';
 import { fenceOf, markKindOf, sideOf } from './fence';
 import { TermsContext } from './terms';
-import { rehypeCallouts, rehypeCompare, rehypeInterview, type CalloutType } from './rehypeContent';
+import { rehypeCallouts, rehypeCompare, rehypeGoDeeper, rehypeInterview, type CalloutType } from './rehypeContent';
 import { rehypeRecallSections } from '../reader/recall';
 import { RecallSection } from '../reader/RecallSection';
+import { GoDeeper } from '../reader/GoDeeper';
 import {
   InterviewAnswer,
   InterviewQuestion,
@@ -69,7 +70,7 @@ function rehypeDropLeadingTitle() {
 }
 
 const COMMON_PLUGINS = [rehypeSlug, rehypeDropLeadingTitle, rehypeCompare, rehypeCallouts];
-const LESSON_PLUGINS = [...COMMON_PLUGINS, rehypeInterview];
+const LESSON_PLUGINS = [...COMMON_PLUGINS, rehypeInterview, rehypeGoDeeper];
 const CHEAT_SHEET_PLUGINS = [...COMMON_PLUGINS, rehypeRecallSections];
 
 const components: Components = {
@@ -87,6 +88,9 @@ const components: Components = {
   div: ({ node, children, ...props }) => {
     const properties = node?.properties ?? {};
     if (properties.dataCompare !== undefined) return <Compare node={node} />;
+    if (typeof properties.dataGoDeeper === 'string') {
+      return <GoDeeper topics={properties.dataGoDeeper.split('\n').filter(Boolean)}>{children}</GoDeeper>;
+    }
     if (typeof properties.dataQaList === 'string') {
       return <InterviewQuestionList count={Number(properties.dataQaList)}>{children}</InterviewQuestionList>;
     }

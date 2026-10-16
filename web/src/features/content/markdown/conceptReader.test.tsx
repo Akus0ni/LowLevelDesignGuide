@@ -121,6 +121,29 @@ describe('callouts', () => {
   });
 });
 
+describe('memory aids', () => {
+  it('draws REMEMBER as a stamp', async () => {
+    await show('# E\n\n> [!REMEMBER]\n> Don\'t touch my data. Ask me to do it.\n\n## The rule\n\nText.');
+
+    const stamp = screen.getByRole('complementary', { name: 'remember' });
+    expect(stamp).toHaveAttribute('data-callout', 'remember');
+    expect(stamp).toHaveTextContent("Don't touch my data. Ask me to do it.");
+  });
+
+  it('folds Go deeper behind a button that lists its topics', async () => {
+    await show('# E\n\n## The rule\n\nShort.\n\n## Go deeper\n\n### A second example\n\nLong text.\n\n### C# traps\n\nMore.');
+
+    const trigger = screen.getByRole('button', { name: /Open the deep dive/ });
+    expect(trigger).toHaveTextContent('A second example · C# traps');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Long text.')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Go deeper' })).toBeInTheDocument();
+
+    fireEvent.click(trigger);
+    expect(screen.getByText('Long text.')).toBeVisible();
+  });
+});
+
 describe('interview questions', () => {
   const lesson = [
     '# SRP',

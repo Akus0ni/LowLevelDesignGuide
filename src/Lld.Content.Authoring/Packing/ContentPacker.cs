@@ -5,6 +5,7 @@ using Lld.Content.Authoring.Parsing;
 using Lld.Content.Authoring.Reading;
 using Lld.Content.Authoring.Snippets;
 using Lld.Content.Authoring.Validation;
+using Lld.Contracts;
 
 namespace Lld.Content.Authoring.Packing;
 
@@ -40,7 +41,8 @@ public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource sni
             .ToList();
         return new PackedModule(
             module.Slug, Text(manifest, FrontMatterKeys.Title), Text(manifest, FrontMatterKeys.Summary), Order(manifest), lessons,
-            manifest[FrontMatterKeys.Map]?.Scalar is { } map ? FlowchartMap.Parse(map).ToContract() : null);
+            manifest[FrontMatterKeys.Map]?.Scalar is { } map ? FlowchartMap.Parse(map).ToContract() : null,
+            [.. (manifest[FrontMatterKeys.Mnemonics]?.Items ?? []).Select(Mnemonics.Parse).Select(m => new Mnemonic(m.Word, m.Lessons))]);
     }
 
     private PackedLesson PackLesson(SourceLesson lesson)
@@ -62,7 +64,9 @@ public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource sni
             Body(body),
             DocumentHeadings.Outline(headings),
             new PackedCheatSheet(Text(sheetFront, FrontMatterKeys.Title), Body(sheet)),
-            EntityTerms.Of(body, headings));
+            EntityTerms.Of(body, headings),
+            front[FrontMatterKeys.Icon]?.Scalar?.Trim(),
+            front[FrontMatterKeys.Hook]?.Scalar?.Trim());
     }
 
     private string Body(SourceDocument document) =>

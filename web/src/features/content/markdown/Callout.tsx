@@ -4,6 +4,7 @@ import type { CalloutType } from './rehypeContent';
 
 /** Each callout reads as a UML note (folded corner) with a stereotype naming what kind of aside it is. */
 const CALLOUTS: Record<CalloutType, { label: string; icon: string[] }> = {
+  remember: { label: 'remember', icon: ['M6 3h12v18l-6-4-6 4V3Z'] },
   note: { label: 'note', icon: ['M12 16v-4', 'M12 8h.01', 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'] },
   tip: {
     label: 'tip',

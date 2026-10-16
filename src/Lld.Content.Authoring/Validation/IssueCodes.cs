@@ -51,4 +51,12 @@ public static class IssueCodes
     public const string MapNotFlowchart = "map.not_flowchart";
     public const string MapUnknownNode = "map.unknown_node";
     public const string MapLessonMissing = "map.lesson_missing";
+
+    public const string RememberMissing = "remember.missing";
+    public const string ConceptIconMissing = "concept.icon";
+    public const string ConceptHookMissing = "concept.hook_missing";
+    public const string ConceptHookTooLong = "concept.hook_too_long";
+    public const string MnemonicFormat = "mnemonic.format";
+    public const string MnemonicUnknownLesson = "mnemonic.unknown_lesson";
+    public const string MnemonicLetterMismatch = "mnemonic.letter_mismatch";
 }

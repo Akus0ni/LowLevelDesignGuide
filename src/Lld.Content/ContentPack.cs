@@ -17,7 +17,7 @@ public sealed record ContentPack(int Format, string Version, IReadOnlyList<Packe
 /// <param name="Slug">The module's folder name, e.g. <c>case-studies</c>.</param>
 /// <param name="Map">The module map (spec 004 §3.6), if the module has one.</param>
 public sealed record PackedModule(
-    string Slug, string Title, string Summary, int Order, IReadOnlyList<PackedLesson> Lessons, ModuleMap? Map = null);
+    string Slug, string Title, string Summary, int Order, IReadOnlyList<PackedLesson> Lessons, ModuleMap? Map = null, IReadOnlyList<Mnemonic>? Mnemonics = null);
 
 /// <param name="Id">Stable id from the front-matter; progress, notes and bookmarks refer to it.</param>
 /// <param name="Slug">The lesson's folder name, used in routes.</param>
@@ -34,6 +34,8 @@ public sealed record PackedLesson(
     string BodyMarkdown,
     IReadOnlyList<OutlineEntry> Outline,
     PackedCheatSheet CheatSheet,
-    IReadOnlyList<LessonTerm> Terms);
+    IReadOnlyList<LessonTerm> Terms,
+    string? Icon = null,
+    string? Hook = null);
 
 public sealed record PackedCheatSheet(string Title, string BodyMarkdown);

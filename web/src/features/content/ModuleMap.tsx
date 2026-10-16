@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router';
 import type { LessonSummary, ModuleMap as Map } from '../../data/types';
 import { relationsOf, type Relation } from './mapRelations';
+import { LessonIcon } from './LessonIcon';
 import { formatMinutes } from './navigation';
 
 /**
@@ -73,9 +74,13 @@ export function ModuleMap({ map, lessons }: { map: Map; lessons: LessonSummary[]
                       data-direction={direction.get(slug)}
                       onClick={() => setSelected((current) => (current === slug ? null : slug))}
                     >
-                      <span aria-hidden="true" className="map-chip-number">
-                        {String(entry.position).padStart(2, '0')}
-                      </span>
+                      {entry.lesson.icon ? (
+                        <LessonIcon icon={entry.lesson.icon} />
+                      ) : (
+                        <span aria-hidden="true" className="map-chip-number">
+                          {String(entry.position).padStart(2, '0')}
+                        </span>
+                      )}
                       {entry.lesson.title}
                     </button>
                   </li>

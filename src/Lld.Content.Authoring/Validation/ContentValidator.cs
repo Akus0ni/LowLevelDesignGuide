@@ -28,6 +28,9 @@ public sealed class ContentValidator(IEnumerable<IContentRule> rules)
         new InterviewQuestionsRule(),
         new ConceptCodeFromSnippetsRule(),
         new ModuleMapRule(),
+        new RememberStampRule(),
+        new ConceptIdentityRule(),
+        new MnemonicRule(),
     ];
 
     public ContentValidator()

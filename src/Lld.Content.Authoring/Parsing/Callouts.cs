@@ -10,7 +10,9 @@ public sealed record Callout(string Type, int Line);
 public static partial class Callouts
 {
     /// <summary>The types the reader knows; the web app keeps the same list.</summary>
-    public static readonly IReadOnlyList<string> Types = ["NOTE", "TIP", "INTERVIEW", "SMELL", "PITFALL", "APP", "WORK"];
+    public static readonly IReadOnlyList<string> Types = ["REMEMBER", "NOTE", "TIP", "INTERVIEW", "SMELL", "PITFALL", "APP", "WORK"];
+
+    public const string Remember = "REMEMBER";
 
     public static IReadOnlyList<Callout> Of(SourceDocument source)
     {
