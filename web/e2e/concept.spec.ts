@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 // `page.evaluate` callbacks run in the browser, hence the DOM types.
 import { expect, test, type Page } from '@playwright/test';
-import { allModules, routeContent } from './content';
+import { allModules, lessonSlugsOf, routeContent } from './content';
 
 // Spec 004 acceptance criteria A1, A6–A9 against the repository's real OOP & SOLID content.
 
@@ -66,7 +66,7 @@ test('A6: Before / After switches in place with marked lines; nothing scrolls si
 
 test('A6: at 320 px no lesson page scrolls sideways', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
-  for (const slug of ['encapsulation', 'abstraction', 'inheritance', 'polymorphism']) {
+  for (const slug of lessonSlugsOf('oop-solid')) {
     await page.goto(`${MODULE}/${slug}`);
     await expect(page.locator('.qa-list')).toBeVisible();
     await expectNoSidewaysScroll(page);
@@ -74,7 +74,7 @@ test('A6: at 320 px no lesson page scrolls sideways', async ({ page }) => {
 });
 
 test('A7 + memory aids: every lesson opens with a stamp and a picture; callouts are labelled notes', async ({ page }) => {
-  for (const slug of ['encapsulation', 'abstraction', 'inheritance', 'polymorphism']) {
+  for (const slug of lessonSlugsOf('oop-solid')) {
     await page.goto(`${MODULE}/${slug}`);
     const stamp = page.getByRole('complementary', { name: 'remember', exact: true }).first();
     await expect(stamp).toContainText('«remember»');

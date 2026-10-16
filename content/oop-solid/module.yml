@@ -13,6 +13,19 @@ map: |
       inheritance["Inheritance"]
       polymorphism["Polymorphism"]
     end
+    subgraph basics["Design basics"]
+      interfaces-vs-abstract-classes["Interfaces vs abstract classes"]
+      composition-over-inheritance["Composition over inheritance"]
+      value-objects-immutability["Value objects & immutability"]
+      coupling-cohesion["Coupling & cohesion"]
+      law-of-demeter["Law of Demeter"]
+    end
     encapsulation -->|"hides the details behind"| abstraction
     inheritance -->|"is one way to get"| polymorphism
     abstraction -->|"lets callers rely on"| polymorphism
+    abstraction -->|"is written as"| interfaces-vs-abstract-classes
+    inheritance -->|"is often replaced by"| composition-over-inheritance
+    encapsulation -->|"guards the rules of"| value-objects-immutability
+    encapsulation -->|"seen from the caller is"| law-of-demeter
+    law-of-demeter -->|"keeps down"| coupling-cohesion
+    composition-over-inheritance -->|"keeps down"| coupling-cohesion
