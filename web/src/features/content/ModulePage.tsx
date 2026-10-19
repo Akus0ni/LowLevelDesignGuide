@@ -109,14 +109,18 @@ function LessonRow({ lesson, position }: { lesson: LessonSummary; position: numb
           {lesson.title}
         </span>
         <span className="mt-0.5 line-clamp-2 text-[15px] leading-relaxed text-muted">{lesson.summary}</span>
-        {status === 'inProgress' && lesson.sectionCount > 0 && (
-          <span className="mt-1 block font-mono text-[12px] text-accent tabular-nums">
-            {sectionsRead(byId, lesson)} of {lesson.sectionCount} sections read
-          </span>
-        )}
+        {/* Time (and, while reading, how far) under the text: the right edge stays narrow for long titles on phones. */}
+        <span className="mt-1 block font-mono text-[12px] text-muted tabular-nums">
+          {formatMinutes(lesson.readingMinutes)}
+          {status === 'inProgress' && lesson.sectionCount > 0 && (
+            <span className="text-accent">
+              {' · '}
+              {sectionsRead(byId, lesson)} of {lesson.sectionCount} sections read
+            </span>
+          )}
+        </span>
       </span>
-      <span className="mt-0.5 flex shrink-0 items-center gap-2 font-mono text-[12px] text-muted tabular-nums">
-        {formatMinutes(lesson.readingMinutes)}
+      <span className="mt-0.5 flex shrink-0 items-center gap-2 text-muted">
         <StatusMark status={status} />
         <Icon d={chevronRight} size={18} />
       </span>

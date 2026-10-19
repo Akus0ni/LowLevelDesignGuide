@@ -144,10 +144,10 @@ function FilterChip({ label, pressed, onClick }: { label: string; pressed: boole
 /** All cheat sheets, or only those not revised yet (spec 005 §3.3): a two-way segmented control. */
 function RevisedFilter({ notRevisedOnly, onChange }: { notRevisedOnly: boolean; onChange: (only: boolean) => void }) {
   return (
-    <div role="radiogroup" aria-label="Show" className="mt-6 grid max-w-xs grid-cols-2 rounded-xl border border-rule bg-surface p-1">
+    <div role="radiogroup" aria-label="Show" className="mt-6 grid max-w-xs grid-cols-2 rounded-xl bg-surface p-1">
       {(
         [
-          [false, 'All'],
+          [false, 'All sheets'],
           [true, 'Not revised'],
         ] as const
       ).map(([only, label]) => (
@@ -161,7 +161,8 @@ function RevisedFilter({ notRevisedOnly, onChange }: { notRevisedOnly: boolean; 
             'h-9 rounded-lg text-[14px] font-medium select-none',
             'transition-[background-color,color] duration-150 ease-out',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent',
-            notRevisedOnly === only ? 'bg-fg text-bg' : 'text-muted hover:text-fg',
+            // Same look as Profile's segmented control: one way to show "this view is selected".
+            notRevisedOnly === only ? 'bg-bg text-fg shadow-sm' : 'text-muted hover:text-fg',
           )}
         >
           {label}
@@ -196,7 +197,8 @@ function SheetRow({ sheet, byId }: { sheet: CheatSheetSummary; byId: ProgressByI
         <span className="mt-0.5 block truncate text-[14px] text-muted" title={sheet.lessonTitle}>
           from {sheet.lessonTitle}
         </span>
-        <span className={cn('mt-1 block font-mono text-[12px]', revisedAt ? 'text-muted' : 'text-accent')}>
+        {/* A status, not an action, so never blueprint blue: ink when there's still revising to do. */}
+        <span className={cn('mt-1 block font-mono text-[12px]', revisedAt ? 'text-muted' : 'text-fg')}>
           {revisedAt ? `Revised ${timeAgo(revisedAt, new Date())}` : 'Not revised yet'}
         </span>
       </span>

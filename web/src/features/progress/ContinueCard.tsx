@@ -47,10 +47,10 @@ export function ContinueCard({ modules }: { modules: readonly ModuleDetail[] }) 
       <span className="flex items-center gap-3 px-4 py-3.5">
         <LessonIcon icon={lesson.icon} className="text-[26px] leading-none" />
         <span className="min-w-0 flex-1">
-          <span className="block text-[19px] leading-snug font-semibold wrap-anywhere">{lesson.title}</span>
-          <span className="mt-0.5 block text-[14px] text-muted">
-            {module?.title}
-            {' · '}
+          {/* Clamped so a very long title can't turn the card into a screenful; the link's name has it in full. */}
+          <span className="line-clamp-3 text-[19px] leading-snug font-semibold wrap-anywhere">{lesson.title}</span>
+          <span className="mt-0.5 block truncate text-[14px] text-muted">{module?.title}</span>
+          <span className="mt-1 block font-mono text-[12px] text-muted tabular-nums">
             {kind === 'continue' && lesson.sectionCount > 0
               ? `${read} of ${lesson.sectionCount} sections read`
               : formatMinutes(lesson.readingMinutes)}

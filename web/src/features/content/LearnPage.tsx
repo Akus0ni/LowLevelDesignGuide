@@ -152,7 +152,7 @@ function ModuleBox({
           <li key={lesson.id}>
             <MemberLink to={`/learn/${lesson.moduleSlug}/${lesson.slug}`} preload={content.lesson(lesson.id)}>
               {lesson.icon ? (
-                <LessonIcon icon={lesson.icon} className="w-[1ch] text-[15px]" />
+                <LessonIcon icon={lesson.icon} className="w-[1.25em] shrink-0 text-center text-[15px]" />
               ) : (
                 <span aria-hidden="true" className="font-mono text-accent">
                   +
