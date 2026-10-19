@@ -1,6 +1,7 @@
 using Lld.App.Auth;
 using Lld.App.Content;
 using Lld.App.Hosting;
+using Lld.App.Progress;
 using Lld.Contracts;
 using IMauiAppInfo = Microsoft.Maui.ApplicationModel.IAppInfo;
 using SharedAppInfo = Lld.Contracts.AppInfo;
@@ -31,6 +32,7 @@ public sealed class BridgeService(
     AccessRequestOutbox outbox,
     ServerStatusMonitor status,
     ContentService content,
+    ProgressService progress,
     IBrowser browser)
 {
     private const string ApplicationName = "LLD Guide";
@@ -47,11 +49,28 @@ public sealed class BridgeService(
     /// <summary>The current status; later changes arrive as <c>serverStatus</c> raw messages.</summary>
     public ServerStatusView GetServerStatus() => ServerStatusView.From(status.Tracker.Current);
 
-    public async Task<BridgeResult<UserSummary>> Login(string email, string password) =>
-        BridgeResult.From(await session.LoginAsync(email, password, CancellationToken.None));
+    /// <summary>Signs in, then gives what the guest read on this device to the user (spec 005 §3.9).</summary>
+    public async Task<BridgeResult<UserSummary>> Login(string email, string password)
+    {
+        var result = await session.LoginAsync(email, password, CancellationToken.None);
+        if (result.Value is { } user)
+        {
+            await progress.AdoptGuestAsync(user.Id);
+        }
 
-    public async Task<BridgeResult<UserSummary?>> RestoreSession() =>
-        BridgeResult.From(await session.RestoreAsync(CancellationToken.None));
+        return BridgeResult.From(result);
+    }
+
+    public async Task<BridgeResult<UserSummary?>> RestoreSession()
+    {
+        var result = await session.RestoreAsync(CancellationToken.None);
+        if (result.Value is { } user)
+        {
+            await progress.AdoptGuestAsync(user.Id);
+        }
+
+        return BridgeResult.From(result);
+    }
 
     public async Task<BridgeResult<UserSummary>> ChangePassword(string currentPassword, string newPassword) =>
         BridgeResult.From(await session.ChangePasswordAsync(currentPassword, newPassword, CancellationToken.None));
@@ -74,6 +93,16 @@ public sealed class BridgeService(
     public Task<BridgeResult<IReadOnlyList<CheatSheetSummary>>> GetCheatSheets(string? moduleSlug) => content.GetCheatSheetsAsync(moduleSlug);
 
     public Task<BridgeResult<CheatSheetDetail>> GetCheatSheet(string lessonId) => content.GetCheatSheetAsync(lessonId);
+
+    // Progress (spec 005): kept on the device for whoever owns this session (or the guest), so these work offline.
+
+    public Task<BridgeResult<ProgressSnapshotDto>> GetProgress() => progress.GetAsync();
+
+    /// <param name="recordsJson">JSON array of lesson progress records; the device id and owner are filled in here.</param>
+    public Task<BridgeResult<bool>> SaveLessonProgress(string recordsJson) => progress.SaveLessonsAsync(recordsJson);
+
+    /// <param name="day">The learner's local date, <c>yyyy-MM-dd</c>.</param>
+    public Task<BridgeResult<bool>> RecordActivity(string day) => progress.RecordActivityAsync(day);
 
     /// <summary>
     /// Opens a web link (e.g. source code on GitHub) in the system browser, so the WebView never leaves the app.

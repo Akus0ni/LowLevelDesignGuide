@@ -3,8 +3,10 @@ using Lld.App.Auth;
 using Lld.App.Content;
 using Lld.App.Data;
 using Lld.App.Data.Content;
+using Lld.App.Data.Progress;
 using Lld.App.Data.Schema;
 using Lld.App.Hosting;
+using Lld.App.Progress;
 using Lld.Content;
 using Lld.ServerStatus;
 using Microsoft.Extensions.Hosting;
@@ -67,6 +69,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<IContentCatalog, SqliteContentCatalog>();
         builder.Services.AddSingleton<ContentGate>();
         builder.Services.AddSingleton<ContentService>();
+
+        // Progress (spec 005): same device database, owned by the stored session's user or the guest.
+        builder.Services.AddSingleton<SqliteProgressStore>();
+        builder.Services.AddSingleton<DeviceIdentity>();
+        builder.Services.AddSingleton<IProgressOwnerSource, SessionProgressOwner>();
+        builder.Services.AddSingleton<DeviceProgress>();
+        builder.Services.AddSingleton<ProgressService>();
         builder.Services.AddSingleton<BridgeService>();
         builder.Services.AddTransient<MainPage>();
 

@@ -2,30 +2,44 @@ using Lld.Contracts;
 
 namespace Lld.App.Auth;
 
-/// <summary>Where the refresh token lives on the device (Strategy: SecureStorage in the app, memory in tests).</summary>
+/// <summary>
+/// Where the session lives on the device (Strategy: SecureStorage in the app, memory in tests): the refresh token and
+/// whose session it is. The user id outlives an offline launch, so progress stays the user's (spec 005 §3.9).
+/// </summary>
 public interface ITokenStore
 {
     Task<string?> GetRefreshTokenAsync();
 
     Task SetRefreshTokenAsync(string? refreshToken);
+
+    Task<string?> GetUserIdAsync();
+
+    Task SetUserIdAsync(string? userId);
 }
 
 /// <summary>Keychain (iOS/macOS), Keystore-backed storage (Android), DPAPI (Windows).</summary>
 public sealed class SecureTokenStore(ISecureStorage storage) : ITokenStore
 {
     private const string RefreshTokenKey = "lld.refresh_token";
+    private const string UserIdKey = "lld.user_id";
 
     public Task<string?> GetRefreshTokenAsync() => storage.GetAsync(RefreshTokenKey);
 
-    public Task SetRefreshTokenAsync(string? refreshToken)
+    public Task SetRefreshTokenAsync(string? refreshToken) => SetAsync(RefreshTokenKey, refreshToken);
+
+    public Task<string?> GetUserIdAsync() => storage.GetAsync(UserIdKey);
+
+    public Task SetUserIdAsync(string? userId) => SetAsync(UserIdKey, userId);
+
+    private Task SetAsync(string key, string? value)
     {
-        if (refreshToken is null)
+        if (value is null)
         {
-            storage.Remove(RefreshTokenKey);
+            storage.Remove(key);
             return Task.CompletedTask;
         }
 
-        return storage.SetAsync(RefreshTokenKey, refreshToken);
+        return storage.SetAsync(key, value);
     }
 }
 
@@ -131,6 +145,7 @@ public sealed class SessionService(ApiClient api, ITokenStore tokens) : IDisposa
 
         _accessToken = result.Value.AccessToken;
         await tokens.SetRefreshTokenAsync(result.Value.RefreshToken);
+        await tokens.SetUserIdAsync(result.Value.User.Id);
         return new ApiResult<UserSummary>(result.Value.User, null, result.Status);
     }
 
@@ -138,5 +153,6 @@ public sealed class SessionService(ApiClient api, ITokenStore tokens) : IDisposa
     {
         _accessToken = null;
         await tokens.SetRefreshTokenAsync(null);
+        await tokens.SetUserIdAsync(null);
     }
 }
