@@ -59,20 +59,21 @@ public sealed class ContentPackLoader(DeviceDatabase database)
 
         await using var insertModule = Command(connection, transaction,
             """
-            INSERT INTO Modules (Slug, Title, Summary, SortOrder, MapJson, MnemonicsJson)
-            VALUES ($slug, $title, $summary, $order, $map, $mnemonics);
+            INSERT INTO Modules (Slug, Title, Summary, SortOrder, MapJson, MnemonicsJson, PickerJson, LookalikesJson)
+            VALUES ($slug, $title, $summary, $order, $map, $mnemonics, $picker, $lookalikes);
             """);
         await using var insertLesson = Command(connection, transaction, """
             INSERT INTO Lessons (Id, ModuleSlug, Slug, Title, Summary, SortOrder, TagsJson, Source, ReadingMinutes,
-                                 BodyMarkdown, OutlineJson, CheatSheetTitle, CheatSheetMarkdown, TermsJson, Icon, Hook)
+                                 BodyMarkdown, OutlineJson, CheatSheetTitle, CheatSheetMarkdown, TermsJson, Icon, Hook, Symbol)
             VALUES ($id, $module, $slug, $title, $summary, $order, $tags, $source, $minutes,
-                    $body, $outline, $sheetTitle, $sheetBody, $terms, $icon, $hook);
+                    $body, $outline, $sheetTitle, $sheetBody, $terms, $icon, $hook, $symbol);
             """);
         foreach (var module in pack.Modules)
         {
             Bind(insertModule,
                 ("$slug", module.Slug), ("$title", module.Title), ("$summary", module.Summary), ("$order", module.Order), ("$map", DeviceJson.Map(module.Map)),
-                ("$mnemonics", DeviceJson.Mnemonics(module.Mnemonics)));
+                ("$mnemonics", DeviceJson.Mnemonics(module.Mnemonics)), ("$picker", DeviceJson.Picker(module.Picker)),
+                ("$lookalikes", DeviceJson.Lookalikes(module.Lookalikes)));
             await insertModule.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
             foreach (var lesson in module.Lessons)
             {
@@ -82,7 +83,7 @@ public sealed class ContentPackLoader(DeviceDatabase database)
                     ("$source", lesson.Source), ("$minutes", lesson.ReadingMinutes), ("$body", lesson.BodyMarkdown),
                     ("$outline", DeviceJson.Outline(lesson.Outline)), ("$sheetTitle", lesson.CheatSheet.Title),
                     ("$sheetBody", lesson.CheatSheet.BodyMarkdown), ("$terms", DeviceJson.Terms(lesson.Terms)),
-                    ("$icon", lesson.Icon), ("$hook", lesson.Hook));
+                    ("$icon", lesson.Icon), ("$hook", lesson.Hook), ("$symbol", lesson.Symbol));
                 await insertLesson.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
             }
         }

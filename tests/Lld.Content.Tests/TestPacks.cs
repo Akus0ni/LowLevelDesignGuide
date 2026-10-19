@@ -16,11 +16,23 @@ internal static class TestPacks
         Module("start", "Start here", order: 0,
             Lesson("how-to-use", "how-to-use", "How to use LLD Guide", order: 1)),
         Module("oop-solid", "OOP & SOLID", order: 1,
-            Lesson("solid-srp", "srp", "Single responsibility", order: 1) with { Icon = "🎯", Hook = "One reason to change" },
-            Lesson("solid-ocp", "ocp", "Open/closed", order: 2)) with { Map = SampleMap, Mnemonics = SampleMnemonics },
+            Lesson("solid-srp", "srp", "Single responsibility", order: 1) with { Icon = "🎯", Hook = "One reason to change", Symbol = "Sr" },
+            Lesson("solid-ocp", "ocp", "Open/closed", order: 2)) with
+        {
+            Map = SampleMap, Mnemonics = SampleMnemonics, Picker = SamplePicker, Lookalikes = SampleLookalikes,
+        },
     ]);
 
     public static readonly IReadOnlyList<Mnemonic> SampleMnemonics = [new Mnemonic("SO", ["srp", "ocp"])];
+
+    public static readonly ModulePicker SamplePicker = new("what", [
+        new PickerQuestion("what", "What changes?", [
+            new PickerAnswer("Who does what", null, ["srp"], "One reason to change."),
+            new PickerAnswer("New behaviour", null, ["ocp"], "Add, don't edit."),
+        ]),
+    ]);
+
+    public static readonly IReadOnlyList<Lookalike> SampleLookalikes = [new Lookalike(["srp", "ocp"], "One splits, one extends.", "Are you splitting or adding?")];
 
     public static readonly ModuleMap SampleMap = new([new MapGroup("SOLID", ["srp", "ocp"])], [new MapLink("srp", "ocp", "needs")]);
 

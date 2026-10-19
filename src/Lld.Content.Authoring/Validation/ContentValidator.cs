@@ -36,6 +36,8 @@ public sealed class ContentValidator(IEnumerable<IContentRule> rules)
         new PatternCompareRule(),
         new OveruseStampRule(),
         new SymbolRule(),
+        new PickerRule(),
+        new LookalikesRule(),
     ];
 
     public ContentValidator()

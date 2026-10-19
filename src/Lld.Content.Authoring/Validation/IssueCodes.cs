@@ -69,4 +69,14 @@ public static class IssueCodes
     public const string SymbolMissing = "symbol.missing";
     public const string SymbolFormat = "symbol.format";
     public const string SymbolDuplicate = "symbol.duplicate";
+
+    public const string PickerShape = "picker.shape";
+    public const string PickerUnknownNext = "picker.unknown_next";
+    public const string PickerCycle = "picker.cycle";
+    public const string PickerTooDeep = "picker.too_deep";
+    public const string PickerUnknownLesson = "picker.unknown_lesson";
+    public const string PickerUnreachable = "picker.unreachable";
+    public const string LookalikeShape = "lookalike.shape";
+    public const string LookalikeUnknownLesson = "lookalike.unknown_lesson";
+    public const string LookalikeDuplicate = "lookalike.duplicate";
 }

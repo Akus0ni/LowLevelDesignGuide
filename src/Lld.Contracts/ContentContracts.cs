@@ -7,15 +7,20 @@ public sealed record ModuleSummary(string Slug, string Title, string Summary, in
 
 /// <param name="Map">How the lessons relate (spec 004 §3.6); null when the module has none.</param>
 /// <param name="Mnemonics">Memory hooks over the lessons, e.g. SOLID (spec 004 §3.8); null or empty when none.</param>
+/// <param name="Picker">The "Which pattern?" decision tree (spec 006 §3.6); null when the module has none.</param>
+/// <param name="Lookalikes">Groups of lessons that are easy to confuse (spec 006 §3.7); null or empty when none.</param>
 public sealed record ModuleDetail(
     string Slug,
     string Title,
     string Summary,
     IReadOnlyList<LessonSummary> Lessons,
     ModuleMap? Map = null,
-    IReadOnlyList<Mnemonic>? Mnemonics = null);
+    IReadOnlyList<Mnemonic>? Mnemonics = null,
+    ModulePicker? Picker = null,
+    IReadOnlyList<Lookalike>? Lookalikes = null);
 
 /// <param name="SectionCount">Outline entries: the sections a reader ticks off (spec 005, "3 of 5 sections").</param>
+/// <param name="Symbol">Two letters for the periodic table of a pattern module, e.g. <c>St</c> (spec 006 §3.5).</param>
 public sealed record LessonSummary(
     string Id,
     string ModuleSlug,
@@ -27,7 +32,8 @@ public sealed record LessonSummary(
     IReadOnlyList<string> Tags,
     string? Icon = null,
     string? Hook = null,
-    int SectionCount = 0);
+    int SectionCount = 0,
+    string? Symbol = null);
 
 /// <summary>An h2 or h3 heading of a lesson; <see cref="Anchor"/> follows GitHub's heading-id rules.</summary>
 public sealed record OutlineEntry(int Level, string Text, string Anchor);
@@ -99,3 +105,20 @@ public sealed record MapLink(string From, string To, string? Label);
 /// <param name="Word">As written, e.g. <c>A-PIE</c>; letters only count.</param>
 /// <param name="Lessons">Lesson slugs, one per letter.</param>
 public sealed record Mnemonic(string Word, IReadOnlyList<string> Lessons);
+
+/// <summary>
+/// A "Which pattern?" decision tree (spec 006 §3.6): start at <see cref="Start"/>, answer questions until an answer
+/// picks lessons.
+/// </summary>
+/// <param name="Start">Id of the first question.</param>
+public sealed record ModulePicker(string Start, IReadOnlyList<PickerQuestion> Questions);
+
+public sealed record PickerQuestion(string Id, string Ask, IReadOnlyList<PickerAnswer> Answers);
+
+/// <summary>Leads to another question (<see cref="Next"/>) or picks 1–2 lessons with a one-line <see cref="Why"/>.</summary>
+/// <param name="Picks">Lesson slugs; empty when <see cref="Next"/> is set.</param>
+public sealed record PickerAnswer(string Label, string? Next, IReadOnlyList<string> Picks, string? Why);
+
+/// <summary>Lessons that are easy to confuse, the one difference between them and the question that tells them apart.</summary>
+/// <param name="Lessons">2–3 lesson slugs of the same module.</param>
+public sealed record Lookalike(IReadOnlyList<string> Lessons, string Difference, string Ask);

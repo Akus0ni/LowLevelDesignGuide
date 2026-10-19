@@ -10,14 +10,24 @@ namespace Lld.Content;
 /// <param name="Version">Hash of the content: the same content always has the same version.</param>
 public sealed record ContentPack(int Format, string Version, IReadOnlyList<PackedModule> Modules)
 {
-    /// <summary>2: modules carry a map (spec 004).</summary>
-    public const int CurrentFormat = 2;
+    /// <summary>3: lessons carry a symbol, modules a picker and look-alikes (spec 006). 2: modules carry a map (spec 004).</summary>
+    public const int CurrentFormat = 3;
 }
 
 /// <param name="Slug">The module's folder name, e.g. <c>case-studies</c>.</param>
 /// <param name="Map">The module map (spec 004 §3.6), if the module has one.</param>
+/// <param name="Picker">The "Which pattern?" tree (spec 006 §3.6), if the module has one.</param>
+/// <param name="Lookalikes">Look-alike groups (spec 006 §3.7), if any.</param>
 public sealed record PackedModule(
-    string Slug, string Title, string Summary, int Order, IReadOnlyList<PackedLesson> Lessons, ModuleMap? Map = null, IReadOnlyList<Mnemonic>? Mnemonics = null);
+    string Slug,
+    string Title,
+    string Summary,
+    int Order,
+    IReadOnlyList<PackedLesson> Lessons,
+    ModuleMap? Map = null,
+    IReadOnlyList<Mnemonic>? Mnemonics = null,
+    ModulePicker? Picker = null,
+    IReadOnlyList<Lookalike>? Lookalikes = null);
 
 /// <param name="Id">Stable id from the front-matter; progress, notes and bookmarks refer to it.</param>
 /// <param name="Slug">The lesson's folder name, used in routes.</param>
@@ -36,6 +46,7 @@ public sealed record PackedLesson(
     PackedCheatSheet CheatSheet,
     IReadOnlyList<LessonTerm> Terms,
     string? Icon = null,
-    string? Hook = null);
+    string? Hook = null,
+    string? Symbol = null);
 
 public sealed record PackedCheatSheet(string Title, string BodyMarkdown);

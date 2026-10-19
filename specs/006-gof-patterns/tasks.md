@@ -3,7 +3,7 @@
 - [x] T1 `samples/Lld.Samples.Patterns` skeleton, slnx folder, `Lld.Samples.Tests` reference; CI green
 - [x] T2 Structured YAML values (`YamlEntry.Node`, `FieldKind.Structured`); phrase mnemonics (`Letters`, `Words`, shared test vector)
 - [x] T3 Template `pattern`: schema, `symbol`, `ConceptLessons` / `PatternLessons`, `PatternSections`, `OVERUSE` callout type; rules `PatternSectionsRule`, `PatternStructureRule`, `PatternCompareRule`, `OveruseStampRule`, `SymbolRule` (+ fixtures)
-- [ ] T4 Picker + look-alikes: `PickerTree`, `Lookalikes`, `PickerRule`, `LookalikesRule`; contracts, pack format 3, device step 5, catalogs, web types
+- [x] T4 Picker + look-alikes: `PickerTree`, `Lookalikes`, `PickerRule`, `LookalikesRule`; contracts, pack format 3, device step 5, catalogs, web types
 - [ ] T5 `content/gof-patterns/module.yml` (template, map, picker, look-alikes), case-studies order 5; batch 1 Creational: Singleton, Factory Method, Abstract Factory, Builder, Prototype (+ samples, tests, Creational mnemonic)
 - [ ] T6 Web: Overuse stamp; phrase mnemonic tiles
 - [ ] T7 Web: `PeriodicTable` on the module page

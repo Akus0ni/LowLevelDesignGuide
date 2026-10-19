@@ -44,6 +44,19 @@ internal static class DeviceJson
 
     public static IReadOnlyList<Mnemonic> Mnemonics(string json) =>
         JsonSerializer.Deserialize(json, DeviceJsonContext.Default.MnemonicArray) ?? [];
+
+    /// <summary><c>null</c> (no picker) is stored as SQL NULL.</summary>
+    public static string? Picker(ModulePicker? picker) =>
+        picker is null ? null : JsonSerializer.Serialize(picker, DeviceJsonContext.Default.ModulePicker);
+
+    public static ModulePicker? Picker(string json) =>
+        JsonSerializer.Deserialize(json, DeviceJsonContext.Default.ModulePicker);
+
+    public static string Lookalikes(IReadOnlyList<Lookalike>? lookalikes) =>
+        JsonSerializer.Serialize([.. lookalikes ?? []], DeviceJsonContext.Default.LookalikeArray);
+
+    public static IReadOnlyList<Lookalike> Lookalikes(string json) =>
+        JsonSerializer.Deserialize(json, DeviceJsonContext.Default.LookalikeArray) ?? [];
 }
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
@@ -52,4 +65,6 @@ internal static class DeviceJson
 [JsonSerializable(typeof(LessonTerm[]))]
 [JsonSerializable(typeof(ModuleMap))]
 [JsonSerializable(typeof(Mnemonic[]))]
+[JsonSerializable(typeof(ModulePicker))]
+[JsonSerializable(typeof(Lookalike[]))]
 internal sealed partial class DeviceJsonContext : JsonSerializerContext;

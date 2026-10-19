@@ -15,6 +15,8 @@ public static class FrontMatterKeys
     public const string Icon = "icon";
     public const string Hook = "hook";
     public const string Symbol = "symbol";
+    public const string Picker = "picker";
+    public const string Lookalikes = "lookalikes";
 }
 
 /// <summary>The authoring contract (spec 003 §3.1). The module comes from the folder, so no file names it.</summary>
@@ -43,7 +45,9 @@ public static class ContentSchemas
         new FieldSpec(FrontMatterKeys.Summary, FieldKind.Text, Required: true),
         new FieldSpec(FrontMatterKeys.Template, FieldKind.Choice, Required: false, Templates),
         new FieldSpec(FrontMatterKeys.Map, FieldKind.Text, Required: false),
-        new FieldSpec(FrontMatterKeys.Mnemonics, FieldKind.List, Required: false));
+        new FieldSpec(FrontMatterKeys.Mnemonics, FieldKind.List, Required: false),
+        new FieldSpec(FrontMatterKeys.Picker, FieldKind.Structured, Required: false),
+        new FieldSpec(FrontMatterKeys.Lookalikes, FieldKind.Structured, Required: false));
 
     public static FrontMatterSchema Lesson { get; } = new(
         new FieldSpec(FrontMatterKeys.Id, FieldKind.Text, Required: true),

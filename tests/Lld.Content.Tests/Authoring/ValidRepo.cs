@@ -181,7 +181,29 @@ internal sealed class ValidRepo
     /// </summary>
     public ValidRepo WithPatternModule()
     {
-        Set(PatternModule, "title: Patterns\norder: 3\nsummary: Named designs.\ntemplate: pattern\n");
+        Set(PatternModule, """
+            title: Patterns
+            order: 3
+            summary: Named designs.
+            template: pattern
+            picker:
+              start: what
+              questions:
+                what:
+                  ask: "Who changes the behaviour?"
+                  answers:
+                    - { label: "The caller", pick: [strategy], why: "Pass the algorithm in." }
+                    - { label: "The object", next: inside }
+                inside:
+                  ask: "Does it depend on its state?"
+                  answers:
+                    - { label: "Yes", pick: [state], why: "Each state is a class." }
+                    - { label: "No", pick: [strategy], why: "Still a strategy." }
+            lookalikes:
+              - patterns: [strategy, state]
+                difference: "Strategy is chosen by the caller; State switches itself."
+                ask: "Who swaps the behaviour?"
+            """);
         Set(PatternSample, """
             namespace Samples;
 
