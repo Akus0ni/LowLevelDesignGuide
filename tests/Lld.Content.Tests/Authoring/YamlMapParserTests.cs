@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Lld.Content.Authoring.Parsing;
+using YamlDotNet.RepresentationModel;
 
 namespace Lld.Content.Tests.Authoring;
 
@@ -21,6 +22,19 @@ public sealed class YamlMapParserTests
         map["tags"]!.Items.Should().Equal("a", "b");
         map["empty"]!.Scalar.Should().BeEmpty();
         map["missing"].Should().BeNull();
+    }
+
+    [Fact]
+    public void NestedValue_KeepsItsTreeWithFileLines()
+    {
+        var (map, _) = YamlMapParser.Parse("title: A\npicker:\n  start: what\n  questions:\n    what:\n      ask: Why?\n", "m.yml", firstLine: 10);
+
+        var nested = map!["picker"]!.Nested!;
+        var root = (YamlMappingNode)nested.Root;
+        var ask = ((YamlMappingNode)((YamlMappingNode)root["questions"])["what"])["ask"];
+        nested.LineOf(root["start"]).Should().Be(12);
+        nested.LineOf(ask).Should().Be(15);
+        map["title"]!.Nested.Should().BeNull();
     }
 
     [Fact]

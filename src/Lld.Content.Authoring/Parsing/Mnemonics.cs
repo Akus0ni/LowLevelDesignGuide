@@ -6,6 +6,9 @@ public sealed record ParsedMnemonic(string Word, IReadOnlyList<string> Lessons, 
 /// <summary>
 /// A module mnemonic (spec 004 §3.8), written in <c>module.yml</c> as <c>"SOLID: srp, ocp, lsp, isp, dip"</c>: a word,
 /// then one lesson slug per letter. Characters that aren't letters (<c>A-PIE</c>) are just decoration.
+/// A phrase (spec 006 §3.4) spells with the first letter of each word: <c>"Smart Builders Always Follow Plans: ..."</c>.
+/// The web splits words the same way (<c>mnemonicTiles.ts</c>); both are checked against
+/// <c>tests/fixtures/content/mnemonics.json</c>.
 /// </summary>
 public static class Mnemonics
 {
@@ -32,6 +35,9 @@ public static class Mnemonics
     public static IReadOnlyList<char> Letters(string word)
     {
         ArgumentNullException.ThrowIfNull(word);
-        return [.. word.Where(char.IsLetter)];
+        var words = word.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        return words.Length > 1
+            ? [.. words.Select(w => w.FirstOrDefault(char.IsLetter)).Where(char.IsLetter)]
+            : [.. word.Where(char.IsLetter)];
     }
 }
