@@ -1614,3 +1614,25 @@
     }
   }
 }
+
+/* "Pencil, then ink" for module boxes: a hairline frame while unfinished, full ink weight once every lesson is done.
+   Unfinished frames stay solid (dashed lines already mean "dependency" on Learn). */
+@layer components {
+  .module-frame {
+    border-color: var(--rule);
+    transition: border-color 200ms ease;
+
+    &[data-inked] {
+      border-color: var(--fg);
+      box-shadow: 0 0 0 0.5px var(--fg);
+    }
+  }
+
+  .module-hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--accent) 22%, transparent) 0 1px,
+      transparent 1px 6px
+    );
+  }
+}

@@ -77,6 +77,15 @@ export function useModule(slug: string): ModuleDetail {
   return useContent(key, fetch);
 }
 
+/** Several modules' lessons at once (Learn, Profile): all requested together, read in the order given. */
+export function useModuleDetails(slugs: readonly string[]): ModuleDetail[] {
+  const source = useDataSource();
+  return slugs.map((slug) => {
+    const { key, fetch } = content.module(slug);
+    return use(load(source, key, fetch));
+  });
+}
+
 export function useLesson(id: string): LessonDetail {
   const { key, fetch } = content.lesson(id);
   return useContent(key, fetch);

@@ -134,7 +134,8 @@ describe('Module page', () => {
     await renderAt('/learn/oop-solid');
 
     expect(screen.getByRole('heading', { level: 1, name: 'OOP & SOLID' })).toBeInTheDocument();
-    expect(screen.getByText('5 lessons · 35 min')).toBeInTheDocument();
+    expect(screen.getByText(/5 lessons · 35 min/)).toBeInTheDocument();
+    expect(screen.getByLabelText('0 of 5 lessons done')).toHaveTextContent('0/5');
     const rows = within(screen.getByRole('region', { name: 'Lessons' })).getAllByRole('link');
     expect(rows.map((row) => row.getAttribute('href'))).toEqual([
       '/learn/oop-solid/srp',

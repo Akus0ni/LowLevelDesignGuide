@@ -70,3 +70,19 @@ export function activityWeek(activityDays: readonly string[], today: Date): Acti
     return { day, label, active: active.has(day), isToday: index === sinceMonday };
   });
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const relative = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+/** "today", "yesterday", "3 days ago", "2 weeks ago", "4 months ago": by local calendar day, for "Revised …". */
+export function timeAgo(iso: string, now: Date): string {
+  const then = new Date(iso);
+  const days = Math.round(
+    (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) -
+      Date.UTC(then.getFullYear(), then.getMonth(), then.getDate())) /
+      DAY_MS,
+  );
+  if (days < 7) return relative.format(-Math.max(days, 0), 'day');
+  if (days < 30) return relative.format(-Math.floor(days / 7), 'week');
+  return relative.format(-Math.max(1, Math.floor(days / 30)), 'month');
+}
