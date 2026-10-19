@@ -8,6 +8,7 @@ import { createDataSource } from './data/createDataSource';
 import { warmUpHighlighter } from './features/content/markdown/highlighter';
 import { DataSourceProvider } from './data/DataSourceContext';
 import { AuthProvider } from './features/auth/AuthProvider';
+import { ProgressProvider } from './features/progress/ProgressProvider';
 import { ServerStatusProvider } from './features/serverStatus/ServerStatusProvider';
 import '@fontsource-variable/bricolage-grotesque/opsz.css';
 import '@fontsource-variable/jetbrains-mono';
@@ -22,7 +23,9 @@ createRoot(document.getElementById('root')!).render(
     <DataSourceProvider source={createDataSource()}>
       <ServerStatusProvider>
         <AuthProvider>
-          <RouterProvider router={router} />
+          <ProgressProvider>
+            <RouterProvider router={router} />
+          </ProgressProvider>
         </AuthProvider>
       </ServerStatusProvider>
     </DataSourceProvider>
