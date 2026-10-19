@@ -1,0 +1,42 @@
+title: GoF Design Patterns
+order: 2
+summary: The 23 named designs from the Gang of Four book, each with its shape, its modern C# form and when it hurts.
+template: pattern
+# A phrase spells with the first letter of each word; each letter starts the title of its lesson.
+mnemonics: ["Smart Builders Always Follow Plans: singleton, builder, abstract-factory, factory-method, prototype"]
+# Node ids are lesson folder names; each subgraph is a category (a block of the periodic table). Links read
+# "<from> <label> <to>": patterns that travel together. Put spaces around arrows.
+map: |
+  flowchart TD
+    subgraph creational["Creational: making objects"]
+      singleton["Singleton"]
+      factory-method["Factory Method"]
+      abstract-factory["Abstract Factory"]
+      builder["Builder"]
+      prototype["Prototype"]
+    end
+    abstract-factory -->|"is often built from"| factory-method
+    abstract-factory -->|"is usually one"| singleton
+    abstract-factory -->|"can clone its products with"| prototype
+    builder -->|"can get its parts from"| abstract-factory
+# "Which pattern?" (spec 006 §3.6): every lesson must be reachable; each path asks at most 4 questions.
+picker:
+  start: create
+  questions:
+    create:
+      ask: "What is hard about creating the object?"
+      answers:
+        - { label: "There must be exactly one, shared by everyone", pick: [singleton], why: "One instance, one way to reach it." }
+        - { label: "The caller shouldn't know the concrete class", next: family }
+        - { label: "It has many optional parts", pick: [builder], why: "Set the parts step by step, check the whole once at the end." }
+        - { label: "Copying a ready-made one is easier", pick: [prototype], why: "Clone a configured object instead of building it again." }
+    family:
+      ask: "One kind of product, or a family of products that must match?"
+      answers:
+        - { label: "One kind of product", pick: [factory-method], why: "A subclass (or a delegate) decides which class to make." }
+        - { label: "A family that must match", pick: [abstract-factory], why: "One factory makes every product of one family, so they never mix." }
+# Look-alikes (spec 006 §3.7): the one difference, and the question that tells them apart.
+lookalikes:
+  - patterns: [factory-method, abstract-factory, builder]
+    difference: "Factory Method makes one product; Abstract Factory makes a matching family; Builder assembles one product step by step."
+    ask: "One thing, a matching set, or one thing with many parts?"

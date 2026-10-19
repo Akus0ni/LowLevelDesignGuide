@@ -20,16 +20,18 @@ public sealed class RepositoryContentTests
     }
 
     /// <summary>
-    /// Spec 004 A2 (amended): a concept lesson is a short visual card; the detail waits in "Go deeper", which doesn't
-    /// count towards reading time.
+    /// Spec 004 A2 (amended), spec 006 A2: a concept or pattern lesson is a short visual card; the detail waits in
+    /// "Go deeper", which doesn't count towards reading time.
     /// </summary>
-    [Fact]
-    public void OopSolidLessons_AreShortCards_WithAGoDeeperSection()
+    [Theory]
+    [InlineData("oop-solid")]
+    [InlineData("gof-patterns")]
+    public void ConceptLessons_AreShortCards_WithAGoDeeperSection(string module)
     {
         const int MaximumCardMinutes = 8;
         var pack = new ContentPipeline(new PhysicalContentFiles(RepositoryRoot()), new ContentOptions()).Build().Pack!;
 
-        var lessons = pack.Modules.Single(m => m.Slug == "oop-solid").Lessons;
+        var lessons = pack.Modules.Single(m => m.Slug == module).Lessons;
 
         lessons.Should().NotBeEmpty();
         lessons.Should().AllSatisfy(lesson =>

@@ -1,4 +1,4 @@
 title: Case studies
-# After OOP & SOLID (1), design patterns (2) and UML (3).
-order: 4
+# After OOP & SOLID (1), GoF patterns (2), Enterprise & .NET patterns (3) and UML (4).
+order: 5
 summary: Real systems designed class by class, from requirements to working C# code.
