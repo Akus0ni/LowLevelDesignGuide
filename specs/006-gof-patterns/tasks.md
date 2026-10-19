@@ -1,6 +1,6 @@
 # Spec 006: Tasks
 
-- [ ] T1 `samples/Lld.Samples.Patterns` skeleton, slnx folder, `Lld.Samples.Tests` reference; CI green
+- [x] T1 `samples/Lld.Samples.Patterns` skeleton, slnx folder, `Lld.Samples.Tests` reference; CI green
 - [ ] T2 Structured YAML values (`YamlEntry.Node`, `FieldKind.Structured`); phrase mnemonics (`Letters`, `Words`, shared test vector)
 - [ ] T3 Template `pattern`: schema, `symbol`, `ConceptLessons` / `PatternLessons`, `PatternSections`, `OVERUSE` callout type; rules `PatternSectionsRule`, `PatternStructureRule`, `PatternCompareRule`, `OveruseStampRule`, `SymbolRule` (+ fixtures)
 - [ ] T4 Picker + look-alikes: `PickerTree`, `Lookalikes`, `PickerRule`, `LookalikesRule`; contracts, pack format 3, device step 5, catalogs, web types

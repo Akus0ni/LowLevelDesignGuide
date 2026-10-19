@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Compiled C# for the GoF and Enterprise pattern lessons (spec 006). One folder per pattern under its category,
+       with Before / After / Modern namespaces; lessons quote these types by name and Lld.Samples.Tests proves them. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>
