@@ -182,7 +182,8 @@ describe('Profile progress', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Reset OOP & SOLID' })));
     await act(async () => vi.advanceTimersByTimeAsync(FLUSH_DELAY_MS));
 
-    const saved = vi.mocked(data.saveLessonProgress).mock.calls.at(-1)![0];
+    const calls = vi.mocked(data.saveLessonProgress).mock.calls;
+    const saved = calls[calls.length - 1][0];
     expect(saved.map((r) => [r.lessonId, r.status])).toEqual([
       ['srp', 'notStarted'],
       ['ocp', 'notStarted'],
