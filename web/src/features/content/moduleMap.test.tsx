@@ -58,6 +58,22 @@ describe('ModuleMnemonics', () => {
   });
 });
 
+describe('ModuleMnemonics (phrase)', () => {
+  it('inks the first letter of each word and keeps one row per lesson', async () => {
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <ModuleMnemonics mnemonics={[{ word: 'Some Order', lessons: ['srp', 'ocp'] }]} lessons={lessons} />
+        </MemoryRouter>,
+      );
+    });
+
+    const figure = screen.getByRole('figure', { name: /Some Order/ });
+    expect([...figure.querySelectorAll('figcaption b')].map((b) => b.textContent)).toEqual(['S', 'O']);
+    expect(within(figure).getAllByRole('link').map((row) => row.textContent)).toEqual(['SSRP', 'OOCP']);
+  });
+});
+
 describe('relationsOf', () => {
   it('lists outgoing links first, then incoming, with a default wording', () => {
     expect(relationsOf(map, 'lsp')).toEqual([

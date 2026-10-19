@@ -1369,6 +1369,32 @@
     }
   }
 
+  /* OVERUSE (spec 006 §3.8): REMEMBER's stamp in the warning tone; its body is a short list, so normal text size. */
+  .reader-prose .callout[data-callout='overuse'] {
+    --tone: var(--tone-rose);
+    clip-path: none;
+    border: 2px solid var(--tone-rose);
+    border-radius: 0.75rem;
+    background: color-mix(in oklab, var(--tone-rose) 6%, var(--surface));
+    outline: 1px dashed color-mix(in oklab, var(--tone-rose) 45%, transparent);
+    outline-offset: -8px;
+    padding: 1em 1.3em 1.05em;
+
+    &::after {
+      content: none;
+    }
+
+    & .callout-label {
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    & ul {
+      margin-block: 0;
+    }
+  }
+
   /* Module mnemonics: acrostics. The giant first letters spell the word down the left edge. */
   .mnemonics {
     display: grid;
@@ -1396,6 +1422,28 @@
     font-size: 1.6rem;
     font-weight: 700;
     letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  /* A phrase: each word's first letter inked, the rest of the word in pencil; it wraps like a sentence. */
+  .mnemonic-word[data-phrase] {
+    flex-wrap: wrap;
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  .mnemonic-phrase {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.35em;
+    color: var(--muted);
+  }
+
+  .mnemonic-phrase-word b {
+    font-size: 1.45em;
+    font-weight: 800;
     color: var(--accent);
   }
 
