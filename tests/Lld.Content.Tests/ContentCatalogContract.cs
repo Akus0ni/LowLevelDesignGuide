@@ -39,7 +39,8 @@ public abstract class ContentCatalogContract
         module!.Title.Should().Be("Case studies");
         module.Lessons.Select(l => l.Id).Should().Equal("case-study-auth", "case-study-parking", "case-study-lru");
         module.Lessons[0].Should().BeEquivalentTo(new LessonSummary(
-            "case-study-auth", "case-studies", "auth", "Authentication", "Authentication in one sentence.", 1, 3, ["tag-b", "tag-a"]),
+            "case-study-auth", "case-studies", "auth", "Authentication", "Authentication in one sentence.", 1, 3, ["tag-b", "tag-a"],
+            SectionCount: 1),
             options => options.WithStrictOrdering());
     }
 

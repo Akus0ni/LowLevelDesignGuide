@@ -82,8 +82,8 @@ const caseStudies: ModuleDetail = {
   title: 'Case studies',
   summary: 'Real systems.',
   lessons: [
-    { ...auth, tags: [] },
-    { ...auth, id: 'case-study-parking', slug: 'parking-lot', title: 'Parking lot', order: 2 },
+    { ...auth, tags: [], sectionCount: auth.outline.length },
+    { ...auth, id: 'case-study-parking', slug: 'parking-lot', title: 'Parking lot', order: 2, sectionCount: 3 },
   ],
 };
 

@@ -60,6 +60,8 @@ export interface LessonSummary {
   icon?: string | null;
   /** A phrase to remember, at most 40 characters ("Ask, don't touch"). */
   hook?: string | null;
+  /** Outline entries: the sections a reader ticks off (spec 005, "3 of 5 sections"). */
+  sectionCount: number;
 }
 
 /** Mirrors Lld.Contracts.ModuleDetail. */
@@ -123,7 +125,8 @@ export interface LessonLink {
 }
 
 /** Mirrors Lld.Contracts.LessonDetail. Links in `bodyMarkdown` are already app routes or full URLs. */
-export interface LessonDetail extends LessonSummary {
+/** A detail has the whole outline, so it doesn't repeat the summary's section count. */
+export interface LessonDetail extends Omit<LessonSummary, 'sectionCount'> {
   moduleTitle: string;
   bodyMarkdown: string;
   outline: OutlineEntry[];

@@ -16,6 +16,7 @@ const lesson = (moduleSlug: string, slug: string, title: string, minutes: number
   summary: `About ${title}.`,
   order: 1,
   readingMinutes: minutes,
+  sectionCount: 4,
   tags: [],
 });
 

@@ -63,6 +63,7 @@ const caseStudies: ModuleDetail = {
       summary: 'x',
       order: 1,
       readingMinutes: 8,
+      sectionCount: 4,
       tags: [],
     },
   ],
