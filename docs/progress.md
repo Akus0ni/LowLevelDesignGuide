@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-20 (spec 005 ready for review)_
+_Last updated: 2026-10-20 (spec 005 merged; spec 006 spec drafted)_
 
 ## Where we are
 | Item | Status |
@@ -16,7 +16,8 @@ _Last updated: 2026-10-20 (spec 005 ready for review)_
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
 | Spec 003 Content engine | ✅ Merged (PR #5) |
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
-| Spec 005 Progress | 🔍 PR #7 ready for owner review |
+| Spec 005 Progress | ✅ Merged (PR #7) |
+| Spec 006 Design patterns | 📝 `spec.md` drafted, owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -27,8 +28,8 @@ _Last updated: 2026-10-20 (spec 005 ready for review)_
 | 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
 | 004 | OOP & SOLID content | ✅ merged (PR #6) |
-| 005 | Progress | 🔍 PR #7, owner review |
-| 006 | GoF patterns content | planned |
+| 005 | Progress | ✅ merged (PR #7) |
+| 006 | GoF + Enterprise patterns content | 📝 spec in review |
 | 007 | Notes & bookmarks | planned |
 | 008 | UML content | planned |
 | 009 | Search | planned |
@@ -129,9 +130,17 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Manual run on Windows + Android (upgrade V3 → V4, restart, offline). Details: `specs/005-progress/plan.md` §5.
 - Open question for the owner: fling-to-end marks a lesson done (spec 003 tick rule). Keep?
 
+## Spec 006: where it stands (2026-10-20)
+- Owner choices: all 23 GoF + 5 extras in their own module "Enterprise & .NET patterns"; spec 004 card + structure,
+  Modern C#, Seen in .NET, look-alikes, travels with, Overuse stamp; reader gets a periodic table, a "Which pattern?"
+  picker and a look-alike compare; Claude proposes category mnemonics; review in category batches.
+- `specs/006-gof-patterns/spec.md` drafted on `spec/006-gof-patterns`; §8 lists the open questions for the owner.
+- Spec 005 open question (fling-to-end marks done): owner will decide later.
+
 ## How to resume (next session)
-1. If PR #7 is merged: `git switch main && git pull`, then ask the owner before starting spec 006 (GoF patterns).
-2. If changes were requested: `git switch spec/005-progress`, apply them, push, and update the PR.
+1. `git switch spec/006-gof-patterns`. If the spec is approved, write `plan.md` + `tasks.md`, then implement
+   (reader features + samples first, then content batches with owner review between them).
+2. If spec changes were requested, edit `spec.md` and ask again.
 3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
 4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.
