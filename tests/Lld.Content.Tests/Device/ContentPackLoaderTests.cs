@@ -1,5 +1,7 @@
 using FluentAssertions;
 using Lld.App.Data.Content;
+using Lld.App.Data.Progress;
+using Lld.Domain.Progress;
 using Microsoft.Data.Sqlite;
 
 namespace Lld.Content.Tests.Device;
@@ -54,6 +56,22 @@ public sealed class ContentPackLoaderTests : IDisposable
         result.Should().Be(new ContentLoadResult(Loaded: true, "v-2"));
         (await Catalog.GetModulesAsync(Ct)).Select(m => m.Slug).Should().Equal("start");
         (await Catalog.GetLessonAsync("case-study-auth", Ct)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task NewVersion_KeepsEveryonesProgress_EvenForLessonsThatLeft()
+    {
+        await _device.MigrateAsync(Ct);
+        await _device.LoadAsync(TestPacks.Sample(), Ct);
+        var progress = new SqliteProgressStore(_device.Database);
+        var opened = new LessonProgress("case-study-auth", LessonStatus.InProgress, null, null, ["rule"], null,
+            DateTimeOffset.UnixEpoch, null, DateTimeOffset.UnixEpoch, "device-a");
+        await progress.SaveLessonsAsync(ProgressOwner.Guest, [opened], Ct);
+        var smaller = TestPacks.Sample() with { Version = "v-2", Modules = [TestPacks.Sample().Modules[1]] };
+
+        await Loader.EnsureLoadedAsync(new FakePackSource(smaller), Ct);
+
+        (await progress.GetAsync(ProgressOwner.Guest, Ct)).Lessons.Should().ContainSingle(l => l.LessonId == "case-study-auth");
     }
 
     [Fact]

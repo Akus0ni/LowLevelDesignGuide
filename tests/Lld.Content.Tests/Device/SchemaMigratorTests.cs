@@ -22,7 +22,7 @@ public sealed class SchemaMigratorTests : IDisposable
         (await SchemaMigrator.ReadVersionAsync(connection, Ct)).Should().Be(SchemaMigrator.All.Count);
         (await Scalar(connection, "PRAGMA journal_mode;")).Should().Be("wal");
         (await Scalar(connection, "SELECT group_concat(name, ',') FROM (SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name);"))
-            .Should().Be("DeviceMeta,Lessons,Modules");
+            .Should().Be("ActivityDays,DeviceMeta,LessonProgress,Lessons,Modules");
     }
 
     [Fact]
@@ -62,11 +62,23 @@ public sealed class SchemaMigratorTests : IDisposable
             await insert.ExecuteNonQueryAsync(Ct);
         }
 
-        (await _device.MigrateAsync(Ct)).Should().Be(2);
+        (await _device.MigrateAsync(Ct)).Should().Be(SchemaMigrator.All.Count - 1);
 
         await using var check = await _device.Database.OpenAsync(Ct);
         (await Scalar(check, "SELECT TermsJson FROM Lessons WHERE Id = 'l';")).Should().Be("[]");
         (await Scalar(check, "SELECT coalesce(MapJson, 'none') FROM Modules WHERE Slug = 'm';")).Should().Be("none");
+    }
+
+    [Fact]
+    public async Task V4_AddsEmptyProgressTablesToAV3Database()
+    {
+        await new SchemaMigrator(_device.Database, [new V1ContentTables(), new V2LessonTerms(), new V3ModuleMap()]).MigrateAsync(Ct);
+
+        (await _device.MigrateAsync(Ct)).Should().Be(1);
+
+        await using var connection = await _device.Database.OpenAsync(Ct);
+        (await Scalar(connection, "SELECT count(*) FROM LessonProgress;")).Should().Be("0");
+        (await Scalar(connection, "SELECT count(*) FROM ActivityDays;")).Should().Be("0");
     }
 
     [Fact]
