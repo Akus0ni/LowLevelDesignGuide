@@ -4,6 +4,7 @@ import type { LessonDetail, ModuleDetail } from '../../data/types';
 import { content, preloadContent, useLesson, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { DoneControl } from '../progress/DoneControl';
+import { useModuleCompleteToast } from '../progress/moduleCelebration';
 import { Icon } from '../../ui/Icon';
 import { BackLink } from './BackLink';
 import { LessonIcon } from './LessonIcon';
@@ -40,6 +41,7 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
   const source = useDataSource();
   const textSize = useTextSize();
   const reading = useReadingTracker(lesson.id, lesson.outline);
+  useModuleCompleteToast(module);
   useAnchorScroll();
 
   // The next lesson is the likeliest tap: have it ready.

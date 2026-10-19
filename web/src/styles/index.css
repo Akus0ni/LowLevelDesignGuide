@@ -1636,3 +1636,58 @@
     );
   }
 }
+
+/*
+ * Module complete (spec 005 §3.8), shown once: the frame inks (240 ms), then the «complete» stamp presses down onto the
+ * paper (from 1.12 to 1, 360 ms after a 240 ms wait: 600 ms in all, the Learn intro's budget). Reduced motion: a fade.
+ */
+@layer components {
+  .complete-stamp {
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid var(--fg);
+    border-radius: 0.5rem;
+    outline: 1px dashed color-mix(in oklab, var(--fg) 45%, transparent);
+    outline-offset: -6px;
+    padding: 0.45em 0.85em;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--fg);
+    transform: rotate(-2deg);
+    user-select: none;
+
+    &[data-fresh] {
+      animation: stamp-press 360ms var(--ease-out) 240ms both;
+    }
+  }
+
+  .module-frame[data-fresh] {
+    animation: frame-ink 240ms var(--ease-out) both;
+  }
+
+  @keyframes stamp-press {
+    from {
+      opacity: 0;
+      transform: rotate(-2deg) scale(1.12);
+    }
+  }
+
+  @keyframes frame-ink {
+    from {
+      border-color: var(--rule);
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .complete-stamp[data-fresh] {
+      animation: appear 150ms ease both;
+    }
+
+    .module-frame[data-fresh] {
+      animation: none;
+    }
+  }
+}

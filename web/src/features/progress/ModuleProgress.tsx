@@ -23,3 +23,12 @@ export function ModuleHatch({ count }: { count: Count }) {
     />
   );
 }
+
+/** «complete», pressed onto a finished module like the REMEMBER stamp: ink, double frame, slightly askew. */
+export function CompleteStamp({ fresh }: { fresh: boolean }) {
+  return (
+    <span className="complete-stamp" data-fresh={fresh || undefined}>
+      «complete»
+    </span>
+  );
+}

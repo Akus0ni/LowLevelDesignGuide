@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
+import { toast } from 'sonner';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { routes } from '../../app/routes';
-import type { CheatSheetSummary, DataSource, LessonProgress, LessonSummary, ModuleDetail } from '../../data/types';
+import type { CheatSheetSummary, DataSource, LessonDetail, LessonProgress, LessonSummary, ModuleDetail } from '../../data/types';
 import { AppProviders } from '../../test/AppProviders';
 import { fakeDataSource } from '../../test/fakeDataSource';
 import { FLUSH_DELAY_MS } from './progressStore';
@@ -67,7 +68,22 @@ function source(lessons: LessonProgress[] = [], activityDays: string[] = []): Da
         sheet('oop-solid', 'OOP & SOLID', 'ocp', 'OCP'),
       ]),
     getProgress: vi.fn().mockResolvedValue({ lessons, activityDays }),
+    getLesson: vi.fn().mockImplementation((id: string) => Promise.resolve(detail(id))),
   });
+}
+
+function detail(id: string): LessonDetail {
+  const summary = modules.flatMap((m) => m.lessons).find((l) => l.id === id)!;
+  return {
+    ...summary,
+    moduleTitle: modules.find((m) => m.slug === summary.moduleSlug)!.title,
+    bodyMarkdown: ['# Title', '', '## One', '', 'Text.'].join(String.fromCharCode(10)),
+    outline: [{ level: 2, text: 'One', anchor: 'one' }],
+    cheatSheetTitle: 'Cheat sheet',
+    previous: null,
+    next: null,
+    terms: [],
+  };
 }
 
 async function renderAt(path: string, data: DataSource) {
@@ -193,3 +209,49 @@ describe('Profile progress', () => {
     expect(within(progress).getByText('lessons done').parentElement).toHaveTextContent('1 of 4');
   });
 });
+
+describe('Module complete (spec 005 §3.8)', () => {
+  it('presses the «complete» stamp in the first time only', async () => {
+    const data = source([record('how-to-use', 'done')]);
+    const { unmount } = await renderView('/learn/start', data);
+
+    expect(await screen.findByText('«complete»')).toHaveAttribute('data-fresh');
+    expect(screen.getByRole('region', { name: 'Lessons' })).toHaveAttribute('data-inked');
+    unmount();
+
+    await renderView('/learn/start', source([record('how-to-use', 'done')]));
+    expect(await screen.findByText('«complete»')).not.toHaveAttribute('data-fresh');
+  });
+
+  it('shows no stamp while a lesson is left', async () => {
+    await renderView('/learn/oop-solid', source([record('srp', 'done')]));
+
+    await screen.findByRole('region', { name: 'Lessons' });
+    expect(screen.queryByText('«complete»')).not.toBeInTheDocument();
+  });
+
+  it('says so with a toast when the last lesson is finished from the lesson page', async () => {
+    const success = vi.spyOn(toast, 'success');
+    await renderView('/learn/start/how-to-use', source());
+    // The reader is loaded on first use, which can take a moment in a cold test run.
+    const mark = await screen.findByRole('button', { name: 'Mark as done' }, { timeout: 5000 });
+
+    await act(async () => fireEvent.click(mark));
+
+    expect(success).toHaveBeenCalledWith('Start here complete', { description: 'All 1 lessons done.' });
+    success.mockRestore();
+  });
+});
+
+async function renderView(path: string, data: DataSource) {
+  const router = createMemoryRouter(routes, { initialEntries: [path] });
+  let view!: ReturnType<typeof render>;
+  await act(async () => {
+    view = render(
+      <AppProviders source={data}>
+        <RouterProvider router={router} />
+      </AppProviders>,
+    );
+  });
+  return view;
+}
