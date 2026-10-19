@@ -174,6 +174,43 @@ export class AppError extends Error {
   }
 }
 
+// ---- Progress (spec 005). Mirrors Lld.Contracts.LessonProgressDto / ProgressSnapshotDto. --------------------------
+
+export type LessonStatus = 'notStarted' | 'inProgress' | 'done';
+
+/** How a lesson became done: every section was read, or the learner marked it. */
+export type DoneBy = 'auto' | 'manual';
+
+export interface ReadingPosition {
+  /** Nearest heading above the top of the screen ('' = above the first heading). */
+  anchor: string;
+  /** Pixels scrolled past that heading. */
+  offset: number;
+}
+
+/** One learner's progress with one lesson. A lesson with no record is not started. Dates are ISO 8601 strings. */
+export interface LessonProgress {
+  lessonId: string;
+  status: LessonStatus;
+  doneBy: DoneBy | null;
+  completedAt: string | null;
+  /** Outline anchors already read (the outline's ticks). */
+  readSections: string[];
+  position: ReadingPosition | null;
+  lastReadAt: string | null;
+  lastRevisedAt: string | null;
+  /** When this record last changed: the later edit wins. */
+  updatedAt: string;
+  /** Filled in by the data source (device id in the app, browser id in dev mode). */
+  deviceId: string;
+}
+
+export interface ProgressSnapshot {
+  lessons: LessonProgress[];
+  /** Local days (yyyy-MM-dd) with reading or revising, oldest first. */
+  activityDays: string[];
+}
+
 /**
  * The only way UI code reads or writes data. Two strategies implement it:
  * HttpDataSource (browser, talks to the API) and BridgeDataSource (inside the MAUI app).
@@ -208,6 +245,13 @@ export interface DataSource {
   getCheatSheet(lessonId: string): Promise<CheatSheetDetail>;
   /** Opens an http(s) link outside the app: the system browser in MAUI, a new tab in the browser. */
   openExternal(url: string): Promise<void>;
+
+  // Progress (spec 005): the signed-in user's, or this device's guest's. The data source decides whose.
+  getProgress(): Promise<ProgressSnapshot>;
+  /** Saves records (reading, marks, resets); per lesson the later `updatedAt` wins. */
+  saveLessonProgress(records: LessonProgress[]): Promise<void>;
+  /** Remembers a local day (yyyy-MM-dd) with reading or revising. */
+  recordActivity(day: string): Promise<void>;
 }
 
 /** Shape of window.HybridWebView, injected by _framework/hybridwebview.js inside the MAUI app. */

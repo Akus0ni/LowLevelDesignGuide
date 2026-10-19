@@ -10,7 +10,9 @@ import {
   type HybridWebViewBridge,
   type LessonDetail,
   type ModuleDetail,
+  type LessonProgress,
   type ModuleSummary,
+  type ProgressSnapshot,
   type ServerStatus,
   type UserSummary,
 } from './types';
@@ -139,6 +141,21 @@ export class BridgeDataSource implements DataSource {
 
   async openExternal(url: string): Promise<void> {
     await this.call('OpenExternal', [url]);
+  }
+
+  // Progress: kept on the device by C#, which knows whose it is (the stored session's user, or the guest).
+
+  async getProgress(): Promise<ProgressSnapshot> {
+    return toCamelCaseDeep(await this.call('GetProgress')) as ProgressSnapshot;
+  }
+
+  async saveLessonProgress(records: LessonProgress[]): Promise<void> {
+    // One JSON string argument: C# reads it with its own camelCase settings, whatever the bridge's defaults are.
+    await this.call('SaveLessonProgress', [JSON.stringify(records)]);
+  }
+
+  async recordActivity(day: string): Promise<void> {
+    await this.call('RecordActivity', [day]);
   }
 
   /** Content records are nested (outline, previous / next), so convert every key at once instead of picking. */

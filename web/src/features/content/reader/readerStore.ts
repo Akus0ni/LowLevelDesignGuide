@@ -4,14 +4,11 @@
  * every access is guarded and the reader still works without it.
  */
 
-export type TextSize = 's' | 'm' | 'l';
+import type { ReadingPosition } from '../../../data/types';
 
-export interface ReadingPosition {
-  /** Nearest heading above the top of the screen ('' = above the first heading). */
-  anchor: string;
-  /** Pixels scrolled past that heading. */
-  offset: number;
-}
+export type { ReadingPosition };
+
+export type TextSize = 's' | 'm' | 'l';
 
 const PREFIX = 'lld.reader.';
 const TEXT_SIZE_KEY = `${PREFIX}textSize`;
