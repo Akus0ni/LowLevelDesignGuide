@@ -38,6 +38,8 @@ describe('ProgressStore', () => {
     await store.ready;
 
     expect(store.getSnapshot().byId.get('ocp')).toEqual(stored);
+    expect(store.getSnapshot().byId.has('lsp')).toBe(false); // opened once, never scrolled: not "in progress"
+    expect(localStorage.getItem('lld.reader.position.lsp')).toBeNull();
     expect(store.getSnapshot().activityDays).toEqual(['2026-10-18']);
   });
 
@@ -130,6 +132,7 @@ describe('legacy import (spec 003 localStorage)', () => {
     localStorage.setItem('lld.reader.read.srp', JSON.stringify(['rule', 'picture']));
     localStorage.setItem('lld.reader.position.srp', JSON.stringify({ anchor: 'picture', offset: 30 }));
     localStorage.setItem('lld.reader.position.ocp', JSON.stringify({ anchor: 'rule', offset: 0 }));
+    localStorage.setItem('lld.reader.position.lsp', JSON.stringify({ anchor: '', offset: 0 }));
     localStorage.setItem('lld.reader.textSize', JSON.stringify('l'));
     const source = fakeDataSource({ getProgress: vi.fn().mockResolvedValue({ lessons: [stored], activityDays: [] }) });
 

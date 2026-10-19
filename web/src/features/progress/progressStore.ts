@@ -136,11 +136,14 @@ export class ProgressStore {
     else run();
   }
 
-  /** Spec 003's device-only ticks and positions become in-progress records for whoever owns progress now. */
+  /**
+   * Spec 003's device-only ticks and positions become in-progress records for whoever owns progress now. Only real
+   * reading counts: spec 003 saved a position for every lesson ever opened, even one left at the very top.
+   */
   private importLegacy(legacy: Map<string, LegacyReading>): void {
     const now = this.now().toISOString();
     const imported = [...legacy]
-      .filter(([lessonId]) => !this.state.byId.has(lessonId))
+      .filter(([lessonId, reading]) => !this.state.byId.has(lessonId) && wasRead(reading))
       .map(([lessonId, reading]): LessonProgress => ({
         lessonId,
         status: 'inProgress',
@@ -215,4 +218,9 @@ export class ProgressStore {
   private readonly flushWhenHidden = () => {
     if (document.visibilityState === 'hidden') void this.flush();
   };
+}
+
+/** Some sections ticked, or a reading position below the top of the lesson. */
+function wasRead({ readSections, position }: LegacyReading): boolean {
+  return readSections.length > 0 || (position !== null && (position.anchor !== '' || position.offset > 0));
 }
