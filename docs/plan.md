@@ -133,15 +133,19 @@ LowLevelDesignGuide/
 │  ├─ Lld.Api/                # Minimal API endpoints (runs as a Windows service when hosted)
 │  ├─ Lld.Admin/              # Admin console: access requests, users, temporary passwords
 │  ├─ Lld.Contracts/          # DTOs shared by Api + App
+│  ├─ Lld.Wire/               # user data (progress) domain ↔ contracts mapping, shared by Api + App (spec 005)
+│  ├─ Lld.App.Data/           # device SQLite: content catalog, schema steps, progress store
 │  ├─ Lld.Content/            # Markdown + front-matter parser (ContentLoader), shared by App + Api
 │  └─ Lld.App/                # MAUI: HybridWebView shell, BridgeService, local DB, sync
 ├─ tests/
-│  ├─ Lld.Domain.Tests/  Lld.Application.Tests/  Lld.Api.Tests/
+│  ├─ Lld.Domain.Tests/  Lld.Application.Tests/  Lld.Api.Tests/  Lld.Content.Tests/
+│  ├─ Lld.Progress.Tests/     # one progress-store contract run against in-memory, device SQLite and EF Core
 │  └─ Lld.IntegrationTests/   # Aspire.Hosting.Testing
 └─ LowLevelDesignGuide.slnx
 ```
 Dependency rule: `Domain ← Application ← Infrastructure ← Api` (and `← Admin`); `Contracts` has no
-dependencies; `App` depends on `Contracts` (+ its own local infrastructure).
+dependencies; `App` depends on `Contracts` (+ its own local infrastructure: `Lld.App.Data`, which uses `Domain` and
+`Wire`). `Wire` depends only on `Contracts` and `Domain`.
 
 ## 3. Spec roadmap
 
@@ -229,6 +233,9 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | 2026-10-16 | Lesson C# is **quoted from compiled code by symbol** (Roslyn 5.0.0, the version EF Core Design pins); concept modules can't contain inline C# (PRD R77) |
 | 2026-10-16 | The **module map is drawn by the app** as «package» boxes from a Mermaid flowchart parsed at pack time (PRD R81) |
 | 2026-10-17 | Lessons are **short visual cards with memory aids** and a folded "Go deeper" (owner: simple, memorable, little text; PRD R82, R83) |
+| 2026-10-19 | **Progress per user, guest on the device** adopted at sign-in; stored on device and API now, synced in spec 010 (PRD R85–R88) |
+| 2026-10-19 | **Activity strip instead of a streak**: the one exception to "no gamification" (PRD §3, R89) |
+| 2026-10-19 | Progress transitions live in the web app; the domain only stores, compares (last-write-wins) and merges records, shared through `Lld.Wire` |
 
 ## 8. Phase 2: Apple builds (deferred 2026-10-14)
 Owner decision: Apple CI does not block PRs until Phase 2. The job is kept, ready to run, in

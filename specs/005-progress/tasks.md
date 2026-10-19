@@ -13,6 +13,6 @@
 - [x] T11 Motion: Done check, module-complete stamp, once-only memory, reduced motion
 - [x] T12 UI pass with the skills: screenshot critique (phone light / dark, desktop) + `break-ui` worst case; fixes
 - [x] T13 Playwright: progress flows (A1, A3, A7, A9, A14) on phone + desktop
-- [ ] T14 Manual run: Windows + Android (A4, A5, A11: restart, airplane mode, two accounts, guest adoption, V3 → V4 upgrade); screenshots
-- [ ] T15 Docs: PRD (R85+, F4 note, §3 activity-strip exception, v0.7), `docs/plan.md`, plan §5 outcomes, progress log
+- [x] T14 Manual run: Windows + Android (A4, A5, A11: restart, airplane mode, two accounts, guest adoption, V3 → V4 upgrade); screenshots
+- [x] T15 Docs: PRD (R85+, F4 note, §3 activity-strip exception, v0.7), `docs/plan.md`, plan §5 outcomes, progress log
 - [ ] T16 PR with the acceptance-criteria table

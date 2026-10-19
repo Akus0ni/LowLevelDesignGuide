@@ -199,4 +199,48 @@ web/src/features/progress/
   a finding, not changed here.
 
 ## 5. Outcomes
-*(filled in at the end of the spec)*
+
+### Changes from this plan
+1. **`Lld.Wire`** (new project): the API and the app bridge both map progress records ↔ DTOs, so the mapping lives
+   once, in a library that depends only on `Contracts` and `Domain` (instead of two copies or breaking the rule that
+   `Contracts` has no dependencies).
+2. **`IProgressStore` has no `DeleteAllAsync`**: only the device needs it (emptying the guest), so it is
+   `SqliteProgressStore.AdoptGuestAsync`, which merges and deletes in one transaction.
+3. **Endpoints** as in §2.4: batch `PUT /api/progress/lessons`, no `DELETE` (a reset is a write).
+4. **Changes made while progress is still loading** wait and are applied on top of the loaded data (found by a test:
+   computing them against an empty state overwrote a stored "done").
+5. **"Revised" needs the end on screen for 2 s** (`END_DWELL_MS`): a short cheat sheet's end is visible as soon as it
+   opens, so a mistaken open would otherwise count.
+6. **Celebrations remembered per owner** in localStorage (`lld.celebrated.<owner>`), not in the synced record.
+7. **Legacy import keeps only real reading** (T14 finding): spec 003 saved a position for every lesson ever opened, so
+   on the owner's Windows install the first upgrade turned all 15 opened lessons into "in progress". Now only ticks or
+   a position below the top are imported.
+
+### UI pass (T12)
+Skills: `frontend-design`, `emil-design-eng`, `apple-design`, `animate`, `mobile-native`, `break-ui`.
+- Revise: two adjacent "All" controls → the revised filter reuses Profile's segmented control ("All sheets" /
+  "Not revised"); "Not revised yet" is ink, not action-blue.
+- 320 px worst case: the Continue card grew a screen tall (title clamped to 3 lines, module name to 1); module rows
+  squeezed titles to ~7 characters (reading time moved under the text).
+- Learn: emoji touched the lesson title (spec 004 leftover; icon box widened).
+- New `break-ui` case: a 40-lesson module nearly done, the longest title in progress, every day active.
+
+### T14: manual run (2026-10-20)
+| Check | Where | Result |
+|---|---|---|
+| A11 upgrade V3 → V4 | Windows (owner's spec 004 database) and Android (installed over the spec 004 Release build) | ✅ schema 4, progress tables added, all 17 lessons kept |
+| A4 restart + offline | Windows (no server: Debug targets Aspire, not running); Android in airplane mode | ✅ mark done → force-stop → relaunch: still done, counts and Profile right |
+| Bridge writes | both | ✅ guest rows with the device id; study day recorded |
+| Legacy import | Windows | ✅ imported; found the over-import fixed in change 7 |
+| A5 two accounts, guest adoption | — | ⚠️ not run by hand (needs the API and real sign-ins on a device); covered by `DeviceProgressTests`, `SqliteProgressStoreTests`, `progressData.test.ts` and the API adopt tests |
+
+Screenshots: `screenshots/windows-*.png`, `screenshots/android-*.png`, plus the T12 set.
+
+### Open question for the owner
+Scrolling straight to the end of a lesson ticks every section (spec 003 rule), so a fast fling to the bottom marks the
+lesson done by itself. Keep, or require time on each section?
+
+### Final numbers
+.NET: domain 54 · application 38 · API 41 · admin 11 · server status 30 · content 252 · progress stores 40 · lesson
+samples 63 · Aspire integration 4. Web: Vitest 205 · Playwright 69 (phone + desktop). 0 build warnings; lint and
+guardrails clean.
