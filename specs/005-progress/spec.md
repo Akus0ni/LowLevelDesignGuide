@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, open questions resolved (2026-10-19); waiting for owner review |
+| **Status** | Approved by owner (2026-10-19) |
 | **Branch** | `spec/005-progress` |
 | **Covers** | R17 (PRD §13); PRD F4, §10 (`LessonProgress`), §11 (offline) |
 | **Depends on** | Spec 003 (reader: section ticks, reading position), spec 004 (OOP & SOLID module), spec 001 (users) |
