@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-20 (spec 005 merged; spec 006 spec drafted)_
+_Last updated: 2026-10-20 (spec 006 approved; plan + tasks written)_
 
 ## Where we are
 | Item | Status |
@@ -17,7 +17,7 @@ _Last updated: 2026-10-20 (spec 005 merged; spec 006 spec drafted)_
 | Spec 003 Content engine | ✅ Merged (PR #5) |
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
-| Spec 006 Design patterns | 📝 `spec.md` drafted, owner review |
+| Spec 006 Design patterns | 🚧 spec approved; plan + tasks written; implementing |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -29,7 +29,7 @@ _Last updated: 2026-10-20 (spec 005 merged; spec 006 spec drafted)_
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
 | 004 | OOP & SOLID content | ✅ merged (PR #6) |
 | 005 | Progress | ✅ merged (PR #7) |
-| 006 | GoF + Enterprise patterns content | 📝 spec in review |
+| 006 | GoF + Enterprise patterns content | 🚧 in progress |
 | 007 | Notes & bookmarks | planned |
 | 008 | UML content | planned |
 | 009 | Search | planned |
@@ -134,13 +134,13 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Owner choices: all 23 GoF + 5 extras in their own module "Enterprise & .NET patterns"; spec 004 card + structure,
   Modern C#, Seen in .NET, look-alikes, travels with, Overuse stamp; reader gets a periodic table, a "Which pattern?"
   picker and a look-alike compare; Claude proposes category mnemonics; review in category batches.
-- `specs/006-gof-patterns/spec.md` drafted on `spec/006-gof-patterns`; §8 lists the open questions for the owner.
+- Spec approved as is (slugs, order, mnemonics, symbols, look-alikes). `plan.md` + `tasks.md` written: pipeline (T1–T4),
+  batch 1 Creational (T5), reader UI (T6–T10) → owner reviews UI + batch 1 together, then batches T11–T14.
 - Spec 005 open question (fling-to-end marks done): owner will decide later.
 
 ## How to resume (next session)
-1. `git switch spec/006-gof-patterns`. If the spec is approved, write `plan.md` + `tasks.md`, then implement
-   (reader features + samples first, then content batches with owner review between them).
-2. If spec changes were requested, edit `spec.md` and ask again.
+1. `git switch spec/006-gof-patterns`, open `specs/006-gof-patterns/tasks.md` and continue at the first unticked task.
+2. Stop for owner review after T10 (UI + Creational) and after each content batch.
 3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
 4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

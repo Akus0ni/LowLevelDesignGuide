@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, for owner review |
+| **Status** | Approved by owner (2026-10-20) |
 | **Branch** | `spec/006-gof-patterns` |
 | **Covers** | R15 (patterns part), R20, R24 (PRD §13); PRD F2, F3, §7 ("C# samples must compile") |
 | **Depends on** | Spec 004 (concept template, snippets, Before / After, callouts, map, mnemonics), spec 005 (progress) |
