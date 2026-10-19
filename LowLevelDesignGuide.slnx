@@ -15,6 +15,7 @@
     <Project Path="src/Lld.Infrastructure/Lld.Infrastructure.csproj" />
     <Project Path="src/Lld.ServerStatus/Lld.ServerStatus.csproj" />
     <Project Path="src/Lld.ServiceDefaults/Lld.ServiceDefaults.csproj" />
+    <Project Path="src/Lld.Wire/Lld.Wire.csproj" />
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Lld.Samples.OopSolid/Lld.Samples.OopSolid.csproj" />

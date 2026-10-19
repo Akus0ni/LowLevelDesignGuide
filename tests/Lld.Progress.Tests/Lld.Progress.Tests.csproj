@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\src\Lld.Domain\Lld.Domain.csproj" />
     <ProjectReference Include="..\..\src\Lld.App.Data\Lld.App.Data.csproj" />
     <ProjectReference Include="..\..\src\Lld.Infrastructure\Lld.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Lld.Wire\Lld.Wire.csproj" />
   </ItemGroup>
 
   <ItemGroup>

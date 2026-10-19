@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Maps user data (progress now; notes, bookmarks and sync later) between the domain and the wire contracts.
+       Shared by the API and the MAUI bridge so both speak exactly the same format. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lld.Contracts\Lld.Contracts.csproj" />
+    <ProjectReference Include="..\Lld.Domain\Lld.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
