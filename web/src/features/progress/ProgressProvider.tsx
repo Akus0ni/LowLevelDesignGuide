@@ -13,7 +13,7 @@ const current = new WeakMap<DataSource, { owner: string; store: ProgressStore }>
 function storeFor(source: DataSource, owner: string): ProgressStore {
   const entry = current.get(source);
   if (entry?.owner === owner) return entry.store;
-  const store = new ProgressStore(source);
+  const store = new ProgressStore(source, { owner });
   current.set(source, { owner, store });
   return store;
 }

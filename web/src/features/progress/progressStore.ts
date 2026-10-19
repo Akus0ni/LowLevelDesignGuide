@@ -1,4 +1,5 @@
 import type { DataSource, LessonProgress } from '../../data/types';
+import { Celebrations } from './celebrations';
 import { takeLegacyReading, type LegacyReading } from './legacyImport';
 import { localDay, type ProgressById } from './progressMath';
 
@@ -8,11 +9,16 @@ export const FLUSH_DELAY_MS = 1000;
 export interface ProgressState {
   byId: ProgressById;
   activityDays: readonly string[];
+  /** Lessons that just became done for the first time: their Done check draws in once (spec 005 §3.8). */
+  freshlyDone: ReadonlySet<string>;
 }
 
 export type LessonChange = (record: LessonProgress | undefined, lessonId: string, now: string) => LessonProgress;
 
 interface StoreOptions {
+  /** Whose progress this is ('guest' or a user id): keeps celebrations apart on a shared device. */
+  owner?: string;
+  celebrations?: Celebrations;
   now?: () => Date;
   events?: EventTarget;
   legacy?: () => Map<string, LegacyReading>;
@@ -25,7 +31,8 @@ interface StoreOptions {
  */
 export class ProgressStore {
   readonly ready: Promise<void>;
-  private state: ProgressState = { byId: new Map(), activityDays: [] };
+  readonly celebrations: Celebrations;
+  private state: ProgressState = { byId: new Map(), activityDays: [], freshlyDone: new Set() };
   private readonly listeners = new Set<() => void>();
   private readonly queuedLessons = new Map<string, LessonProgress>();
   private readonly queuedDays = new Set<string>();
@@ -39,6 +46,7 @@ export class ProgressStore {
 
   constructor(source: DataSource, options: StoreOptions = {}) {
     this.source = source;
+    this.celebrations = options.celebrations ?? new Celebrations(options.owner ?? 'guest');
     this.now = options.now ?? (() => new Date());
     this.events = options.events ?? (typeof window === 'undefined' ? undefined : window);
     this.ready = this.load(options.legacy ?? takeLegacyReading);
@@ -67,6 +75,15 @@ export class ProgressStore {
   changeAll(lessonIds: readonly string[], apply: LessonChange): void {
     const now = this.now().toISOString();
     this.whenLoaded(() => this.put(lessonIds.map((id) => apply(this.state.byId.get(id), id, now))));
+  }
+
+  /** The Done check has drawn in: don't draw it again. */
+  settleCelebration(lessonId: string): void {
+    if (!this.state.freshlyDone.has(lessonId)) return;
+    const freshlyDone = new Set(this.state.freshlyDone);
+    freshlyDone.delete(lessonId);
+    this.state = { ...this.state, freshlyDone };
+    this.notify();
   }
 
   /** Remembers that the learner studied today (local date), once per day. */
@@ -100,6 +117,7 @@ export class ProgressStore {
     try {
       const snapshot = await this.source.getProgress();
       this.state = {
+        ...this.state,
         byId: new Map(snapshot.lessons.map((lesson) => [lesson.lessonId, lesson])),
         activityDays: snapshot.activityDays,
       };
@@ -140,12 +158,25 @@ export class ProgressStore {
 
   private put(records: LessonProgress[]): void {
     const byId = new Map(this.state.byId);
+    const freshlyDone = new Set(this.state.freshlyDone);
     records.forEach((record) => {
+      if (this.isFirstCompletion(record)) {
+        this.celebrations.remember(record.lessonId);
+        freshlyDone.add(record.lessonId);
+      }
       byId.set(record.lessonId, record);
       this.queuedLessons.set(record.lessonId, record);
     });
-    this.state = { ...this.state, byId };
+    this.state = { ...this.state, byId, freshlyDone };
     this.notifyAndSchedule();
+  }
+
+  private isFirstCompletion(record: LessonProgress): boolean {
+    return (
+      record.status === 'done' &&
+      this.state.byId.get(record.lessonId)?.status !== 'done' &&
+      !this.celebrations.has(record.lessonId)
+    );
   }
 
   private notifyAndSchedule(): void {

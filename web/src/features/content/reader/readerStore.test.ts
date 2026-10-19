@@ -1,11 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   getTextSize,
-  loadPosition,
-  loadReadSections,
+  loadRecall,
   resetReaderStoreForTests,
-  savePosition,
-  saveReadSections,
+  saveRecall,
   setTextSize,
   subscribeToTextSize,
 } from './readerStore';
@@ -35,14 +33,12 @@ describe('reader store', () => {
     expect(getTextSize()).toBe('m');
   });
 
-  it('keeps reading position and read sections per lesson', () => {
-    savePosition('a', { anchor: 'overview', offset: 120 });
-    saveReadSections('a', new Set(['overview', 'details']));
+  it('remembers recall mode', () => {
+    expect(loadRecall()).toBe(false);
 
-    expect(loadPosition('a')).toEqual({ anchor: 'overview', offset: 120 });
-    expect(loadPosition('b')).toBeNull();
-    expect(loadReadSections('a')).toEqual(new Set(['overview', 'details']));
-    expect(loadReadSections('b')).toEqual(new Set());
+    saveRecall(true);
+
+    expect(loadRecall()).toBe(true);
   });
 
   it('keeps working when storage is unavailable', () => {
@@ -53,8 +49,8 @@ describe('reader store', () => {
       throw new Error('quota');
     });
 
-    expect(() => savePosition('a', { anchor: '', offset: 0 })).not.toThrow();
-    expect(loadPosition('a')).toBeNull();
+    expect(() => saveRecall(true)).not.toThrow();
+    expect(loadRecall()).toBe(false);
     expect(getTextSize()).toBe('m');
   });
 });

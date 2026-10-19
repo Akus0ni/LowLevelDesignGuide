@@ -1,12 +1,8 @@
 /**
- * Reader preferences and per-lesson reading state, kept on this device only (spec 003 T14 / T14b). Real progress and
- * sync between devices are specs 005 and 010. Storage can be missing or full (private mode, WebView settings), so
- * every access is guarded and the reader still works without it.
+ * Reader preferences, kept on this device only (spec 003 T14). Reading state (ticks, position) moved to the per-user
+ * progress store in spec 005. Storage can be missing or full (private mode, WebView settings), so every access is
+ * guarded and the reader still works without it.
  */
-
-import type { ReadingPosition } from '../../../data/types';
-
-export type { ReadingPosition };
 
 export type TextSize = 's' | 'm' | 'l';
 
@@ -55,18 +51,7 @@ export function subscribeToTextSize(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-// ---- Per lesson ---------------------------------------------------------------------------------------------------
-
-export const loadPosition = (lessonId: string) => read<ReadingPosition>(`${PREFIX}position.${lessonId}`);
-
-export const savePosition = (lessonId: string, position: ReadingPosition) =>
-  write(`${PREFIX}position.${lessonId}`, position);
-
-export const loadReadSections = (lessonId: string) =>
-  new Set(read<string[]>(`${PREFIX}read.${lessonId}`) ?? []);
-
-export const saveReadSections = (lessonId: string, anchors: Set<string>) =>
-  write(`${PREFIX}read.${lessonId}`, [...anchors]);
+// ---- Cheat sheets -------------------------------------------------------------------------------------------------
 
 export const loadRecall = (): boolean => read<boolean>(`${PREFIX}recall`) === true;
 

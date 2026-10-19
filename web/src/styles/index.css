@@ -1578,3 +1578,39 @@
     }
   }
 }
+
+/*
+ * Progress (spec 005 §3.8, §3.11): "pencil, then ink". The Done check draws in once (clip-path, 240 ms, strong
+ * ease-out) the first time a lesson is done; the badge settles from 0.96 with it. Reduced motion: a short fade only.
+ */
+@layer components {
+  .done-badge[data-fresh] {
+    animation: done-settle 240ms var(--ease-out) both;
+
+    & .done-check {
+      animation: done-draw 240ms var(--ease-out) both;
+    }
+  }
+
+  @keyframes done-settle {
+    from {
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes done-draw {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .done-badge[data-fresh] {
+      animation: appear 150ms ease both;
+
+      & .done-check {
+        animation: none;
+      }
+    }
+  }
+}

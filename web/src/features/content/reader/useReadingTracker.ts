@@ -1,13 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigationType, useSearchParams } from 'react-router';
-import type { OutlineEntry } from '../../../data/types';
-import {
-  loadPosition,
-  loadReadSections,
-  saveReadSections,
-  savePosition,
-  type ReadingPosition,
-} from './readerStore';
+import type { OutlineEntry, ReadingPosition } from '../../../data/types';
+import { opened, positionSaved, sectionsRead } from '../../progress/lessonProgress';
+import { useLessonProgress, useProgressStore } from '../../progress/useProgress';
 
 /** The "you are reading here" line: a third of the way down the screen. */
 const READING_LINE = 0.3;
@@ -46,23 +41,29 @@ function scrollToPosition(position: ReadingPosition): void {
 }
 
 /**
- * Follows reading on a lesson page (spec 003 T14 / T14b):
+ * Follows reading on a lesson page (spec 003 T14 / T14b, now through the progress store of spec 005):
+ * - opening the lesson starts it (In progress) and makes it the one to continue;
  * - `current`: the section being read (the outline highlights it);
- * - `read`: sections already read, remembered on this device (the outline ticks them);
+ * - `read`: sections already read by this learner (the outline ticks them); the last one marks the lesson done;
  * - reading position: saved while scrolling and restored when the lesson is opened again, unless the page was opened
  *   at a heading (`?at=`) or the browser is restoring its own scroll (Back).
  */
 export function useReadingTracker(lessonId: string, outline: OutlineEntry[]) {
+  const store = useProgressStore();
+  const readSections = useLessonProgress(lessonId)?.readSections;
+  const read = useMemo(() => new Set(readSections ?? []), [readSections]);
   const [current, setCurrent] = useState<string | null>(null);
-  const [read, setRead] = useState<Set<string>>(() => loadReadSections(lessonId));
   const [params] = useSearchParams();
   const navigation = useNavigationType();
   const openedAtAnchor = params.has('at');
 
+  // Opening the lesson starts it.
+  useEffect(() => store.change(lessonId, opened), [store, lessonId]);
+
   // Restore where the reader left off.
   const restoring = useRef(false);
   useEffect(() => {
-    const saved = loadPosition(lessonId);
+    const saved = store.getSnapshot().byId.get(lessonId)?.position;
     if (!saved || openedAtAnchor || (navigation === 'POP' && window.scrollY > 0)) return;
     restoring.current = true;
     scrollToPosition(saved);
@@ -82,9 +83,15 @@ export function useReadingTracker(lessonId: string, outline: OutlineEntry[]) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId]);
 
+  // What the scroll handler compares against; updated when the store changes, without restarting the listener.
+  const known = useRef(read);
+  useEffect(() => {
+    known.current = read;
+  }, [read]);
+
   // Track the current section, finished sections and the position while scrolling.
   useEffect(() => {
-    setRead(loadReadSections(lessonId));
+    const anchors = outline.map((entry) => entry.anchor);
     let frame = 0;
     let saveTimer = 0;
     let scrolled = false;
@@ -99,21 +106,26 @@ export function useReadingTracker(lessonId: string, outline: OutlineEntry[]) {
       if (scrolled) {
         const readLine = window.scrollY + window.innerHeight * READ_LINE;
         const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
-        setRead((before) => {
-          const after = new Set(before);
-          sections.forEach((section, index) => {
+        const newlyRead = sections
+          .filter((section, index) => {
             const end = sections[index + 1]?.top ?? Number.POSITIVE_INFINITY;
-            if (end <= readLine || (atBottom && section.top <= readLine)) after.add(section.anchor);
-          });
-          if (after.size === before.size) return before;
-          saveReadSections(lessonId, after);
-          return after;
-        });
+            return end <= readLine || (atBottom && section.top <= readLine);
+          })
+          .map((section) => section.anchor)
+          .filter((anchor) => !known.current.has(anchor));
+        if (newlyRead.length > 0) {
+          known.current = new Set([...known.current, ...newlyRead]);
+          store.change(lessonId, (record, id, now) => sectionsRead(record, id, newlyRead, anchors, now));
+          store.recordActivity();
+        }
       }
 
       if (!restoring.current) {
         window.clearTimeout(saveTimer);
-        saveTimer = window.setTimeout(() => savePosition(lessonId, positionNow(sections)), SAVE_DELAY_MS);
+        saveTimer = window.setTimeout(() => {
+          const position = positionNow(sections);
+          store.change(lessonId, (record, id, now) => positionSaved(record, id, position, now));
+        }, SAVE_DELAY_MS);
       }
     };
 
@@ -128,7 +140,7 @@ export function useReadingTracker(lessonId: string, outline: OutlineEntry[]) {
       window.cancelAnimationFrame(frame);
       window.clearTimeout(saveTimer);
     };
-  }, [lessonId, outline]);
+  }, [store, lessonId, outline]);
 
   return { current, read };
 }

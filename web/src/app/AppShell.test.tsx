@@ -2,25 +2,19 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it } from 'vitest';
-import { DataSourceProvider } from '../data/DataSourceContext';
 import type { DataSource } from '../data/types';
-import { AuthProvider } from '../features/auth/AuthProvider';
-import { ServerStatusProvider } from '../features/serverStatus/ServerStatusProvider';
 import { fakeDataSource, learner } from '../test/fakeDataSource';
 import { routes } from './routes';
+import { AppProviders } from '../test/AppProviders';
 
 /** React 19: screens that suspend (Learn) must first render inside an async act(). */
 async function renderAt(path: string, source: DataSource = fakeDataSource()) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   await act(async () => {
     render(
-      <DataSourceProvider source={source}>
-        <ServerStatusProvider>
-          <AuthProvider>
-            <RouterProvider router={router} />
-          </AuthProvider>
-        </ServerStatusProvider>
-      </DataSourceProvider>,
+      <AppProviders source={source}>
+        <RouterProvider router={router} />
+      </AppProviders>,
     );
   });
   return source;
