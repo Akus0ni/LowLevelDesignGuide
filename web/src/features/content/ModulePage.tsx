@@ -3,6 +3,12 @@ import type { LessonSummary } from '../../data/types';
 import { content, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
+import { CompleteStamp, ModuleCount, ModuleHatch } from '../progress/ModuleProgress';
+import { useFirstShow } from '../progress/moduleCelebration';
+import { moduleCelebrationId } from '../progress/celebrations';
+import { countDone, sectionsRead, statusOf } from '../progress/progressMath';
+import { StatusMark } from '../progress/StatusMark';
+import { useProgress } from '../progress/useProgress';
 import { ContentBoundary } from './ContentBoundary';
 import { LessonIcon } from './LessonIcon';
 import { ModuleMap } from './ModuleMap';
@@ -26,13 +32,20 @@ export function ModulePage() {
 
 function ModuleView({ slug }: { slug: string }) {
   const module = useModule(slug);
+  const { byId } = useProgress();
+  const count = countDone(byId, module.lessons);
+  const complete = count.total > 0 && count.done === count.total;
+  const fresh = useFirstShow(moduleCelebrationId(module.slug), complete);
   const minutes = module.lessons.reduce((total, lesson) => total + lesson.readingMinutes, 0);
 
   return (
     <>
       <title>{`${module.title} · LLD Guide`}</title>
       <p className="mt-3 font-mono text-[12px] tracking-[0.08em] text-muted">«module»</p>
-      <h1 className="mt-1 text-[34px] font-semibold md:text-5xl">{module.title}</h1>
+      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <h1 className="text-[34px] font-semibold md:text-5xl">{module.title}</h1>
+        {complete && <CompleteStamp fresh={fresh} />}
+      </div>
       <p className="mt-2 max-w-prose text-muted">{module.summary}</p>
       <div className="-mx-5 mt-8 bg-drafting px-5 py-6 md:-mx-8 md:rounded-3xl md:px-8 md:py-8">
         {module.mnemonics && module.mnemonics.length > 0 && (
@@ -44,11 +57,17 @@ function ModuleView({ slug }: { slug: string }) {
             Lessons for this module are being written.
           </p>
         ) : (
-          <section aria-label="Lessons" className="overflow-hidden rounded-lg border border-rule bg-surface">
-            <p className="flex items-baseline justify-between border-b border-rule px-4 py-2.5 font-mono text-[12px] text-muted">
-              <span>lessons</span>
-              <span className="tabular-nums">
-                {plural(module.lessons.length, 'lesson')} · {formatMinutes(minutes)}
+          <section
+            aria-label="Lessons"
+            data-inked={complete || undefined}
+            data-fresh={fresh || undefined}
+            className="module-frame overflow-hidden rounded-lg border bg-surface"
+          >
+            <p className="relative flex items-baseline justify-between gap-3 border-b border-rule px-4 py-2.5 font-mono text-[12px] text-muted">
+              <ModuleHatch count={count} />
+              <span className="relative">lessons</span>
+              <span className="relative tabular-nums">
+                <ModuleCount count={count} /> done · {plural(module.lessons.length, 'lesson')} · {formatMinutes(minutes)}
               </span>
             </p>
             <ol>
@@ -67,6 +86,8 @@ function ModuleView({ slug }: { slug: string }) {
 
 function LessonRow({ lesson, position }: { lesson: LessonSummary; position: number }) {
   const preload = usePreload(content.lesson(lesson.id));
+  const { byId } = useProgress();
+  const status = statusOf(byId, lesson.id);
   return (
     <Link
       to={`/learn/${lesson.moduleSlug}/${lesson.slug}`}
@@ -84,11 +105,23 @@ function LessonRow({ lesson, position }: { lesson: LessonSummary; position: numb
       </span>
       <LessonIcon icon={lesson.icon} className="mt-px text-[20px] leading-none" />
       <span className="min-w-0 flex-1">
-        <span className="block leading-snug font-semibold wrap-anywhere">{lesson.title}</span>
+        <span className={cn('block leading-snug font-semibold wrap-anywhere', status === 'notStarted' && 'text-fg/80')}>
+          {lesson.title}
+        </span>
         <span className="mt-0.5 line-clamp-2 text-[15px] leading-relaxed text-muted">{lesson.summary}</span>
+        {/* Time (and, while reading, how far) under the text: the right edge stays narrow for long titles on phones. */}
+        <span className="mt-1 block font-mono text-[12px] text-muted tabular-nums">
+          {formatMinutes(lesson.readingMinutes)}
+          {status === 'inProgress' && lesson.sectionCount > 0 && (
+            <span className="text-accent">
+              {' · '}
+              {sectionsRead(byId, lesson)} of {lesson.sectionCount} sections read
+            </span>
+          )}
+        </span>
       </span>
-      <span className="mt-0.5 flex shrink-0 items-center gap-1 font-mono text-[12px] text-muted tabular-nums">
-        {formatMinutes(lesson.readingMinutes)}
+      <span className="mt-0.5 flex shrink-0 items-center gap-2 text-muted">
+        <StatusMark status={status} />
         <Icon d={chevronRight} size={18} />
       </span>
     </Link>

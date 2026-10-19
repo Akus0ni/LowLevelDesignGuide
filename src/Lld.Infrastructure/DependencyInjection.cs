@@ -1,5 +1,6 @@
 using Lld.Application.Abstractions;
 using Lld.Application.Hosting;
+using Lld.Domain.Progress;
 using Lld.Infrastructure.Hosting;
 using Lld.Infrastructure.Identity;
 using Lld.Infrastructure.Persistence;
@@ -66,6 +67,7 @@ public static class DependencyInjection
         services.AddScoped<IAuditLog, EfAuditLog>();
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<IUserAccounts, IdentityUserAccounts>();
+        services.AddScoped<IProgressStore, EfProgressStore>();
 
         services.AddSingleton<IPasswordPolicy, MinLengthPasswordPolicy>();
         services.AddSingleton<ITemporaryPasswordGenerator, CryptoTemporaryPasswordGenerator>();

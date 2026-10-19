@@ -42,6 +42,7 @@ var api = app.MapGroup("/api");
 api.MapInfoEndpoints();
 api.MapAccessRequestEndpoints();
 api.MapAuthEndpoints();
+api.MapProgressEndpoints();
 if (app.Environment.IsDevelopment())
 {
     // Browser dev mode only (spec 003): devices read their bundled copy; the hosted API serves no content.

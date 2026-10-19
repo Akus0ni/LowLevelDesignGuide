@@ -40,7 +40,7 @@ export function NextUp({ lesson }: { lesson: LessonDetail }) {
   const to = next ? `/learn/${next.moduleSlug}/${next.slug}` : `/revise/${lesson.moduleSlug}/${lesson.slug}`;
 
   return (
-    <nav aria-label="Next up" className="mt-16 border-t border-rule pt-8">
+    <nav aria-label="Next up" className="mt-8">
       <Link
         ref={card}
         to={to}

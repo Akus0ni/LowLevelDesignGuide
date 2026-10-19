@@ -15,6 +15,7 @@ public sealed record ModuleDetail(
     ModuleMap? Map = null,
     IReadOnlyList<Mnemonic>? Mnemonics = null);
 
+/// <param name="SectionCount">Outline entries: the sections a reader ticks off (spec 005, "3 of 5 sections").</param>
 public sealed record LessonSummary(
     string Id,
     string ModuleSlug,
@@ -25,7 +26,8 @@ public sealed record LessonSummary(
     int ReadingMinutes,
     IReadOnlyList<string> Tags,
     string? Icon = null,
-    string? Hook = null);
+    string? Hook = null,
+    int SectionCount = 0);
 
 /// <summary>An h2 or h3 heading of a lesson; <see cref="Anchor"/> follows GitHub's heading-id rules.</summary>
 public sealed record OutlineEntry(int Level, string Text, string Anchor);

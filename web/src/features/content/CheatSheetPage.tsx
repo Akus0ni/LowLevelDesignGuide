@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useCheatSheet, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
+import { useRevisedTracker } from '../progress/useRevisedTracker';
 import { BackLink } from './BackLink';
 import { LessonIcon } from './LessonIcon';
 import { ContentBoundary } from './ContentBoundary';
@@ -31,6 +32,14 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
   const textSize = useTextSize();
   const [recall, setRecall] = useState(loadRecall);
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const [allRevealed, setAllRevealed] = useState(false);
+  const endRef = useRevisedTracker(lessonId, { recall, allRevealed });
+
+  // Recall is finished once every folded block is open (the blocks are in the rendered page, not in state).
+  useEffect(() => {
+    const ids = sectionIds();
+    setAllRevealed(ids.length > 0 && ids.every((id) => revealed.has(id)));
+  }, [revealed]);
 
   const toggleRecall = () => {
     setRecall(!recall);
@@ -79,6 +88,7 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
       >
         <MarkdownView markdown={sheet.bodyMarkdown} textSize={textSize} recall />
       </RecallContext>
+      <div ref={endRef} aria-hidden="true" className="h-px" />
     </article>
   );
 }

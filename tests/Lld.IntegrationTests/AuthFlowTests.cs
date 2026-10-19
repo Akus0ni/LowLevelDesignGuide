@@ -17,7 +17,8 @@ namespace Lld.IntegrationTests;
 
 /// <summary>
 /// Spec 001 A1, end to end through the real AppHost: request access over HTTP, approve it the way the admin
-/// console does (application layer on the same database), sign in with the temporary password, change it.
+/// console does (application layer on the same database), sign in with the temporary password, change it, and save
+/// progress as the signed-in learner (spec 005 A6).
 /// </summary>
 public sealed class AuthFlowTests : IAsyncLifetime
 {
@@ -46,7 +47,7 @@ public sealed class AuthFlowTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task RequestApproveLoginAndChangePassword()
+    public async Task RequestApproveLoginChangePassword_ThenKeepProgress()
     {
         using var client = _app!.CreateHttpClient("api", "http");
         const string email = "it-learner@example.com";
@@ -73,6 +74,22 @@ public sealed class AuthFlowTests : IAsyncLifetime
 
         var relogin = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(email, newPassword), Ct);
         relogin.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Spec 005 A6: the signed-in learner keeps progress on the server.
+        var session = (await relogin.Content.ReadFromJsonAsync<AuthResponse>(Ct))!;
+        var opened = new LessonProgressDto("srp", ProgressStatuses.InProgress, null, null, ["rule"], null,
+            DateTimeOffset.UtcNow, null, DateTimeOffset.UtcNow, "it-device");
+        (await SendAsync(client, HttpMethod.Put, "/api/progress/lessons", session.AccessToken, new[] { opened })).StatusCode
+            .Should().Be(HttpStatusCode.NoContent);
+        var progress = await SendAsync(client, HttpMethod.Get, "/api/progress", session.AccessToken);
+        (await progress.Content.ReadFromJsonAsync<ProgressSnapshotDto>(Ct))!.Lessons.Should().ContainSingle(l => l.LessonId == "srp");
+    }
+
+    private static Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string path, string accessToken, object? body = null)
+    {
+        var request = new HttpRequestMessage(method, path) { Content = body is null ? null : JsonContent.Create(body) };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        return client.SendAsync(request, Ct);
     }
 
     /// <summary>What <c>Lld.Admin requests approve</c> does: use cases straight on the shared SQLite file.</summary>

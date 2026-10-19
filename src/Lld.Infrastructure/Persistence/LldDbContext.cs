@@ -1,6 +1,7 @@
 using Lld.Domain.Access;
 using Lld.Domain.Audit;
 using Lld.Domain.Identity;
+using Lld.Domain.Progress;
 using Lld.Domain.Sessions;
 using Lld.Infrastructure.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -30,6 +31,10 @@ public sealed class LldDbContext(DbContextOptions<LldDbContext> options) : Ident
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     public DbSet<UsageCounter> UsageCounters => Set<UsageCounter>();
+
+    public DbSet<LessonProgressRow> LessonProgress => Set<LessonProgressRow>();
+
+    public DbSet<ActivityDayRow> ActivityDays => Set<ActivityDayRow>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -86,6 +91,25 @@ public sealed class LldDbContext(DbContextOptions<LldDbContext> options) : Ident
             counter.ToTable("UsageCounters");
             counter.HasKey(c => c.WindowStart);
             counter.Property(c => c.WindowStart).HasMaxLength(10);
+        });
+
+        builder.Entity<LessonProgressRow>(progress =>
+        {
+            progress.ToTable("LessonProgress");
+            progress.HasKey(p => new { p.OwnerId, p.LessonId });
+            progress.Property(p => p.LessonId).HasMaxLength(ProgressLimits.MaxLessonIdLength);
+            progress.Property(p => p.Status).HasConversion<int>();
+            progress.Property(p => p.DoneBy).HasConversion<int?>();
+            progress.Property(p => p.PositionAnchor).HasMaxLength(ProgressLimits.MaxAnchorLength);
+            progress.Property(p => p.DeviceId).HasMaxLength(ProgressLimits.MaxDeviceIdLength);
+            progress.HasOne<AppUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ActivityDayRow>(day =>
+        {
+            day.ToTable("ActivityDays");
+            day.HasKey(d => new { d.OwnerId, d.Day });
+            day.HasOne<AppUser>().WithMany().HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<IdentityRole>().HasData(

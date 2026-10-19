@@ -2,11 +2,11 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { routes } from '../../app/routes';
-import { DataSourceProvider } from '../../data/DataSourceContext';
 import type { CheatSheetDetail, CheatSheetSummary, DataSource, ModuleDetail } from '../../data/types';
 import { fakeDataSource } from '../../test/fakeDataSource';
-import { AuthProvider } from '../auth/AuthProvider';
-import { ServerStatusProvider } from '../serverStatus/ServerStatusProvider';
+import { FLUSH_DELAY_MS } from '../progress/progressStore';
+import { END_DWELL_MS } from '../progress/useRevisedTracker';
+import { AppProviders } from '../../test/AppProviders';
 
 vi.mock('./markdown/mermaid', async (original) => ({
   ...(await original<typeof import('./markdown/mermaid')>()),
@@ -63,6 +63,7 @@ const caseStudies: ModuleDetail = {
       summary: 'x',
       order: 1,
       readingMinutes: 8,
+      sectionCount: 4,
       tags: [],
     },
   ],
@@ -76,17 +77,13 @@ function source(): DataSource {
   });
 }
 
-async function renderAt(path: string) {
+async function renderAt(path: string, dataSource: DataSource = source()) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   await act(async () => {
     render(
-      <DataSourceProvider source={source()}>
-        <ServerStatusProvider>
-          <AuthProvider>
-            <RouterProvider router={router} />
-          </AuthProvider>
-        </ServerStatusProvider>
-      </DataSourceProvider>,
+      <AppProviders source={dataSource}>
+        <RouterProvider router={router} />
+      </AppProviders>,
     );
   });
   return router;
@@ -157,5 +154,52 @@ describe('Cheat sheet', () => {
 
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Reveal all' })));
     expect(screen.queryAllByRole('button', { name: /think first, then reveal/ })).toHaveLength(0);
+  });
+
+  it('finishing recall counts as revising the lesson, and as a study day', async () => {
+    const data = source();
+    await renderAt('/revise/case-studies/auth', data);
+
+    await act(async () => fireEvent.click(screen.getByRole('switch', { name: 'Recall' })));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Reveal all' })));
+
+    await vi.waitFor(
+      () => {
+        expect(data.saveLessonProgress).toHaveBeenCalledWith([
+          expect.objectContaining({ lessonId: 'case-studies-auth', lastRevisedAt: expect.any(String) }),
+        ]);
+        expect(data.recordActivity).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 3000 },
+    );
+  });
+
+  it('reading to the end counts only once the end has stayed on screen', async () => {
+    let reportVisible: (visible: boolean) => void = () => {};
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: IntersectionObserverCallback) {
+          reportVisible = (visible) => callback([{ isIntersecting: visible } as IntersectionObserverEntry], this as never);
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const data = source();
+    await renderAt('/revise/case-studies/auth', data);
+
+    act(() => reportVisible(true));
+    act(() => reportVisible(false));
+    await act(async () => vi.advanceTimersByTimeAsync(END_DWELL_MS + FLUSH_DELAY_MS));
+    expect(data.saveLessonProgress).not.toHaveBeenCalled();
+
+    act(() => reportVisible(true));
+    await act(async () => vi.advanceTimersByTimeAsync(END_DWELL_MS + FLUSH_DELAY_MS));
+    expect(data.saveLessonProgress).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 });

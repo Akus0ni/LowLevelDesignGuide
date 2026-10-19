@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { Button } from '../../ui/Button';
 import { cn } from '../../ui/cn';
 import { AboutPanel } from '../AboutPanel';
+import { ProgressSummary } from '../progress/ProgressSummary';
 import { useAuth } from './AuthContext';
 import { ChangePasswordForm, RequestAccessForm, SignInForm } from './forms';
 
@@ -20,6 +21,7 @@ export function ProfilePage() {
         {state.status === 'signedOut' && <SignedOut />}
         {state.status === 'signedIn' && <AccountPanel />}
       </div>
+      {state.status !== 'loading' && <ProgressSummary />}
       <AboutPanel />
     </section>
   );

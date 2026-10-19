@@ -2,13 +2,11 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { routes } from '../../app/routes';
-import { DataSourceProvider } from '../../data/DataSourceContext';
-import { AppError, type DataSource, type LessonDetail, type ModuleDetail } from '../../data/types';
+import { AppError, type DataSource, type LessonDetail, type LessonProgress, type ModuleDetail } from '../../data/types';
 import { fakeDataSource } from '../../test/fakeDataSource';
-import { AuthProvider } from '../auth/AuthProvider';
-import { ServerStatusProvider } from '../serverStatus/ServerStatusProvider';
 import { atNaturalSize } from './markdown/mermaid';
 import { resetReaderStoreForTests } from './reader/readerStore';
+import { AppProviders } from '../../test/AppProviders';
 
 // Mermaid needs a real layout engine; the reader's handling of its output is what's tested here.
 vi.mock('./markdown/mermaid', async (original) => ({
@@ -82,8 +80,8 @@ const caseStudies: ModuleDetail = {
   title: 'Case studies',
   summary: 'Real systems.',
   lessons: [
-    { ...auth, tags: [] },
-    { ...auth, id: 'case-study-parking', slug: 'parking-lot', title: 'Parking lot', order: 2 },
+    { ...auth, tags: [], sectionCount: auth.outline.length },
+    { ...auth, id: 'case-study-parking', slug: 'parking-lot', title: 'Parking lot', order: 2, sectionCount: 3 },
   ],
 };
 
@@ -118,13 +116,9 @@ async function renderAt(path: string, source: DataSource = readerSource()) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   await act(async () => {
     render(
-      <DataSourceProvider source={source}>
-        <ServerStatusProvider>
-          <AuthProvider>
-            <RouterProvider router={router} />
-          </AuthProvider>
-        </ServerStatusProvider>
-      </DataSourceProvider>,
+      <AppProviders source={source}>
+        <RouterProvider router={router} />
+      </AppProviders>,
     );
   });
   return { router, source };
@@ -296,6 +290,78 @@ describe('Reader preferences and reading flow', () => {
       within(outline).getByRole('img', { name: 'read' }),
     );
     expect(within(outline).getAllByRole('img', { name: 'read' })).toHaveLength(1);
+  });
+});
+
+describe('Lesson progress (spec 005)', () => {
+  afterEach(() => {
+    window.localStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  const read = (readSections: string[]): LessonProgress => ({
+    lessonId: 'case-study-auth',
+    status: 'inProgress',
+    doneBy: null,
+    completedAt: null,
+    readSections,
+    position: null,
+    lastReadAt: '2026-10-18T09:00:00Z',
+    lastRevisedAt: null,
+    updatedAt: '2026-10-18T09:00:00Z',
+    deviceId: 'd',
+  });
+
+  it('opening a lesson starts it and offers to mark it done', async () => {
+    const source = readerSource();
+
+    await renderAt('/learn/case-studies/auth', source);
+
+    expect(await screen.findByRole('button', { name: 'Mark as done' })).toBeInTheDocument();
+    expect(screen.getByText('0 of 3 sections read')).toBeInTheDocument();
+    await vi.waitFor(
+      () =>
+        expect(source.saveLessonProgress).toHaveBeenCalledWith([
+          expect.objectContaining({ lessonId: 'case-study-auth', status: 'inProgress' }),
+        ]),
+      { timeout: 3000 },
+    );
+  });
+
+  it('marks done and back, keeping focus on the control, and draws the check only the first time', async () => {
+    await renderAt('/learn/case-studies/auth');
+
+    await act(async () => fireEvent.click(await screen.findByRole('button', { name: 'Mark as done' })));
+    const badge = screen.getByText('Done', { selector: '.done-badge' });
+    expect(badge).toHaveAttribute('data-fresh');
+    expect(screen.getByRole('status')).toHaveTextContent('Lesson done');
+    expect(screen.getByRole('button', { name: 'Mark as not done' })).toHaveFocus();
+
+    await act(async () => fireEvent.animationEnd(badge));
+    expect(badge).not.toHaveAttribute('data-fresh');
+
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as not done' })));
+    expect(screen.getByRole('button', { name: 'Mark as done' })).toHaveFocus();
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as done' })));
+    expect(screen.getByText('Done', { selector: '.done-badge' })).not.toHaveAttribute('data-fresh');
+  });
+
+  it('reading the last section marks the lesson done by itself', async () => {
+    const source = readerSource({
+      getProgress: vi.fn().mockResolvedValue({ lessons: [read(['problem-statement', 'the-login-use-case'])], activityDays: [] }),
+    });
+    await renderAt('/learn/case-studies/auth', source);
+    await screen.findByRole('button', { name: 'Mark as done' });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      return { top: { 'problem-statement': -1800, 'the-login-use-case': -900, 'token-rotation': 0 }[this.id] ?? 0 } as DOMRect;
+    });
+
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'));
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    });
+
+    expect(screen.getByText('Done', { selector: '.done-badge' })).toHaveAttribute('data-fresh');
   });
 });
 

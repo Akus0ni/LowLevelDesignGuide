@@ -20,6 +20,7 @@ interface Lesson {
   tags: string[];
   icon?: string | null;
   hook?: string | null;
+  sectionCount: number;
 }
 
 // Spec 004: multi-codepoint emoji (ZWJ sequence, flag, variation selector), one lesson with no icon; hooks at the
@@ -38,6 +39,7 @@ const lesson = (moduleSlug: string, n: number, title: string, summary: string, m
   tags: ['strategy', 'observer', 'repository', 'unit-of-work', 'dependency-inversion'],
   icon: ICONS[(n - 1) % ICONS.length],
   hook: HOOKS[(n - 1) % HOOKS.length],
+  sectionCount: 40,
 });
 
 const modules = [
@@ -223,3 +225,42 @@ export const WORST_CASE_SCREENS = [
   '/#/revise',
   '/#/revise/patterns/lesson-1',
 ];
+
+/**
+ * Spec 005 worst case for progress, as a signed-out guest: a 40-lesson module done but for the longest-titled lesson,
+ * which is in progress with 37 of 40 sections read; every other lesson revised long ago; every day of this week active.
+ */
+export async function seedWorstCaseProgress(page: Page): Promise<void> {
+  const patterns = modules.find((m) => m.slug === 'patterns')!.lessons;
+  const longAgo = '2025-01-01T09:00:00Z';
+  const record = (id: string, status: string, extra: Record<string, unknown> = {}) => ({
+    lessonId: id,
+    status,
+    doneBy: status === 'done' ? 'auto' : null,
+    completedAt: status === 'done' ? longAgo : null,
+    readSections: [],
+    position: null,
+    lastReadAt: longAgo,
+    lastRevisedAt: longAgo,
+    updatedAt: longAgo,
+    deviceId: 'worst-case',
+    ...extra,
+  });
+  const lessons = [
+    record('start-1', 'done'),
+    ...patterns.slice(1).map((l) => record(l.id, 'done')),
+    record(patterns[0].id, 'inProgress', {
+      readSections: Array.from({ length: 37 }, (_, i) => `section-${i}`),
+      lastReadAt: new Date().toISOString(),
+      lastRevisedAt: null,
+    }),
+  ];
+  const monday = new Date();
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const activityDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  });
+  await page.addInitScript((value) => localStorage.setItem('lld.progress.guest', value), JSON.stringify({ lessons, activityDays }));
+}

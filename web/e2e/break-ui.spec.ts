@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 // `page.evaluate` callbacks run in the browser, hence the DOM types.
 import { expect, test } from '@playwright/test';
-import { routeWorstCase, WORST_CASE_SCREENS } from './fixtures/worstCase';
+import { routeWorstCase, seedWorstCaseProgress, WORST_CASE_SCREENS } from './fixtures/worstCase';
 
 // break-ui regression (spec 003 T18): worst-case content must never make a screen scroll sideways or overflow a box.
 
@@ -40,3 +40,18 @@ test('long reading times read as hours', async ({ page }) => {
   const lessons = page.getByRole('region', { name: 'Lessons' });
   await expect(lessons.getByRole('link', { name: /Case Study 12/ })).toContainText('2 h');
 });
+
+for (const width of [320, 1360]) {
+  test(`worst-case progress fits at ${width} px`, async ({ page }) => {
+    await seedWorstCaseProgress(page);
+    await page.setViewportSize({ width, height: 800 });
+    for (const path of [...WORST_CASE_SCREENS, '/#/profile']) {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, `${path} scrolls sideways`).toBeLessThanOrEqual(0);
+    }
+    await page.goto('/#/learn');
+    await expect(page.getByRole('link', { name: /^Continue: Case Study 12/ })).toContainText('37 of 40 sections read');
+  });
+}

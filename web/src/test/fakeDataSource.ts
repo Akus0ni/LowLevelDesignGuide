@@ -37,6 +37,9 @@ export function fakeDataSource(overrides: Partial<DataSource> = {}): DataSource 
     getCheatSheets: vi.fn().mockResolvedValue([]),
     getCheatSheet: vi.fn().mockRejectedValue(new AppError('content.not_found', 'Not found.', 404)),
     openExternal: vi.fn().mockResolvedValue(undefined),
+    getProgress: vi.fn().mockResolvedValue({ lessons: [], activityDays: [] }),
+    saveLessonProgress: vi.fn().mockResolvedValue(undefined),
+    recordActivity: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }

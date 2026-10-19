@@ -1,4 +1,5 @@
 import { isWebLink } from './camelCase';
+import { GuestProgress } from './progress/guestProgress';
 import { AccessRequestOutbox } from './serverStatus/accessRequestOutbox';
 import { ReachabilityRecovery } from './serverStatus/reachabilityRecovery';
 import { ServerStatusTracker } from './serverStatus/serverStatusTracker';
@@ -12,7 +13,9 @@ import {
   type DataSource,
   type LessonDetail,
   type ModuleDetail,
+  type LessonProgress,
   type ModuleSummary,
+  type ProgressSnapshot,
   type ServerStatus,
   type UserSummary,
 } from './types';
@@ -28,6 +31,8 @@ export interface HttpStatusOptions {
   connectStatus?: (tracker: ServerStatusTracker, onReconnected: () => void) => () => void;
   tracker?: ServerStatusTracker;
   outbox?: AccessRequestOutbox;
+  /** Signed-out progress (default: localStorage). */
+  guest?: GuestProgress;
   /** Source of the browser's `online` event (default: window). */
   events?: EventTarget;
 }
@@ -36,6 +41,7 @@ const EVALUATE_INTERVAL_MS = 60_000;
 const GATEWAY_ERRORS = new Set([502, 503, 504]);
 const NETWORK_ERROR = 'network.unavailable';
 const CONTENT = '/api/content';
+const PROGRESS = '/api/progress';
 
 interface AuthResponse {
   accessToken: string;
@@ -55,6 +61,7 @@ export class HttpDataSource implements DataSource {
   private refreshInFlight: Promise<UserSummary | null> | null = null;
   private readonly tracker: ServerStatusTracker;
   private readonly outbox: AccessRequestOutbox;
+  private readonly guest: GuestProgress;
   private readonly connectStatus?: HttpStatusOptions['connectStatus'];
   private readonly events?: EventTarget;
   private readonly recovery: ReachabilityRecovery;
@@ -69,6 +76,7 @@ export class HttpDataSource implements DataSource {
     this.tracker =
       options.tracker ?? new ServerStatusTracker(Date.now, options.connectStatus ? 'unknown' : 'online');
     this.outbox = options.outbox ?? new AccessRequestOutbox();
+    this.guest = options.guest ?? new GuestProgress();
     this.events = options.events ?? (typeof window === 'undefined' ? undefined : window);
     this.recovery = new ReachabilityRecovery(this.tracker, () => this.request('GET', '/health'));
     this.tracker.subscribe((status) => {
@@ -113,7 +121,9 @@ export class HttpDataSource implements DataSource {
   }
 
   async login(email: string, password: string): Promise<UserSummary> {
-    return this.acceptSession(await this.send('POST', '/api/auth/login', { email, password }));
+    const user = this.acceptSession(await this.send('POST', '/api/auth/login', { email, password }));
+    await this.adoptGuestProgress();
+    return user;
   }
 
   restoreSession(): Promise<UserSummary | null> {
@@ -164,6 +174,25 @@ export class HttpDataSource implements DataSource {
     )) as CheatSheetDetail;
   }
 
+  // Progress: the API for a signed-in user; localStorage for the guest (handed over at sign-in).
+
+  async getProgress(): Promise<ProgressSnapshot> {
+    if (!(await this.signedIn())) return this.guest.get();
+    return (await this.sendAuthorized('GET', PROGRESS)) as ProgressSnapshot;
+  }
+
+  async saveLessonProgress(records: LessonProgress[]): Promise<void> {
+    const deviceId = this.guest.deviceId();
+    const stamped = records.map((record) => ({ ...record, deviceId }));
+    if (await this.signedIn()) await this.sendAuthorized('PUT', `${PROGRESS}/lessons`, stamped);
+    else this.guest.saveLessons(stamped);
+  }
+
+  async recordActivity(day: string): Promise<void> {
+    if (await this.signedIn()) await this.sendAuthorized('POST', `${PROGRESS}/activity`, { day });
+    else this.guest.addDay(day);
+  }
+
   openExternal(url: string): Promise<void> {
     if (!isWebLink(url))
       return Promise.reject(new AppError('link.not_allowed', 'Only web links can be opened.'));
@@ -200,9 +229,29 @@ export class HttpDataSource implements DataSource {
     );
   }
 
+  /** Waits for a session restore in flight, so progress is never read from the guest for a signed-in user. */
+  private async signedIn(): Promise<boolean> {
+    await this.refreshInFlight?.catch(() => null);
+    return this.accessToken !== null;
+  }
+
+  /** Hands what was read while signed out to the user who just signed in (spec 005 §3.9); keeps it if that fails. */
+  private async adoptGuestProgress(): Promise<void> {
+    if (this.guest.isEmpty) return;
+    try {
+      // Plain send, no refresh-and-retry: this runs inside the refresh itself, with a token that was just issued.
+      await this.send('POST', `${PROGRESS}/adopt`, this.guest.get(), true);
+      this.guest.clear();
+    } catch {
+      // Not adopted (offline, password change pending): the guest copy stays for the next sign-in.
+    }
+  }
+
   private async refresh(): Promise<UserSummary | null> {
     try {
-      return this.acceptSession(await this.send('POST', '/api/auth/refresh'));
+      const user = this.acceptSession(await this.send('POST', '/api/auth/refresh'));
+      await this.adoptGuestProgress();
+      return user;
     } catch (error) {
       if (error instanceof AppError && error.status === 401) {
         this.accessToken = null;

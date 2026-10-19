@@ -31,4 +31,10 @@ public static class AppErrors
 
     public static readonly Error AccessRequestNotFound =
         new("access_request.not_found", "No access request with that id.");
+
+    public static readonly Error ActivityDayInFuture =
+        Error.Validation("progress.day", "A study day can't be later than tomorrow.");
+
+    public static readonly Error TooManyActivityDays =
+        Error.Validation("progress.too_many_days", "Too many study days in one request.");
 }

@@ -2,11 +2,9 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import { routes } from '../../app/routes';
-import { DataSourceProvider } from '../../data/DataSourceContext';
 import { AppError, type DataSource, type LessonSummary, type ModuleDetail } from '../../data/types';
 import { fakeDataSource } from '../../test/fakeDataSource';
-import { AuthProvider } from '../auth/AuthProvider';
-import { ServerStatusProvider } from '../serverStatus/ServerStatusProvider';
+import { AppProviders } from '../../test/AppProviders';
 
 const lesson = (moduleSlug: string, slug: string, title: string, minutes: number): LessonSummary => ({
   id: `${moduleSlug}-${slug}`,
@@ -16,6 +14,7 @@ const lesson = (moduleSlug: string, slug: string, title: string, minutes: number
   summary: `About ${title}.`,
   order: 1,
   readingMinutes: minutes,
+  sectionCount: 4,
   tags: [],
 });
 
@@ -59,13 +58,9 @@ async function renderAt(path: string, source: DataSource = contentSource()) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   await act(async () => {
     render(
-      <DataSourceProvider source={source}>
-        <ServerStatusProvider>
-          <AuthProvider>
-            <RouterProvider router={router} />
-          </AuthProvider>
-        </ServerStatusProvider>
-      </DataSourceProvider>,
+      <AppProviders source={source}>
+        <RouterProvider router={router} />
+      </AppProviders>,
     );
   });
   return router;
@@ -139,7 +134,8 @@ describe('Module page', () => {
     await renderAt('/learn/oop-solid');
 
     expect(screen.getByRole('heading', { level: 1, name: 'OOP & SOLID' })).toBeInTheDocument();
-    expect(screen.getByText('5 lessons · 35 min')).toBeInTheDocument();
+    expect(screen.getByText(/5 lessons · 35 min/)).toBeInTheDocument();
+    expect(screen.getByLabelText('0 of 5 lessons done')).toHaveTextContent('0/5');
     const rows = within(screen.getByRole('region', { name: 'Lessons' })).getAllByRole('link');
     expect(rows.map((row) => row.getAttribute('href'))).toEqual([
       '/learn/oop-solid/srp',

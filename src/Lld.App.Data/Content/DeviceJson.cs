@@ -13,6 +13,13 @@ internal static class DeviceJson
     public static IReadOnlyList<string> Tags(string json) =>
         JsonSerializer.Deserialize(json, DeviceJsonContext.Default.StringArray) ?? [];
 
+    /// <summary>Section anchors a learner has read (spec 005).</summary>
+    public static string Anchors(IReadOnlyList<string> anchors) =>
+        JsonSerializer.Serialize([.. anchors], DeviceJsonContext.Default.StringArray);
+
+    public static IReadOnlyList<string> Anchors(string json) =>
+        JsonSerializer.Deserialize(json, DeviceJsonContext.Default.StringArray) ?? [];
+
     public static string Outline(IReadOnlyList<OutlineEntry> outline) =>
         JsonSerializer.Serialize([.. outline], DeviceJsonContext.Default.OutlineEntryArray);
 

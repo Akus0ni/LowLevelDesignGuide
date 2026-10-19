@@ -4,6 +4,7 @@ using Lld.Application.Accounts;
 using Lld.Application.Audit;
 using Lld.Application.Auth;
 using Lld.Application.Common;
+using Lld.Application.Progress;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -43,6 +44,12 @@ public static class DependencyInjection
         services.AddScoped<LogoutAllDevices>();
         services.AddScoped<ChangePassword>();
         services.AddScoped<GetCurrentUser>();
+
+        services.AddSingleton<ActivityDayPolicy>();
+        services.AddScoped<GetProgress>();
+        services.AddScoped<SaveLessonProgress>();
+        services.AddScoped<RecordActivityDay>();
+        services.AddScoped<AdoptGuestProgress>();
         return services;
     }
 }

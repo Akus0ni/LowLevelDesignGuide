@@ -154,6 +154,19 @@ namespace Lld.Infrastructure.Persistence.Migrations
                     b.ToTable("UsageCounters", (string)null);
                 });
 
+            modelBuilder.Entity("Lld.Infrastructure.Persistence.ActivityDayRow", b =>
+                {
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("OwnerId", "Day");
+
+                    b.ToTable("ActivityDays", (string)null);
+                });
+
             modelBuilder.Entity("Lld.Infrastructure.Persistence.AppUser", b =>
                 {
                     b.Property<string>("Id")
@@ -226,6 +239,54 @@ namespace Lld.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Lld.Infrastructure.Persistence.LessonProgressRow", b =>
+                {
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LessonId")
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("CompletedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DoneBy")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("LastReadAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("LastRevisedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PositionAnchor")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PositionOffset")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ReadSectionsJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("UpdatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("OwnerId", "LessonId");
+
+                    b.ToTable("LessonProgress", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -377,6 +438,24 @@ namespace Lld.Infrastructure.Persistence.Migrations
                     b.HasOne("Lld.Infrastructure.Persistence.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Lld.Infrastructure.Persistence.ActivityDayRow", b =>
+                {
+                    b.HasOne("Lld.Infrastructure.Persistence.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Lld.Infrastructure.Persistence.LessonProgressRow", b =>
+                {
+                    b.HasOne("Lld.Infrastructure.Persistence.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -81,7 +81,8 @@ public sealed class InMemoryContentCatalog : IContentCatalog
     }
 
     private static LessonSummary ToSummary(PackedModule module, PackedLesson lesson) =>
-        new(lesson.Id, module.Slug, lesson.Slug, lesson.Title, lesson.Summary, lesson.Order, lesson.ReadingMinutes, lesson.Tags, lesson.Icon, lesson.Hook);
+        new(lesson.Id, module.Slug, lesson.Slug, lesson.Title, lesson.Summary, lesson.Order, lesson.ReadingMinutes, lesson.Tags, lesson.Icon, lesson.Hook,
+            lesson.Outline.Count);
 
     private static LessonLink ToLink(PackedModule module, PackedLesson lesson) =>
         new(lesson.Id, module.Slug, lesson.Slug, lesson.Title);

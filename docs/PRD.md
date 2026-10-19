@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Status** | v0.6 |
+| **Status** | v0.7 |
 | **Owner** | Akus0ni |
-| **Last updated** | 2026-10-17 |
+| **Last updated** | 2026-10-20 |
 | **Platforms** | Android · iOS · Windows · macOS |
 | **App name / ID** | LLD Guide · `com.akus0ni.lldguide` |
 | **License** | MIT |
@@ -45,7 +45,8 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 6. Learn by building: the app is built **by applying the LLD concepts it teaches**, and its own code is used as lesson material.
 
 ### Non-goals (MVP)
-- Quizzes or gamification.
+- Quizzes or gamification. One deliberate exception (spec 005, R89): a quiet 7-day activity strip in Profile that never
+  resets or punishes a missed day. No streaks, points or badges.
 - In-app content editor (Phase 2).
 - Social features, comments, sharing.
 - Cloud hosting. The API is **self-hosted on the owner's PC** and exposed through a tunnel (F8).
@@ -111,6 +112,8 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 ### F4. Progress tracking
 - Mark a lesson done; % complete per module and overall; "continue where you left off".
 - **Acceptance:** progress survives app restart and syncs between devices for the same user.
+- Built in spec 005 (sync between devices in spec 010): Not started / In progress / Done, done by reading every section
+  or by hand; counts per module and overall shown as `7/15`; Continue card on Learn; "revised" per cheat sheet; reset.
 
 ### F5. Personal notes and bookmarks
 - Free-text notes per lesson (Markdown); bookmark lessons; a notes/bookmarks list view.
@@ -185,7 +188,8 @@ See `docs/plan.md` for diagrams, solution layout and the spec roadmap.
 | `RefreshToken` | Id, UserId, TokenHash, FamilyId, ExpiresAt, RevokedAt, ReplacedById | API |
 | `Module` | Id, Slug, Title, Order | Device (bundled); API read-only for dev |
 | `Lesson` | Id, ModuleId, Slug, Title, Order, BodyMd, CheatSheetMd, Tags, ContentHash | Device (bundled); API read-only for dev |
-| `LessonProgress` | UserId, LessonId, Status, CompletedAt, UpdatedAt, DeviceId | API + device |
+| `LessonProgress` | Owner (user or device guest), LessonId, Status, DoneBy, CompletedAt, ReadSections, Position, LastReadAt, LastRevisedAt, UpdatedAt, DeviceId | API + device |
+| `ActivityDay` | Owner, Day (local date) | API + device |
 | `Note` | Id, UserId, LessonId, BodyMd, UpdatedAt, DeletedAt, DeviceId | API + device |
 | `Bookmark` | UserId, LessonId, CreatedAt, DeletedAt | API + device |
 | `LessonSearch` (FTS5) | Title, Body, CheatSheet, user notes | Device (API copy for browser dev only) |
@@ -302,6 +306,14 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R82 | Content is simple, memorable and visual with little text: a short card (≤ 8 min) + a folded "Go deeper" | F2, §7 | 004 |
 | R83 | Memory aids: REMEMBER stamp on every concept lesson and cheat sheet, an everyday picture, an icon + hook (≤ 40 chars) per concept, acrostic mnemonics per module | F2, F3 | 004 |
 | R84 | "From my work" (`[!WORK]`) slots in every concept lesson, filled by the owner over time | §7 | 004+ |
+| R85 | Lesson status Not started / In progress / Done; done automatically when every section is read, or by hand (undo by "Mark as not done"; auto done doesn't override a manual undo) | F4 | 005 |
+| R86 | Progress belongs to a user; signed-out reading is a device guest whose progress the next user to sign in adopts (merge: furthest status, union of ticks, latest dates) | F4 | 005 |
+| R87 | Progress is stored on the device (SQLite) and on the API (per user, `/api/progress`); records carry `UpdatedAt` + `DeviceId` for last-write-wins sync (spec 010). A reset is a write, not a delete | F4, F7 | 005, 010 |
+| R88 | Continue card on Learn, counts on Learn / module / Profile, status marks everywhere, "revised" dates and a "Not revised" filter on Revise, reset per module or all (with confirmation) | F3, F4 | 005 |
+| R89 | Activity strip: this week's study days in Profile; the one allowed exception to "no gamification" (never resets) | §3, F4 | 005 |
+| R90 | A cheat sheet counts as revised when its end has stayed on screen for 2 s, or recall mode has every block revealed | F3 | 005 |
+| R91 | Done celebration: the Done check draws in once per lesson; a «complete» stamp once per module (and a toast when finished from a lesson); ≤ 600 ms, reduced motion = fade | F4, §11 | 005 |
+| R92 | Visual language for progress, "pencil, then ink": hatching fills a module as lessons finish, the frame inks at 100% | F4 | 005 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.

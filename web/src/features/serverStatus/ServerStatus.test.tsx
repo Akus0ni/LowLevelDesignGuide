@@ -2,13 +2,11 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { BridgeDataSource, RAW_MESSAGE_EVENT } from '../../data/bridgeDataSource';
-import { DataSourceProvider } from '../../data/DataSourceContext';
 import type { DataSource, ServerStatus } from '../../data/types';
 import { fakeDataSource, onlineStatus } from '../../test/fakeDataSource';
-import { AuthProvider } from '../auth/AuthProvider';
 import { RequestAccessForm } from '../auth/forms';
 import { ServerOfflineBanner } from './ServerOfflineBanner';
-import { ServerStatusProvider } from './ServerStatusProvider';
+import { AppProviders } from '../../test/AppProviders';
 import { useServerStatus } from './ServerStatusContext';
 
 /** A fake source whose status the test can push, like C# or ntfy would. */
@@ -43,11 +41,7 @@ function renderWithStatus(
   ),
 ) {
   return render(
-    <DataSourceProvider source={source}>
-      <ServerStatusProvider>
-        <AuthProvider>{children}</AuthProvider>
-      </ServerStatusProvider>
-    </DataSourceProvider>,
+    <AppProviders source={source}>{children}</AppProviders>,
   );
 }
 

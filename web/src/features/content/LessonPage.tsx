@@ -3,6 +3,8 @@ import { useDataSource } from '../../data/DataSourceContext';
 import type { LessonDetail, ModuleDetail } from '../../data/types';
 import { content, preloadContent, useLesson, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
+import { DoneControl } from '../progress/DoneControl';
+import { useModuleCompleteToast } from '../progress/moduleCelebration';
 import { Icon } from '../../ui/Icon';
 import { BackLink } from './BackLink';
 import { LessonIcon } from './LessonIcon';
@@ -39,6 +41,7 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
   const source = useDataSource();
   const textSize = useTextSize();
   const reading = useReadingTracker(lesson.id, lesson.outline);
+  useModuleCompleteToast(module);
   useAnchorScroll();
 
   // The next lesson is the likeliest tap: have it ready.
@@ -54,7 +57,10 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
         <BackLink to={`/learn/${module.slug}`}>{module.title}</BackLink>
         <LessonHeader lesson={lesson} module={module} position={position + 1} reading={reading} />
         <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} textSize={textSize} />
-        <NextUp lesson={lesson} />
+        <footer className="mt-16 border-t border-rule pt-8">
+          <DoneControl lessonId={lesson.id} sectionCount={lesson.outline.length} />
+          <NextUp lesson={lesson} />
+        </footer>
       </article>
       <aside className="hidden lg:block">
         <OutlineColumn outline={lesson.outline} current={reading.current} read={reading.read} />

@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Lld.Infrastructure\Lld.Infrastructure.csproj" />
     <ProjectReference Include="..\Lld.Contracts\Lld.Contracts.csproj" />
+    <ProjectReference Include="..\Lld.Wire\Lld.Wire.csproj" />
     <ProjectReference Include="..\Lld.Content.Authoring\Lld.Content.Authoring.csproj" />
     <ProjectReference Include="..\Lld.ServiceDefaults\Lld.ServiceDefaults.csproj" />
   </ItemGroup>

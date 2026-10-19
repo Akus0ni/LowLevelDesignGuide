@@ -14,6 +14,7 @@ const lessons: LessonSummary[] = ['srp', 'ocp', 'lsp', 'dip'].map((slug, index) 
   summary: `About ${slug}.`,
   order: index + 1,
   readingMinutes: 20,
+  sectionCount: 4,
   tags: [],
 }));
 

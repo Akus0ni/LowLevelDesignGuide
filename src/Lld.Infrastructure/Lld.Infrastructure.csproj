@@ -18,5 +18,8 @@
     <PackageReference Include="System.Security.Cryptography.ProtectedData" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Lld.Progress.Tests" />
+  </ItemGroup>
 
 </Project>

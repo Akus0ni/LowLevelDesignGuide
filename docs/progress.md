@@ -3,19 +3,20 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-17 (spec 004 ready for review)_
+_Last updated: 2026-10-20 (spec 005 ready for review)_
 
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.6 (spec 004 decisions R76–R84) |
+| PRD | v0.7 (spec 005 decisions R85–R92) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
 | Spec 003 Content engine | ✅ Merged (PR #5) |
-| Spec 004 OOP & SOLID | 🚧 Draft PR #6: engine, reader, memory aids done; done; PR #6 ready for owner review |
+| Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
+| Spec 005 Progress | 🔍 PR #7 ready for owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -25,8 +26,8 @@ _Last updated: 2026-10-17 (spec 004 ready for review)_
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
 | 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
-| 004 | OOP & SOLID content | 🔍 PR #6, owner review |
-| 005 | Progress | planned |
+| 004 | OOP & SOLID content | ✅ merged (PR #6) |
+| 005 | Progress | 🔍 PR #7, owner review |
 | 006 | GoF patterns content | planned |
 | 007 | Notes & bookmarks | planned |
 | 008 | UML content | planned |
@@ -118,9 +119,19 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Reader: Before / After compare, UML-note callouts, interview Q&A, Go deeper fold, module map, mnemonics, icons.
 - CI fix for `main` (MessagePack pin). Details, deviations and findings: `specs/004-oop-solid/plan.md` §4.
 
+## Spec 005: what was delivered
+- Lesson status (Not started / In progress / Done; auto when every section is read, or by hand), per user with a device
+  guest adopted at sign-in; device SQLite (schema step 4) + API `/api/progress` (migration `AddProgress`).
+- `Lld.Domain/Progress` (LWW + merge rules, limits, store port), `Lld.Wire` (DTO mapping), one store contract suite
+  (`tests/Lld.Progress.Tests`) for in-memory, device and EF Core.
+- Web: progress store with write-behind queue, reader integration, Done control, Continue card, "pencil, then ink"
+  module boxes, status marks, Revise "revised" + filter, Profile summary + activity strip + reset sheet, celebrations.
+- Manual run on Windows + Android (upgrade V3 → V4, restart, offline). Details: `specs/005-progress/plan.md` §5.
+- Open question for the owner: fling-to-end marks a lesson done (spec 003 tick rule). Keep?
+
 ## How to resume (next session)
-1. If PR #6 is merged: `git switch main && git pull`, then ask the owner before starting spec 005 (Progress).
-2. If changes were requested: `git switch spec/004-oop-solid`, apply them, push, and update the PR.
+1. If PR #7 is merged: `git switch main && git pull`, then ask the owner before starting spec 006 (GoF patterns).
+2. If changes were requested: `git switch spec/005-progress`, apply them, push, and update the PR.
 3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
 4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

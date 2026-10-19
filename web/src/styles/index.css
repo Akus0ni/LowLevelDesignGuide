@@ -1578,3 +1578,116 @@
     }
   }
 }
+
+/*
+ * Progress (spec 005 §3.8, §3.11): "pencil, then ink". The Done check draws in once (clip-path, 240 ms, strong
+ * ease-out) the first time a lesson is done; the badge settles from 0.96 with it. Reduced motion: a short fade only.
+ */
+@layer components {
+  .done-badge[data-fresh] {
+    animation: done-settle 240ms var(--ease-out) both;
+
+    & .done-check {
+      animation: done-draw 240ms var(--ease-out) both;
+    }
+  }
+
+  @keyframes done-settle {
+    from {
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes done-draw {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .done-badge[data-fresh] {
+      animation: appear 150ms ease both;
+
+      & .done-check {
+        animation: none;
+      }
+    }
+  }
+}
+
+/* "Pencil, then ink" for module boxes: a hairline frame while unfinished, full ink weight once every lesson is done.
+   Unfinished frames stay solid (dashed lines already mean "dependency" on Learn). */
+@layer components {
+  .module-frame {
+    border-color: var(--rule);
+    transition: border-color 200ms ease;
+
+    &[data-inked] {
+      border-color: var(--fg);
+      box-shadow: 0 0 0 0.5px var(--fg);
+    }
+  }
+
+  .module-hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--accent) 22%, transparent) 0 1px,
+      transparent 1px 6px
+    );
+  }
+}
+
+/*
+ * Module complete (spec 005 §3.8), shown once: the frame inks (240 ms), then the «complete» stamp presses down onto the
+ * paper (from 1.12 to 1, 360 ms after a 240 ms wait: 600 ms in all, the Learn intro's budget). Reduced motion: a fade.
+ */
+@layer components {
+  .complete-stamp {
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid var(--fg);
+    border-radius: 0.5rem;
+    outline: 1px dashed color-mix(in oklab, var(--fg) 45%, transparent);
+    outline-offset: -6px;
+    padding: 0.45em 0.85em;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--fg);
+    transform: rotate(-2deg);
+    user-select: none;
+
+    &[data-fresh] {
+      animation: stamp-press 360ms var(--ease-out) 240ms both;
+    }
+  }
+
+  .module-frame[data-fresh] {
+    animation: frame-ink 240ms var(--ease-out) both;
+  }
+
+  @keyframes stamp-press {
+    from {
+      opacity: 0;
+      transform: rotate(-2deg) scale(1.12);
+    }
+  }
+
+  @keyframes frame-ink {
+    from {
+      border-color: var(--rule);
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .complete-stamp[data-fresh] {
+      animation: appear 150ms ease both;
+    }
+
+    .module-frame[data-fresh] {
+      animation: none;
+    }
+  }
+}
