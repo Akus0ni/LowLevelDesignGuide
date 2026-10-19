@@ -22,8 +22,10 @@ public sealed class ContentContext
         Snippets = snippets;
         Resolver = new LinkResolver(options);
         Lessons = [.. set.Modules.SelectMany(m => m.Lessons)];
+        PatternModules = [.. set.Modules.Where(m => TemplateOf(m) == ContentSchemas.PatternTemplate)];
+        PatternLessons = [.. PatternModules.SelectMany(m => m.Lessons)];
         ConceptLessons = [.. set.Modules
-            .Where(m => m.Manifest?[FrontMatterKeys.Template]?.Scalar == ContentSchemas.ConceptTemplate)
+            .Where(m => TemplateOf(m) is ContentSchemas.ConceptTemplate or ContentSchemas.PatternTemplate)
             .SelectMany(m => m.Lessons)];
         Documents = [.. Lessons.SelectMany(l => new[] { l.Lesson, l.CheatSheet }).OfType<SourceDocument>()];
         _documentsByPath = Documents.ToDictionary(d => d.Path, StringComparer.Ordinal);
@@ -43,8 +45,17 @@ public sealed class ContentContext
 
     public IReadOnlyList<SourceLesson> Lessons { get; }
 
-    /// <summary>Lessons of modules with <c>template: concept</c> (spec 004 §3.2).</summary>
+    /// <summary>
+    /// Lessons of modules with <c>template: concept</c> (spec 004 §3.2) or <c>template: pattern</c> (spec 006 §3.2),
+    /// which keeps every concept rule.
+    /// </summary>
     public IReadOnlyList<SourceLesson> ConceptLessons { get; }
+
+    /// <summary>Modules with <c>template: pattern</c> (spec 006).</summary>
+    public IReadOnlyList<SourceModule> PatternModules { get; }
+
+    /// <summary>Lessons of <see cref="PatternModules"/>; they are also in <see cref="ConceptLessons"/>.</summary>
+    public IReadOnlyList<SourceLesson> PatternLessons { get; }
 
     /// <summary>Every lesson and cheat sheet that exists.</summary>
     public IReadOnlyList<SourceDocument> Documents { get; }
@@ -66,4 +77,6 @@ public sealed class ContentContext
 
         return anchors;
     }
+
+    private static string? TemplateOf(SourceModule module) => module.Manifest?[FrontMatterKeys.Template]?.Scalar;
 }

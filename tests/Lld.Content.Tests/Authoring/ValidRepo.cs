@@ -169,6 +169,108 @@ internal sealed class ValidRepo
         return this;
     }
 
+    public const string PatternModule = "content/patterns/module.yml";
+    public const string Strategy = "content/patterns/strategy/lesson.md";
+    public const string StrategySheet = "content/patterns/strategy/cheatsheet.md";
+    public const string State = "content/patterns/state/lesson.md";
+    public const string PatternSample = "samples/Strategy.cs";
+
+    /// <summary>
+    /// Adds a valid pattern module (spec 006): two lessons with every fixed section, a structure diagram, a Before /
+    /// After pair, an Overuse stamp and a symbol.
+    /// </summary>
+    public ValidRepo WithPatternModule()
+    {
+        Set(PatternModule, "title: Patterns\norder: 3\nsummary: Named designs.\ntemplate: pattern\n");
+        Set(PatternSample, """
+            namespace Samples;
+
+            public static class Shipping
+            {
+                public static decimal Cost(string mode) => mode == "air" ? 10m : 2m;
+            }
+
+            public interface IShippingCost
+            {
+                decimal Cost();
+            }
+
+            public static class Pricing
+            {
+                public static decimal Cost(System.Func<decimal> cost) => cost();
+            }
+            """);
+        Set(Strategy, PatternLesson("strategy", "Strategy", 1, "St"));
+        Set(StrategySheet, PatternSheet("Strategy"));
+        Set(State, PatternLesson("state", "State", 2, "Sa"));
+        Set("content/patterns/state/cheatsheet.md", PatternSheet("State"));
+        return this;
+    }
+
+    private static string PatternLesson(string id, string title, int order, string symbol) => $"""
+        ---
+        id: {id}
+        title: {title}
+        order: {order}
+        summary: A named design.
+        tags: [behavioral]
+        icon: "🧭"
+        hook: Swap how, keep what
+        symbol: {symbol}
+        ---
+        # {title}
+
+        > [!REMEMBER]
+        > Swap how, keep what.
+
+        ## The idea
+
+        Pass the algorithm in.
+
+        ## Structure
+
+        ```mermaid
+        classDiagram
+          Context --> IStrategy
+        ```
+
+        ## See it
+
+        ```csharp before title="Before" snippet="samples/Strategy.cs#Shipping"
+        ```
+        ```csharp after title="After" snippet="samples/Strategy.cs#IShippingCost"
+        ```
+
+        ## Modern C#
+
+        ```csharp snippet="samples/Strategy.cs#Pricing"
+        ```
+
+        ## Seen in .NET
+
+        - `IComparer<T>`
+
+        ## Travels with
+
+        - Factory Method picks one.
+
+        > [!OVERUSE]
+        > One strategy forever.
+
+        {InterviewSection(5)}
+        """;
+
+    private static string PatternSheet(string title) =>
+        $"---\ntitle: \"Cheat sheet: {title}\"\n---\n# {title}\n\n> [!REMEMBER]\n> Swap how.\n\n## Use it when\n\nThe algorithm varies.\n";
+
+    /// <summary>1-based line of the first line in <paramref name="path"/> that contains <paramref name="text"/>.</summary>
+    public int LineOf(string path, string text)
+    {
+        var lines = _files[path].ReplaceLineEndings("\n").Split('\n');
+        var index = Array.FindIndex(lines, l => l.Contains(text, StringComparison.Ordinal));
+        return index < 0 ? throw new InvalidOperationException($"'{text}' is not in {path}.") : index + 1;
+    }
+
     public static string InterviewSection(int questions) =>
         "## Interview questions\n\n" + string.Concat(Enumerable.Range(1, questions).Select(i => $"### Question {i}?\n\nAnswer {i}.\n\n"));
 
