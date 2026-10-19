@@ -44,6 +44,33 @@ public abstract class ContentCatalogContract
     }
 
     [Fact]
+    public async Task Module_CarriesItsMap_OrNullWithoutOne()
+    {
+        var catalog = await SampleAsync();
+
+        (await catalog.GetModuleAsync("oop-solid", Ct))!.Map.Should().BeEquivalentTo(TestPacks.SampleMap, o => o.WithStrictOrdering());
+        (await catalog.GetModuleAsync("case-studies", Ct))!.Map.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task MemoryAids_ReachEveryView()
+    {
+        var catalog = await SampleAsync();
+
+        var module = await catalog.GetModuleAsync("oop-solid", Ct);
+        var lesson = await catalog.GetLessonAsync("solid-srp", Ct);
+        var sheets = await catalog.GetCheatSheetsAsync("oop-solid", Ct);
+        var sheet = await catalog.GetCheatSheetAsync("solid-srp", Ct);
+
+        module!.Mnemonics.Should().BeEquivalentTo(TestPacks.SampleMnemonics, o => o.WithStrictOrdering());
+        module.Lessons.Select(l => (l.Icon, l.Hook)).Should().Equal(("🎯", "One reason to change"), (null, null));
+        lesson!.Icon.Should().Be("🎯");
+        sheets.Select(s => s.Icon).Should().Equal("🎯", null);
+        sheet!.Icon.Should().Be("🎯");
+        (await catalog.GetModuleAsync("case-studies", Ct))!.Mnemonics.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Module_Unknown_IsNull()
     {
         var catalog = await SampleAsync();
@@ -106,7 +133,7 @@ public abstract class ContentCatalogContract
         sheets.Select(s => s.LessonId).Should().Equal(
             "how-to-use", "solid-srp", "solid-ocp", "case-study-auth", "case-study-parking", "case-study-lru");
         sheets[1].Should().Be(new CheatSheetSummary(
-            "solid-srp", "oop-solid", "OOP & SOLID", "srp", "Single responsibility", "Cheat sheet: Single responsibility"));
+            "solid-srp", "oop-solid", "OOP & SOLID", "srp", "Single responsibility", "Cheat sheet: Single responsibility", "🎯"));
     }
 
     [Fact]

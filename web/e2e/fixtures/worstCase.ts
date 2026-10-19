@@ -18,7 +18,14 @@ interface Lesson {
   order: number;
   readingMinutes: number;
   tags: string[];
+  icon?: string | null;
+  hook?: string | null;
 }
+
+// Spec 004: multi-codepoint emoji (ZWJ sequence, flag, variation selector), one lesson with no icon; hooks at the
+// 40-character limit the validator enforces, one of them a single unbreakable identifier.
+const ICONS = ['🧑‍💻', '🇮🇳', '🏳️‍🌈', null, '🎛️'];
+const HOOKS = ['Fair across tenants, even if Redis dies.', 'IRefreshTokenRepositoryFactoryProviderCo', null, 'Jo'];
 
 const lesson = (moduleSlug: string, n: number, title: string, summary: string, minutes: number): Lesson => ({
   id: `${moduleSlug}-${n}`,
@@ -29,6 +36,8 @@ const lesson = (moduleSlug: string, n: number, title: string, summary: string, m
   order: n,
   readingMinutes: minutes,
   tags: ['strategy', 'observer', 'repository', 'unit-of-work', 'dependency-inversion'],
+  icon: ICONS[(n - 1) % ICONS.length],
+  hook: HOOKS[(n - 1) % HOOKS.length],
 });
 
 const modules = [
@@ -78,12 +87,63 @@ const outline = Array.from({ length: 40 }, (_, i) => ({
   anchor: `section-${i + 1}`,
 }));
 
+// Spec 004 map and mnemonic: a long package title, an untitled group, 14 links from the first lesson (a long card),
+// and a 7-letter acrostic whose rows include the longest title and the unbreakable one.
+const patternSlugs = Array.from({ length: 40 }, (_, i) => `lesson-${i + 1}`);
+const map = {
+  groups: [
+    {
+      title: 'Creational patterns that build objects without new, and why most factories are overkill in modern C#',
+      lessons: patternSlugs.slice(0, 10),
+    },
+    { title: '', lessons: patternSlugs.slice(10) },
+  ],
+  links: [
+    { from: 'lesson-1', to: 'lesson-2', label: 'is often confused with, but solves a different problem than' },
+    ...patternSlugs.slice(2, 15).map((to) => ({ from: 'lesson-1', to, label: null })),
+  ],
+};
+const mnemonics = [{ word: 'GO-FOR-IT', lessons: patternSlugs.slice(0, 7) }];
+
+const LONG_LINE = `var options = new ${UNBREAKABLE}(tenantId: request.TenantId, window: TimeSpan.FromSeconds(60), limit: 1_000);`;
+const spec004Body = [
+  '> [!REMEMBER]',
+  `> Never let \`${UNBREAKABLE}\` decide alone whether a tenant is over its limit: ask the limiter.`,
+  '',
+  '```csharp before title="Before: the 2019 version, with a 120-character line and a title much longer than anyone planned for" mark="1,3"',
+  LONG_LINE,
+  'var limiter = new Limiter(options);',
+  'limiter.Check();',
+  '```',
+  '```csharp after title="After" mark="1"',
+  'var limiter = Limiter.For(tenant);',
+  '```',
+  '',
+  ...['NOTE', 'TIP', 'INTERVIEW', 'SMELL', 'PITFALL', 'APP', 'WORK'].flatMap((type) => [
+    `> [!${type}]`,
+    `> \`${UNBREAKABLE}\` at https://github.com/Akus0ni/LowLevelDesignGuide/blob/main/src/Lld.Infrastructure/Persistence/Repositories.cs`,
+    '',
+  ]),
+  '## Interview questions',
+  '',
+  ...Array.from({ length: 9 }, (_, i) => [
+    `### ${i === 0 ? `Why would ${UNBREAKABLE} ever need to know about tenants, windows, Redis and the on-call rota at the same time?` : `Question ${i + 1}?`}`,
+    '',
+    i === 0 ? `Because \`${UNBREAKABLE}\` grew. ${'It kept growing. '.repeat(20)}` : 'Short answer.',
+    '',
+  ]).flat(),
+  '## Go deeper',
+  '',
+  ...Array.from({ length: 12 }, (_, i) => [`### Deep topic number ${i + 1} with a longer title`, '', 'Detail.', '']).flat(),
+];
+
 const body = [
   `# ${LONG_TITLE}`,
   '',
   `Inline \`${UNBREAKABLE}\` and a link to https://github.com/Akus0ni/LowLevelDesignGuide/blob/main/src/Lld.Infrastructure/Persistence/Repositories.cs that has no spaces.`,
   '',
   ...outline.flatMap((entry) => [`${entry.level === 2 ? '##' : '###'} ${entry.text}`, '', 'Text.', '']),
+  ...spec004Body,
 ].join('\n');
 
 function lessonDetail(l: Lesson, moduleTitle: string, siblings: Lesson[]) {
@@ -110,6 +170,7 @@ const sheets = modules.flatMap((m) =>
     lessonSlug: l.slug,
     lessonTitle: l.title,
     title: `Cheat sheet: ${l.title}`,
+    icon: l.icon,
   })),
 );
 
@@ -127,7 +188,13 @@ export async function routeWorstCase(page: Page): Promise<void> {
       if (path === 'modules')
         return modules.map(({ lessons, ...m }, order) => ({ ...m, order, lessonCount: lessons.length }));
       if (kind === 'modules' && module)
-        return { slug: module.slug, title: module.title, summary: module.summary, lessons: module.lessons };
+        return {
+          slug: module.slug,
+          title: module.title,
+          summary: module.summary,
+          lessons: module.lessons,
+          ...(module.slug === 'patterns' ? { map, mnemonics } : {}),
+        };
       if (path === 'cheatsheets') {
         const filter = url.searchParams.get('module');
         return filter ? sheets.filter((s) => s.moduleSlug === filter) : sheets;

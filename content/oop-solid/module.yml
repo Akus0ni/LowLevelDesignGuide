@@ -1,0 +1,52 @@
+title: OOP & SOLID
+order: 1
+summary: Objects that guard their own rules, and the five principles that keep classes easy to change.
+template: concept
+# Each letter starts the title of its lesson; the module page draws them as acrostics.
+mnemonics: ["A-PIE: abstraction, polymorphism, inheritance, encapsulation", "SOLID: srp, ocp, lsp, isp, dip"]
+# Node ids are lesson folder names; the app draws each subgraph as a «package». Put spaces around arrows.
+map: |
+  flowchart TD
+    subgraph pillars["The four pillars (A-PIE)"]
+      encapsulation["Encapsulation"]
+      abstraction["Abstraction"]
+      inheritance["Inheritance"]
+      polymorphism["Polymorphism"]
+    end
+    subgraph basics["Design basics"]
+      interfaces-vs-abstract-classes["Interfaces vs abstract classes"]
+      composition-over-inheritance["Composition over inheritance"]
+      value-objects-immutability["Value objects & immutability"]
+      coupling-cohesion["Coupling & cohesion"]
+      law-of-demeter["Law of Demeter"]
+    end
+    subgraph solid["SOLID"]
+      srp["SRP"]
+      ocp["OCP"]
+      lsp["LSP"]
+      isp["ISP"]
+      dip["DIP"]
+    end
+    subgraph heuristics["Guard rails"]
+      dry-kiss-yagni["DRY, KISS & YAGNI"]
+    end
+    encapsulation -->|"hides the details behind"| abstraction
+    inheritance -->|"is one way to get"| polymorphism
+    abstraction -->|"lets callers rely on"| polymorphism
+    abstraction -->|"is written as"| interfaces-vs-abstract-classes
+    inheritance -->|"is often replaced by"| composition-over-inheritance
+    encapsulation -->|"guards the rules of"| value-objects-immutability
+    encapsulation -->|"seen from the caller is"| law-of-demeter
+    law-of-demeter -->|"keeps down"| coupling-cohesion
+    composition-over-inheritance -->|"keeps down"| coupling-cohesion
+    coupling-cohesion -->|"cohesion becomes"| srp
+    polymorphism -->|"powers"| ocp
+    composition-over-inheritance -->|"plugs in for"| ocp
+    ocp -->|"needs"| lsp
+    inheritance -->|"must keep promises:"| lsp
+    interfaces-vs-abstract-classes -->|"kept small:"| isp
+    isp -->|"helps keep"| lsp
+    abstraction -->|"owned by the caller:"| dip
+    ocp -->|"is made possible by"| dip
+    dry-kiss-yagni -.->|"keeps in check"| ocp
+    dry-kiss-yagni -.->|"warns against the wrong"| abstraction

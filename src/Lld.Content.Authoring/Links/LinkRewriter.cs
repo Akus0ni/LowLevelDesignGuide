@@ -1,4 +1,4 @@
-using System.Text;
+using Lld.Content.Authoring.Editing;
 using Lld.Content.Authoring.Parsing;
 
 namespace Lld.Content.Authoring.Links;
@@ -8,26 +8,26 @@ namespace Lld.Content.Authoring.Links;
 /// become GitHub URLs. The app uses a hash router, so a heading is passed as <c>?at=anchor</c> instead of <c>#anchor</c>.
 /// Only the destination text changes; everything else in the file stays byte-for-byte the same.
 /// </summary>
-public sealed class LinkRewriter(LinkResolver resolver, ContentOptions options)
+public sealed class LinkRewriter(LinkResolver resolver, ContentOptions options) : IBodyEditSource
 {
     public const string LearnRoute = "/learn";
     public const string ReviseRoute = "/revise";
     public const string AnchorParameter = "at";
 
     /// <summary>The document body (front-matter removed) with every rewritable link replaced.</summary>
-    public string RewriteBody(SourceDocument source)
+    public string RewriteBody(SourceDocument source) => BodyComposer.Compose(source, EditsFor(source));
+
+    /// <summary>One edit per link destination that changes; empty destinations and external links stay as written.</summary>
+    public IEnumerable<TextEdit> EditsFor(SourceDocument source)
     {
         ArgumentNullException.ThrowIfNull(source);
-        var text = new StringBuilder(source.Text);
-        foreach (var link in DocumentLinks.Of(source).Where(l => l.Length > 0).OrderByDescending(l => l.Start))
+        foreach (var link in DocumentLinks.Of(source).Where(l => l.Length > 0))
         {
             if (Route(resolver.Resolve(source.Path, link.Url)) is { } route)
             {
-                text.Remove(link.Start, link.Length).Insert(link.Start, route);
+                yield return new TextEdit(link.Start, link.Length, route);
             }
         }
-
-        return text.ToString(source.BodyStart, text.Length - source.BodyStart);
     }
 
     /// <summary>The destination to use in the app, or <c>null</c> to keep the link as written.</summary>

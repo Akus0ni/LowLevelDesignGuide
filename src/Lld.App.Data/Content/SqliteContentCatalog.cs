@@ -29,9 +29,10 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
     public async Task<ModuleDetail?> GetModuleAsync(string slug, CancellationToken cancellationToken)
     {
         var module = (await QueryAsync(
-            "SELECT Slug, Title, Summary FROM Modules WHERE Slug = $slug;",
+            "SELECT Slug, Title, Summary, MapJson, MnemonicsJson FROM Modules WHERE Slug = $slug;",
             [("$slug", slug)],
-            r => (Slug: r.GetString(0), Title: r.GetString(1), Summary: r.GetString(2)),
+            r => (Slug: r.GetString(0), Title: r.GetString(1), Summary: r.GetString(2),
+                Map: r.IsDBNull(3) ? null : DeviceJson.Map(r.GetString(3)), Mnemonics: DeviceJson.Mnemonics(r.GetString(4))),
             cancellationToken).ConfigureAwait(false)).SingleOrDefault();
         if (module.Slug is null)
         {
@@ -40,16 +41,16 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
 
         var lessons = await QueryAsync(
             $"""
-            SELECT l.Id, l.ModuleSlug, l.Slug, l.Title, l.Summary, l.SortOrder, l.ReadingMinutes, l.TagsJson
+            SELECT l.Id, l.ModuleSlug, l.Slug, l.Title, l.Summary, l.SortOrder, l.ReadingMinutes, l.TagsJson, l.Icon, l.Hook
             FROM Lessons l WHERE l.ModuleSlug = $slug
             ORDER BY {LessonOrder};
             """,
             [("$slug", slug)],
             r => new LessonSummary(
                 r.GetString(0), r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4),
-                r.GetInt32(5), r.GetInt32(6), DeviceJson.Tags(r.GetString(7))),
+                r.GetInt32(5), r.GetInt32(6), DeviceJson.Tags(r.GetString(7)), Optional(r, 8), Optional(r, 9)),
             cancellationToken).ConfigureAwait(false);
-        return new ModuleDetail(module.Slug, module.Title, module.Summary, lessons);
+        return new ModuleDetail(module.Slug, module.Title, module.Summary, lessons, module.Map, module.Mnemonics);
     }
 
     public async Task<LessonDetail?> GetLessonAsync(string id, CancellationToken cancellationToken) =>
@@ -57,7 +58,7 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
             $"""
             SELECT x.Id, x.ModuleSlug, m.Title, x.Slug, x.Title, x.Summary, x.SortOrder, x.ReadingMinutes, x.TagsJson,
                    x.BodyMarkdown, x.OutlineJson, x.CheatSheetTitle,
-                   x.PrevId, x.PrevSlug, x.PrevTitle, x.NextId, x.NextSlug, x.NextTitle, x.TermsJson
+                   x.PrevId, x.PrevSlug, x.PrevTitle, x.NextId, x.NextSlug, x.NextTitle, x.TermsJson, x.Icon
             FROM (
                 SELECT l.*,
                        LAG(l.Id) OVER w AS PrevId, LAG(l.Slug) OVER w AS PrevSlug, LAG(l.Title) OVER w AS PrevTitle,
@@ -74,32 +75,37 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
                 r.GetString(0), r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetString(5),
                 r.GetInt32(6), r.GetInt32(7), DeviceJson.Tags(r.GetString(8)), r.GetString(9),
                 DeviceJson.Outline(r.GetString(10)), r.GetString(11),
-                Link(r, 12, r.GetString(1)), Link(r, 15, r.GetString(1)), DeviceJson.Terms(r.GetString(18))),
+                Link(r, 12, r.GetString(1)), Link(r, 15, r.GetString(1)), DeviceJson.Terms(r.GetString(18)), Optional(r, 19)),
             cancellationToken).ConfigureAwait(false)).SingleOrDefault();
 
     public Task<IReadOnlyList<CheatSheetSummary>> GetCheatSheetsAsync(string? moduleSlug, CancellationToken cancellationToken) =>
         QueryAsync(
             $"""
-            SELECT l.Id, l.ModuleSlug, m.Title, l.Slug, l.Title, l.CheatSheetTitle
+            SELECT l.Id, l.ModuleSlug, m.Title, l.Slug, l.Title, l.CheatSheetTitle, l.Icon
             FROM Lessons l JOIN Modules m ON m.Slug = l.ModuleSlug
             WHERE $module IS NULL OR l.ModuleSlug = $module
             ORDER BY {ModuleOrder}, {LessonOrder};
             """,
             [("$module", moduleSlug)],
-            r => new CheatSheetSummary(r.GetString(0), r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetString(5)),
+            r => new CheatSheetSummary(
+                r.GetString(0), r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetString(5), Optional(r, 6)),
             cancellationToken);
 
     public async Task<CheatSheetDetail?> GetCheatSheetAsync(string lessonId, CancellationToken cancellationToken) =>
         (await QueryAsync(
             """
-            SELECT l.Id, l.ModuleSlug, m.Title, l.Slug, l.Title, l.CheatSheetTitle, l.CheatSheetMarkdown
+            SELECT l.Id, l.ModuleSlug, m.Title, l.Slug, l.Title, l.CheatSheetTitle, l.CheatSheetMarkdown, l.Icon
             FROM Lessons l JOIN Modules m ON m.Slug = l.ModuleSlug
             WHERE l.Id = $id;
             """,
             [("$id", lessonId)],
             r => new CheatSheetDetail(
-                r.GetString(0), r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetString(5), r.GetString(6)),
+                r.GetString(0), r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetString(5), r.GetString(6),
+                Optional(r, 7)),
             cancellationToken).ConfigureAwait(false)).SingleOrDefault();
+
+    private static string? Optional(SqliteDataReader reader, int column) =>
+        reader.IsDBNull(column) ? null : reader.GetString(column);
 
     private static LessonLink? Link(SqliteDataReader reader, int first, string moduleSlug) =>
         reader.IsDBNull(first)

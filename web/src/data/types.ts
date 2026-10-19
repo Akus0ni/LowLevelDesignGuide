@@ -56,6 +56,10 @@ export interface LessonSummary {
   order: number;
   readingMinutes: number;
   tags: string[];
+  /** The concept's face, one emoji (spec 004 §3.8); concept modules always have one. */
+  icon?: string | null;
+  /** A phrase to remember, at most 40 characters ("Ask, don't touch"). */
+  hook?: string | null;
 }
 
 /** Mirrors Lld.Contracts.ModuleDetail. */
@@ -64,6 +68,35 @@ export interface ModuleDetail {
   title: string;
   summary: string;
   lessons: LessonSummary[];
+  /** How the lessons relate (spec 004 §3.6); null when the module has no map. */
+  map?: ModuleMap | null;
+  /** Memory hooks such as SOLID (spec 004 §3.8); empty when none. */
+  mnemonics?: Mnemonic[] | null;
+}
+
+/** Mirrors Lld.Contracts.Mnemonic: a word whose letters start the titles of `lessons` (slugs), in order. */
+export interface Mnemonic {
+  word: string;
+  lessons: string[];
+}
+
+/** Mirrors Lld.Contracts.ModuleMap: lessons in titled groups, and labelled links between them. */
+export interface ModuleMap {
+  groups: MapGroup[];
+  links: MapLink[];
+}
+
+/** `title` is empty for lessons outside any group; `lessons` are slugs in the order written. */
+export interface MapGroup {
+  title: string;
+  lessons: string[];
+}
+
+/** "from label to", e.g. "ocp needs lsp" (slugs). */
+export interface MapLink {
+  from: string;
+  to: string;
+  label: string | null;
 }
 
 /** An h2 or h3 of a lesson; `anchor` follows GitHub's heading-id rules (github-slugger). */
@@ -109,6 +142,8 @@ export interface CheatSheetSummary {
   lessonSlug: string;
   lessonTitle: string;
   title: string;
+  /** The lesson's icon, when it has one. */
+  icon?: string | null;
 }
 
 /** Mirrors Lld.Contracts.CheatSheetDetail. */

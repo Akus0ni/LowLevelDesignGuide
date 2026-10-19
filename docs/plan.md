@@ -121,6 +121,7 @@ LowLevelDesignGuide/
 ├─ docs/                      # PRD.md, plan.md, adr/
 ├─ specs/NNN-name/            # spec.md, plan.md, tasks.md
 ├─ content/                   # lessons + cheat sheets (Markdown + front-matter); packaged into the app
+├─ samples/                   # compiled C# the lessons quote by symbol (Lld.Samples.OopSolid, spec 004)
 │  ├─ oop-solid/  patterns/  uml/  case-studies/
 ├─ web/                       # React + Vite + TS
 ├─ src/
@@ -225,6 +226,9 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | 2026-10-16 | **Open reading**: Learn and Revise need no account; content API only in Development (PRD R68) |
 | 2026-10-16 | Content **validated and packed at build time** by `lld-content`; C# parses and validates, React renders the Markdown (PRD R70, R71) |
 | 2026-10-16 | Visual identity **"the curriculum as a class diagram"** and **interactive learning without quizzes** (spec 003 amendment §3.7–3.8; PRD R73, R74) |
+| 2026-10-16 | Lesson C# is **quoted from compiled code by symbol** (Roslyn 5.0.0, the version EF Core Design pins); concept modules can't contain inline C# (PRD R77) |
+| 2026-10-16 | The **module map is drawn by the app** as «package» boxes from a Mermaid flowchart parsed at pack time (PRD R81) |
+| 2026-10-17 | Lessons are **short visual cards with memory aids** and a folded "Go deeper" (owner: simple, memorable, little text; PRD R82, R83) |
 
 ## 8. Phase 2: Apple builds (deferred 2026-10-14)
 Owner decision: Apple CI does not block PRs until Phase 2. The job is kept, ready to run, in

@@ -24,10 +24,25 @@ internal static class DeviceJson
 
     public static IReadOnlyList<LessonTerm> Terms(string json) =>
         JsonSerializer.Deserialize(json, DeviceJsonContext.Default.LessonTermArray) ?? [];
+
+    /// <summary><c>null</c> (no map) is stored as SQL NULL.</summary>
+    public static string? Map(ModuleMap? map) =>
+        map is null ? null : JsonSerializer.Serialize(map, DeviceJsonContext.Default.ModuleMap);
+
+    public static ModuleMap? Map(string json) =>
+        JsonSerializer.Deserialize(json, DeviceJsonContext.Default.ModuleMap);
+
+    public static string Mnemonics(IReadOnlyList<Mnemonic>? mnemonics) =>
+        JsonSerializer.Serialize([.. mnemonics ?? []], DeviceJsonContext.Default.MnemonicArray);
+
+    public static IReadOnlyList<Mnemonic> Mnemonics(string json) =>
+        JsonSerializer.Deserialize(json, DeviceJsonContext.Default.MnemonicArray) ?? [];
 }
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(string[]))]
 [JsonSerializable(typeof(OutlineEntry[]))]
 [JsonSerializable(typeof(LessonTerm[]))]
+[JsonSerializable(typeof(ModuleMap))]
+[JsonSerializable(typeof(Mnemonic[]))]
 internal sealed partial class DeviceJsonContext : JsonSerializerContext;

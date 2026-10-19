@@ -1,8 +1,11 @@
 using System.Security.Cryptography;
+using Lld.Content.Authoring.Editing;
 using Lld.Content.Authoring.Links;
 using Lld.Content.Authoring.Parsing;
 using Lld.Content.Authoring.Reading;
+using Lld.Content.Authoring.Snippets;
 using Lld.Content.Authoring.Validation;
+using Lld.Contracts;
 
 namespace Lld.Content.Authoring.Packing;
 
@@ -11,9 +14,10 @@ namespace Lld.Content.Authoring.Packing;
 /// computed. The version is a hash of everything else, so the same content always gets the same version and the
 /// device reloads only when something really changed. Call it only after validation passed.
 /// </summary>
-public sealed class ContentPacker(ContentOptions options)
+public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource snippets)
 {
-    private readonly LinkRewriter _rewriter = new(new LinkResolver(options), options);
+    private readonly IReadOnlyList<IBodyEditSource> _editors =
+        [new LinkRewriter(new LinkResolver(options), options), new FenceEdits(snippets)];
 
     public ContentPack Pack(ContentSet set)
     {
@@ -36,7 +40,9 @@ public sealed class ContentPacker(ContentOptions options)
             .ThenBy(l => l.Slug, StringComparer.Ordinal)
             .ToList();
         return new PackedModule(
-            module.Slug, Text(manifest, FrontMatterKeys.Title), Text(manifest, FrontMatterKeys.Summary), Order(manifest), lessons);
+            module.Slug, Text(manifest, FrontMatterKeys.Title), Text(manifest, FrontMatterKeys.Summary), Order(manifest), lessons,
+            manifest[FrontMatterKeys.Map]?.Scalar is { } map ? FlowchartMap.Parse(map).ToContract() : null,
+            [.. (manifest[FrontMatterKeys.Mnemonics]?.Items ?? []).Select(Mnemonics.Parse).Select(m => new Mnemonic(m.Word, m.Lessons))]);
     }
 
     private PackedLesson PackLesson(SourceLesson lesson)
@@ -55,11 +61,16 @@ public sealed class ContentPacker(ContentOptions options)
             front[FrontMatterKeys.Tags]?.Items ?? [],
             front[FrontMatterKeys.Source]?.Scalar,
             ReadingTime.Minutes(body.Document, options.WordsPerMinute),
-            _rewriter.RewriteBody(body),
+            Body(body),
             DocumentHeadings.Outline(headings),
-            new PackedCheatSheet(Text(sheetFront, FrontMatterKeys.Title), _rewriter.RewriteBody(sheet)),
-            EntityTerms.Of(body, headings));
+            new PackedCheatSheet(Text(sheetFront, FrontMatterKeys.Title), Body(sheet)),
+            EntityTerms.Of(body, headings),
+            front[FrontMatterKeys.Icon]?.Scalar?.Trim(),
+            front[FrontMatterKeys.Hook]?.Scalar?.Trim());
     }
+
+    private string Body(SourceDocument document) =>
+        BodyComposer.Compose(document, _editors.SelectMany(editor => editor.EditsFor(document)));
 
     private static string VersionOf(ContentPack unversioned) =>
         Convert.ToHexStringLower(SHA256.HashData(ContentPackJson.ToUtf8Bytes(unversioned)));

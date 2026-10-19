@@ -47,7 +47,7 @@ public sealed class SchemaMigratorTests : IDisposable
     }
 
     [Fact]
-    public async Task V2_AddsLessonTerms_ToADeviceThatAlreadyHasV1Content()
+    public async Task LaterSteps_UpgradeADeviceThatAlreadyHasV1Content()
     {
         await new SchemaMigrator(_device.Database, [new V1ContentTables()]).MigrateAsync(Ct);
         await using (var connection = await _device.Database.OpenAsync(Ct))
@@ -62,10 +62,11 @@ public sealed class SchemaMigratorTests : IDisposable
             await insert.ExecuteNonQueryAsync(Ct);
         }
 
-        (await _device.MigrateAsync(Ct)).Should().Be(1);
+        (await _device.MigrateAsync(Ct)).Should().Be(2);
 
         await using var check = await _device.Database.OpenAsync(Ct);
         (await Scalar(check, "SELECT TermsJson FROM Lessons WHERE Id = 'l';")).Should().Be("[]");
+        (await Scalar(check, "SELECT coalesce(MapJson, 'none') FROM Modules WHERE Slug = 'm';")).Should().Be("none");
     }
 
     [Fact]

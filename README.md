@@ -195,6 +195,47 @@ content/
 - Cheat sheets: one screen + at most 2 scrolls; case-study cheat sheets up to 4.
 - Case studies start with the `lld-case-study` skill, which asks the owner first.
 
+### Concept lessons: short, visual, memorable (spec 004)
+A module with `template: concept` in `module.yml` (e.g. `oop-solid`) follows the visual-card template. Write short
+sentences in everyday words; put a picture or code before prose.
+
+````markdown
+---
+id: srp
+title: Single Responsibility (SRP)   # the first letter counts in mnemonics
+order: 10
+summary: "One sentence for lists."
+tags: [solid, srp]
+icon: "🎯"                            # required: one emoji (no flags: Windows shows letters)
+hook: "One class, one boss"           # required: at most 40 characters
+---
+
+# Single Responsibility (SRP)
+
+> [!REMEMBER]
+> One class, one boss.               (required, before the first ## section; cheat sheets too)
+
+```mermaid
+flowchart TD                         (the everyday picture: top to bottom, at most ~2 boxes per row)
+```
+
+## The rule · ## See it · ## Smell it · ## In this app
+## Interview questions               (5–8 ### questions, each with an answer; folded in the app)
+## Go deeper                         (folded; not counted in reading time; keep the card ≤ 8 min)
+````
+
+| Feature | How to write it |
+|---|---|
+| **Compiled C#** | ```` ```csharp snippet="samples/Lld.Samples.OopSolid/Srp/After/Invoice.cs#Invoice,InvoiceHtml" ```` with an empty body. Selectors: `Type`, `Outer.Inner`, `Type.Member` (all overloads; `Type.Type` = constructors), `Box<T>`; none = whole file. Paths may point into `samples/`, `src/` or `tests/`. Concept modules may not contain inline C#. |
+| **Before / After** | A ```` ```csharp before title="…" snippet="…" ```` fence directly followed by an ```` ```csharp after … ```` fence. Changed lines are marked when content is packed. |
+| **Mark lines** | ```` ```csharp mark="3-5,9" ```` on any other fence. |
+| **Callouts** | `> [!TYPE]` on the first line of a blockquote: `REMEMBER`, `NOTE`, `TIP`, `INTERVIEW`, `SMELL`, `PITFALL`, `APP` (in this app), `WORK` (from my work). |
+| **Module map** | `map:` in `module.yml`: a Mermaid flowchart whose node ids are lesson slugs; `subgraph id["Title"]` = a package; `a -->|"label"| b` = a link. Spaces around arrows; every lesson must appear. |
+| **Mnemonics** | `mnemonics: ["SOLID: srp, ocp, lsp, isp, dip"]`: one lesson per letter, each letter = the first letter of that lesson's title. |
+
+Samples live in `samples/Lld.Samples.OopSolid/<Lesson>/{Before,After,Language}` with tests in `tests/Lld.Samples.Tests`
+proving what each design claims. In browser dev mode, editing a quoted `.cs` file shows up on reload too.
+
 ```bash
 dotnet run --project src/Lld.Content.Cli -- validate                       # file:line: reason, exit 1 on any issue
 dotnet run --project src/Lld.Content.Cli -- pack --out <file>              # what the app build runs

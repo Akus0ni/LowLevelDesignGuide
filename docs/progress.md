@@ -3,18 +3,19 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-16_
+_Last updated: 2026-10-17 (spec 004 ready for review)_
 
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.5 (spec 003 decisions R67–R75) |
+| PRD | v0.6 (spec 004 decisions R76–R84) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
-| Spec 003 Content engine | 🔍 Built; PR open from `spec/003-content-engine`, waiting for owner review ("For your review" in the PR) |
+| Spec 003 Content engine | ✅ Merged (PR #5) |
+| Spec 004 OOP & SOLID | 🚧 Draft PR #6: engine, reader, memory aids done; done; PR #6 ready for owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -23,8 +24,8 @@ _Last updated: 2026-10-16_
 | 000 | Foundation | ✅ merged (PR #2) |
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
 | 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
-| 003 | Content engine (reader) | 🔍 PR open, owner review |
-| 004 | OOP & SOLID content | planned |
+| 003 | Content engine (reader) | ✅ merged (PR #5) |
+| 004 | OOP & SOLID content | 🔍 PR #6, owner review |
 | 005 | Progress | planned |
 | 006 | GoF patterns content | planned |
 | 007 | Notes & bookmarks | planned |
@@ -96,9 +97,30 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Content: "Start here" module with "How to use LLD Guide"; Auth case study adapted to the contract.
 - Details, measurements and findings: `specs/003-content-engine/plan.md` §4.
 
+## Spec 004: where it stands (2026-10-16)
+- Spec approved; plan + tasks in `specs/004-oop-solid/`. Owner choices: 15 lessons, deep, classic + "in this app"
+  examples, snippets by C# symbol (Roslyn), Before / After + callouts + folded interview Q&A + module map,
+  optional "From my work" (`[!WORK]`) slots, review in 4 batches.
+- Done: snippet engine + rules + pack format 2 (module map as groups/links, device step 3), reader UI (compare,
+  UML-note callouts, Q&A, «package» map), samples project + tests in CI, batch 1 (encapsulation, abstraction,
+  inheritance, polymorphism), e2e `web/e2e/concept.spec.ts`.
+- Also on this branch: CI fix for `main` (MessagePack pin, GHSA-qhrr-8q5h-9q3h) and a CRLF-safe test fixture.
+- After batch 1 the owner asked for **simple, visual, little text**: lessons are now a short card (REMEMBER stamp,
+  everyday picture, rule, one Before / After, smells, app example, 5 short interview Qs) + a folded "Go deeper";
+  icon + hook per lesson; module mnemonics drawn as acrostics (A-PIE now, SOLID in batch 3). Spec §3.2 / §3.8.
+- Batch 2 (design basics) done in that style. Draft PR #6 open so CI runs on each push.
+
+## Spec 004: what was delivered
+- OOP & SOLID module: 15 lessons + cheat sheets as visual cards (REMEMBER stamp, everyday picture, short card, folded
+  interview answers, folded "Go deeper"), icons + hooks, A-PIE and SOLID acrostics, a «package» map of how lessons relate.
+- Every C# block quoted from compiled code by symbol (`samples/Lld.Samples.OopSolid` + 63 tests, or real `src/`);
+  Before / After marks computed at pack time; 11 new validation rules; pack format 2, device schema step 3.
+- Reader: Before / After compare, UML-note callouts, interview Q&A, Go deeper fold, module map, mnemonics, icons.
+- CI fix for `main` (MessagePack pin). Details, deviations and findings: `specs/004-oop-solid/plan.md` §4.
+
 ## How to resume (next session)
-1. If PR for spec 003 is merged: `git switch main && git pull`, then ask the owner before starting spec 004
-   (OOP & SOLID content: use the content contract in the README "Writing content").
-2. If changes were requested: `git switch spec/003-content-engine`, apply them, push, and update the PR.
-3. Follow-up noted in the PR: first lesson open per session is ~360 ms in Debug (time it on a Release build with a
-   real phone).
+1. If PR #6 is merged: `git switch main && git pull`, then ask the owner before starting spec 005 (Progress).
+2. If changes were requested: `git switch spec/004-oop-solid`, apply them, push, and update the PR.
+3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
+   src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
+4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

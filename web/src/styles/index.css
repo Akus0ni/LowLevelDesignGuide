@@ -68,6 +68,10 @@
   --rule: #d6dce5;
   --accent: #1d5bff;
   --highlight: #e59a1f;
+  /* Spec 004 tones, used sparingly: callout stereotypes and Before / After marks (all AA as text on --surface). */
+  --tone-rose: #c0304a;
+  --tone-green: #0a7a52;
+  --tone-violet: #6a46c8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,6 +84,9 @@
     --rule: #263042;
     --accent: #6f9bff;
     --highlight: #f2b44c;
+    --tone-rose: #ff8c9c;
+    --tone-green: #58d3a0;
+    --tone-violet: #b6a1ff;
   }
 }
 
@@ -689,6 +696,885 @@
   @media (prefers-reduced-motion: reduce) {
     .recall-panel {
       transition: none;
+    }
+  }
+}
+
+/*
+ * Spec 004 reader features, all in the class-diagram vocabulary: callouts are UML notes (folded corner + stereotype),
+ * Before / After and interview answers reuse the class-box compartments, the module map draws UML packages. Motion is
+ * feedback only: 120ms press, 150–200ms strong ease-out on what the reader changes; reduced motion drops movement.
+ */
+@layer components {
+  /* Code lines: a title compartment, and marked lines (−/+/›) that never rely on colour alone. */
+  .code-block-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .code-block-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fg);
+  }
+
+  .code-block pre > code {
+    display: block;
+    min-width: max-content;
+  }
+
+  .code-block pre[data-marked] {
+    padding-inline: 0;
+
+    & .code-line {
+      position: relative;
+      display: inline-block;
+      min-width: 100%;
+      min-height: 1lh;
+      padding-inline: calc(1rem + 1.75ch) 1rem;
+    }
+
+    & .code-line[data-mark]::before {
+      position: absolute;
+      left: calc(1rem - 0.25ch);
+      font-weight: 600;
+    }
+  }
+
+  .code-line[data-mark='del'] {
+    background: color-mix(in oklab, var(--tone-rose) 12%, transparent);
+
+    &::before {
+      content: '−';
+      color: var(--tone-rose);
+    }
+  }
+
+  .code-line[data-mark='add'] {
+    background: color-mix(in oklab, var(--tone-green) 13%, transparent);
+
+    &::before {
+      content: '+';
+      color: var(--tone-green);
+    }
+  }
+
+  .code-line[data-mark='mark'] {
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
+
+    &::before {
+      content: '›';
+      color: var(--accent);
+    }
+  }
+
+  /* Before / After: one box; a segmented switch on narrow screens, two panes when both fit. */
+  .compare-head {
+    padding-block: 0.3rem;
+
+    /* The title says what the refactor is about: wrap to two lines rather than lose it. */
+    & .code-block-title {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-height: 1.4;
+      white-space: normal;
+    }
+  }
+
+  .compare-switch {
+    position: relative;
+    isolation: isolate;
+    display: inline-grid;
+    flex-shrink: 0;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--bg);
+    padding: 2px;
+
+    /* The thumb slides to the chosen side. */
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: 2px auto 2px 2px;
+      width: calc(50% - 2px);
+      border-radius: 999px;
+      background: color-mix(in oklab, var(--accent) 14%, var(--surface));
+      box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent),
+        0 1px 2px rgb(0 0 0 / 0.08);
+      transition: transform 200ms var(--ease-out);
+    }
+
+    &[data-side='after']::before {
+      transform: translateX(100%);
+    }
+
+    & button {
+      height: 2rem;
+      min-width: 4.5rem;
+      border-radius: 999px;
+      padding-inline: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      transition: color 150ms ease;
+
+      &[aria-selected='true'] {
+        color: var(--fg);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+    }
+  }
+
+  /* The box keeps the taller pane's height; below the shorter one the drafting grid shows, so the code visibly ends. */
+  .compare-panes {
+    display: grid;
+    background-image: radial-gradient(color-mix(in oklab, var(--rule) 80%, transparent) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  .compare-pane {
+    min-width: 0;
+    align-self: start;
+    background: var(--surface);
+  }
+
+  .compare[data-layout='split'] .compare-pane {
+    align-self: stretch;
+  }
+
+  .compare[data-layout='tabs'] .compare-pane {
+    grid-area: 1 / 1;
+    transition:
+      opacity 150ms var(--ease-out),
+      visibility 0s;
+
+    &:not([data-shown]) {
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 150ms var(--ease-out),
+        visibility 0s linear 150ms;
+    }
+  }
+
+  .compare[data-layout='split'] {
+    & .compare-panes {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    & .compare-pane-after {
+      border-left: 1px solid var(--rule);
+    }
+  }
+
+  .compare-pane-label {
+    display: flex;
+    gap: 0.75rem;
+    border-bottom: 1px dashed var(--rule);
+    padding: 0.3rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .compare-pane-before .compare-pane-label > :first-child {
+    color: var(--tone-rose);
+  }
+
+  .compare-pane-after .compare-pane-label > :first-child {
+    color: var(--tone-green);
+  }
+
+  .code-block .compare-probe {
+    position: absolute;
+    visibility: hidden;
+    padding: 0;
+    overflow: visible;
+  }
+
+  /* Callouts: UML notes. Hairline box, folded top-right corner, a stereotype in the type's tone. */
+  .callout {
+    --tone: var(--muted);
+    --fold: 14px;
+    position: relative;
+    max-width: 68ch;
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem 0 0.5rem 0.5rem;
+    background: var(--surface);
+    padding: 0.7em 1.1em 0.85em;
+    clip-path: polygon(0 0, calc(100% - var(--fold)) 0, 100% var(--fold), 100% 100%, 0 100%);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      width: calc(var(--fold) + 1px);
+      height: calc(var(--fold) + 1px);
+      border-left: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      border-bottom-left-radius: 3px;
+      background: linear-gradient(
+        to bottom left,
+        transparent calc(50% - 0.5px),
+        var(--rule) calc(50% - 0.5px),
+        var(--rule) calc(50% + 0.5px),
+        color-mix(in oklab, var(--fg) 5%, var(--surface)) calc(50% + 0.5px)
+      );
+    }
+
+    &[data-callout='tip'],
+    &[data-callout='interview'] {
+      --tone: var(--accent);
+    }
+
+    &[data-callout='smell'],
+    &[data-callout='pitfall'] {
+      --tone: var(--tone-rose);
+    }
+
+    &[data-callout='app'] {
+      --tone: var(--tone-green);
+    }
+
+    &[data-callout='work'] {
+      --tone: var(--tone-violet);
+    }
+  }
+
+  .callout-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--tone);
+  }
+
+  .callout-body > * + * {
+    margin-top: 0.6em;
+  }
+
+  /* Interview questions: one box, a compartment per question; the answer opens like an accordion. */
+  .qa-list {
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    overflow: hidden;
+
+    & > div + div {
+      border-top: 1px solid var(--rule);
+    }
+  }
+
+  .qa-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    padding: 0.25rem 0.4rem 0.25rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .qa-all {
+    flex-shrink: 0;
+    height: 2.25rem;
+    border-radius: 0.4rem;
+    padding-inline: 0.6rem;
+    color: var(--accent);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  .reader-prose .qa-question {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: inherit;
+    font-size: 1em;
+  }
+
+  .qa-trigger {
+    display: flex;
+    width: 100%;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--fg);
+    transition: background-color 150ms ease;
+
+    &:active {
+      background: color-mix(in oklab, var(--fg) 5%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: color-mix(in oklab, var(--fg) 2.5%, transparent);
+      }
+    }
+  }
+
+  .qa-number {
+    flex-shrink: 0;
+    min-width: 2.5ch;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .qa-chevron {
+    flex-shrink: 0;
+    align-self: center;
+    color: var(--muted);
+    transition: transform 200ms var(--ease-out);
+
+    [data-panel-open] > & {
+      transform: rotate(180deg);
+    }
+  }
+
+  .qa-answer {
+    height: var(--collapsible-panel-height);
+    overflow: hidden;
+    transition:
+      height 200ms var(--ease-out),
+      opacity 200ms var(--ease-out);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      height: 0;
+      opacity: 0;
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .qa-answer-body {
+    padding: 0 1rem 1rem calc(1rem + 2.5ch + 0.75rem);
+
+    & > * + * {
+      margin-top: 0.75em;
+    }
+  }
+
+  /* The module map: UML packages (a box with a folder tab), lessons as members. */
+  .module-map {
+    margin-bottom: 1.75rem;
+  }
+
+  .map-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .map-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    align-items: start;
+    gap: 1.6rem 1rem;
+  }
+
+  .map-package {
+    position: relative;
+    border: 1px solid var(--rule);
+    border-radius: 0 0.5rem 0.5rem 0.5rem;
+    background: var(--surface);
+    padding: 0.6rem 0.75rem 0.8rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -9px;
+      left: -1px;
+      width: 5.5rem;
+      height: 9px;
+      border: 1px solid var(--rule);
+      border-bottom: 0;
+      border-radius: 0.3rem 0.3rem 0 0;
+      background: var(--surface);
+    }
+  }
+
+  .map-stereotype {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .map-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .map-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+  }
+
+  .map-chip {
+    display: inline-flex;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    min-height: 2.25rem;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--bg);
+    padding: 0.3rem 0.75rem;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      opacity 200ms var(--ease-out),
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: var(--accent);
+      }
+    }
+
+    &[data-state='selected'] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+
+      & .map-chip-number {
+        color: rgb(255 255 255 / 0.75);
+      }
+    }
+
+    &[data-state='related'] {
+      border-color: var(--accent);
+      background: color-mix(in oklab, var(--accent) 9%, var(--surface));
+      color: var(--accent);
+    }
+  }
+
+  .map-chip-number {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .module-map[data-focus] .map-chip:not([data-state]) {
+    opacity: 0.4;
+  }
+
+  .map-card {
+    margin-top: 0.8rem;
+    border-top: 1px dashed var(--rule);
+    padding-top: 0.75rem;
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out);
+
+    @starting-style {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  .map-card-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .map-card-title {
+    overflow-wrap: anywhere;
+    margin-top: 0.15rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .map-card-summary {
+    margin-top: 0.25rem;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .map-relations {
+    margin-top: 0.5rem;
+  }
+
+  .map-relation {
+    overflow-wrap: anywhere;
+    min-height: 2.25rem;
+    padding-block: 0.3rem;
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--fg);
+
+    & strong {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 0.25rem;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover strong {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+    }
+  }
+
+  .map-open {
+    display: inline-flex;
+    height: 2.5rem;
+    align-items: center;
+    margin-top: 0.6rem;
+    border-radius: 999px;
+    background: var(--accent);
+    padding-inline: 1rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  /* Memory aids (spec 004 §3.8). The concept's face: colour emoji from the platform font, never tinted. */
+  .lesson-icon {
+    flex-shrink: 0;
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+    font-style: normal;
+    line-height: 1;
+  }
+
+  .lesson-icon-tile {
+    display: inline-grid;
+    place-items: center;
+    width: 1.5em;
+    height: 1.5em;
+    border: 1px solid var(--rule);
+    border-radius: 0.3em;
+    background: var(--surface);
+    font-size: 0.75em;
+  }
+
+  /* REMEMBER: a stamp, the one line to take away. Double frame (solid + dashed inset), display face, no fold. */
+  .reader-prose .callout[data-callout='remember'] {
+    --tone: var(--accent);
+    clip-path: none;
+    border: 2px solid var(--accent);
+    border-radius: 0.75rem;
+    background: color-mix(in oklab, var(--accent) 6%, var(--surface));
+    outline: 1px dashed color-mix(in oklab, var(--accent) 45%, transparent);
+    outline-offset: -8px;
+    padding: 1em 1.3em 1.15em;
+
+    &::after {
+      content: none;
+    }
+
+    & .callout-label {
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    & .callout-body {
+      font-family: var(--font-display);
+      font-optical-sizing: auto;
+      font-size: 1.35em;
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+  }
+
+  /* Module mnemonics: acrostics. The giant first letters spell the word down the left edge. */
+  .mnemonics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .mnemonic {
+    overflow: hidden;
+    border: 2px solid var(--accent);
+    border-radius: 0.75rem;
+    background: var(--surface);
+  }
+
+  .mnemonic-word {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    padding: 0.55rem 0.9rem;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .mnemonic-stereotype {
+    order: 2;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .mnemonic li + li {
+    border-top: 1px solid var(--rule);
+  }
+
+  .mnemonic-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.45rem 0.9rem 0.45rem 0;
+    transition: background-color 150ms ease;
+
+    &:active {
+      background: color-mix(in oklab, var(--fg) 5%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: color-mix(in oklab, var(--accent) 5%, transparent);
+      }
+    }
+  }
+
+  .mnemonic-letter {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    align-self: stretch;
+    width: 3.25rem;
+    margin-block: -0.45rem;
+    background: color-mix(in oklab, var(--accent) 10%, var(--surface));
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .mnemonic-title {
+    display: block;
+    font-weight: 600;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  .mnemonic-hook {
+    display: block;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  /* Every row keeps the same icon column, with or without an icon, so titles line up. */
+  .mnemonic-icon {
+    width: 1.5em;
+    text-align: center;
+    font-size: 20px;
+  }
+
+  /* Go deeper: the optional half of a lesson, behind one generous button that says what is inside. */
+  .go-deeper {
+    margin-top: 0.75em;
+    border: 1px dashed var(--rule);
+    border-radius: 0.75rem;
+    background: var(--surface);
+  }
+
+  .go-deeper-trigger {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    text-align: left;
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.99);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      border-radius: 0.75rem;
+    }
+  }
+
+  .go-deeper-label {
+    display: block;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* Two lines of topics are enough to say what is inside; the rest is one tap away. */
+  .go-deeper-topics {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    margin-top: 0.15rem;
+    font-size: 0.85em;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  .go-deeper-chevron {
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: transform 200ms var(--ease-out);
+
+    [data-panel-open] > & {
+      transform: rotate(180deg);
+    }
+  }
+
+  .go-deeper-panel {
+    height: var(--collapsible-panel-height);
+    overflow: hidden;
+    transition: height 250ms var(--ease-out);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      height: 0;
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .go-deeper-body {
+    border-top: 1px dashed var(--rule);
+    padding: 0.25rem 1rem 1.25rem;
+
+    & > * + * {
+      margin-top: 1em;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .go-deeper-panel,
+    .go-deeper-chevron {
+      transition: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .compare-switch::before,
+    .compare[data-layout='tabs'] .compare-pane,
+    .qa-answer,
+    .qa-chevron {
+      transition: none;
+    }
+
+    .compare[data-layout='tabs'] .compare-pane:not([data-shown]) {
+      transition: none;
+    }
+
+    .map-card {
+      @starting-style {
+        transform: none;
+      }
     }
   }
 }

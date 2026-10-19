@@ -37,5 +37,6 @@ test('a long module name in the back link stays on one line, with the full name 
 test('long reading times read as hours', async ({ page }) => {
   await page.goto('/#/learn/patterns');
   await expect(page.getByText('40 lessons · 15 h 39 min')).toBeVisible();
-  await expect(page.getByRole('link', { name: /Case Study 12/ }).first()).toContainText('2 h');
+  const lessons = page.getByRole('region', { name: 'Lessons' });
+  await expect(lessons.getByRole('link', { name: /Case Study 12/ })).toContainText('2 h');
 });

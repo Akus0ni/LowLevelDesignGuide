@@ -1,10 +1,17 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Lets a PackageVersion below override a vulnerable transitive dependency (see "Security pins"). -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <AspireVersion>13.6.1</AspireVersion>
     <OpenTelemetryVersion>1.19.1</OpenTelemetryVersion>
     <OpenTelemetryInstrumentationVersion>1.19.0</OpenTelemetryInstrumentationVersion>
   </PropertyGroup>
+  <ItemGroup Label="Security pins">
+    <!-- Aspire.Hosting 13.6.1 brings MessagePack 2.5.302 (GHSA-qhrr-8q5h-9q3h, fixed in 2.5.303). Drop this pin once an
+         Aspire release depends on a fixed version. -->
+    <PackageVersion Include="MessagePack" Version="2.5.307" />
+  </ItemGroup>
   <ItemGroup Label="Aspire">
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.DevTunnels" Version="$(AspireVersion)" />
@@ -36,6 +43,9 @@
   <ItemGroup Label="Content">
     <PackageVersion Include="Markdig" Version="1.4.0" />
     <PackageVersion Include="YamlDotNet" Version="18.1.0" />
+    <!-- Snippets: find a type or member by name in a .cs file (syntax only, build time; spec 004). Same version as
+         EF Core Design 10.0.13 requires exactly, so the two never conflict. -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <!-- Device database (no EF Core on the device: spec 003 plan §4, T1). -->
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.13" />
   </ItemGroup>
