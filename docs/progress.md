@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-17 (spec 004 ready for review)_
+_Last updated: 2026-10-19 (spec 005 in progress, T1–T13 done)_
 
 ## Where we are
 | Item | Status |
@@ -15,7 +15,8 @@ _Last updated: 2026-10-17 (spec 004 ready for review)_
 | Spec 001 Auth & access | ✅ Merged (PR #3) |
 | Spec 002 Self-hosting | ✅ Merged (PR #4); owner checks A1/A2/A3/A6/A10 done |
 | Spec 003 Content engine | ✅ Merged (PR #5) |
-| Spec 004 OOP & SOLID | 🚧 Draft PR #6: engine, reader, memory aids done; done; PR #6 ready for owner review |
+| Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
+| Spec 005 Progress | 🚧 Draft PR #7: T1–T13 done; T14 manual run, T15 docs, T16 PR left |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -25,8 +26,8 @@ _Last updated: 2026-10-17 (spec 004 ready for review)_
 | 001 | Auth & access (Case Study #1) + admin console | ✅ merged (PR #3) |
 | 002 | Self-hosting & server status (ngrok, ntfy) | ✅ merged (PR #4) |
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
-| 004 | OOP & SOLID content | 🔍 PR #6, owner review |
-| 005 | Progress | planned |
+| 004 | OOP & SOLID content | ✅ merged (PR #6) |
+| 005 | Progress | 🚧 draft PR #7 |
 | 006 | GoF patterns content | planned |
 | 007 | Notes & bookmarks | planned |
 | 008 | UML content | planned |
@@ -117,6 +118,18 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   Before / After marks computed at pack time; 11 new validation rules; pack format 2, device schema step 3.
 - Reader: Before / After compare, UML-note callouts, interview Q&A, Go deeper fold, module map, mnemonics, icons.
 - CI fix for `main` (MessagePack pin). Details, deviations and findings: `specs/004-oop-solid/plan.md` §4.
+
+## Spec 005: where it stands (2026-10-19)
+- Spec approved; plan + tasks in `specs/005-progress/`. T1–T13 done on `spec/005-progress` (draft PR #7).
+- Built: domain (`Lld.Domain/Progress`), `Lld.Wire` mapping, device store (schema V4) + guest adoption, API store
+  (migration `AddProgress`) + `/api/progress` endpoints, web store/provider, reader integration, Done control,
+  Continue card, inked module boxes, Revise filter, Profile summary + activity strip + reset sheet, celebrations,
+  UI pass (screenshots in `specs/005-progress/screenshots`), Playwright `e2e/progress.spec.ts`.
+- Left: T14 manual run Windows + Android (restart, airplane mode, two accounts, guest adoption, V3→V4 upgrade);
+  T15 docs (PRD R85+ incl. activity-strip exception to "no gamification", plan §5 outcomes: endpoints changed to batch
+  PUT, `Lld.Wire` project, 2 s end dwell for "revised", legacy import into current owner); T16 mark PR ready.
+- Open question for the owner: scrolling straight to the end ticks every section (spec 003 rule), so a fast fling
+  auto-marks a lesson done. Keep, or require time on each section?
 
 ## How to resume (next session)
 1. If PR #6 is merged: `git switch main && git pull`, then ask the owner before starting spec 005 (Progress).
