@@ -10,7 +10,7 @@
 - [x] T8 App + web data: `BridgeService.Search`, contracts + `types.ts`, `DataSource.search` in bridge / HTTP / fake; tests
 - [x] T9 Web search UI: `useSearch`, `searchResults`, `searchParams`, `recentSearches`, `SearchPage`, `ResultRow`, route + section; Vitest (A5, A8)
 - [x] T10 Reader marks: `useSearchMarks`, `findRanges`, `MatchBar`, `FoldRegistry` + `hiddenUntilFound` folds, cheat sheet `?at=` + recall reveal, Android Back clears marks; lesson-open timing before / after; Vitest (A6)
-- [ ] T11 Quick search dialog (`Ctrl+K` / `⌘K` / `/`, wide + fine pointer), focus return; Vitest (A9)
+- [x] T11 Quick search dialog (`Ctrl+K` / `⌘K` / `/`, wide + fine pointer), focus return; Vitest (A9)
 - [ ] T12 Visual: `--tone-match` (3 candidates → contrast pick), result rows, match bar, dialog motion + reduced motion (A13)
 - [ ] T13 UI pass with the skills: screenshot critique (phone light / dark, desktop) + `break-ui` worst cases; fixes
 - [ ] T14 Playwright `e2e/search.spec.ts` on phone + desktop (A5, A6, A7, A9, A13)

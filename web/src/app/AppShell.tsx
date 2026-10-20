@@ -1,6 +1,7 @@
 import { NavLink, Outlet, ScrollRestoration, useMatches } from 'react-router';
 import { useAuth } from '../features/auth/AuthContext';
 import { ForcedPasswordChange } from '../features/auth/screens';
+import { QuickSearch } from '../features/search/QuickSearch';
 import { ServerOfflineBanner } from '../features/serverStatus/ServerOfflineBanner';
 import { cn } from '../ui/cn';
 import type { RouteHandle } from './routes';
@@ -21,6 +22,7 @@ export function AppShell() {
   return (
     <div className="min-h-dvh bg-bg text-fg md:pl-64">
       <ServerOfflineBanner />
+      <QuickSearch />
       {/* Tablet/desktop: translucent sidebar (apple-design §12). */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col gap-1 bg-chrome px-3 pt-safe backdrop-blur-xl md:flex">
         <p className="px-3 pt-6 pb-4 text-lg font-semibold tracking-tight">LLD Guide</p>
