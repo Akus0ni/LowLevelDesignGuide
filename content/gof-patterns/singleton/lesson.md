@@ -71,7 +71,7 @@ object, but tests can pass their own.
 ## Travels with
 
 - [Abstract Factory](../abstract-factory/lesson.md): the factory for the chosen family is usually one object.
-- **Facade** (Structural): a front door to a subsystem is often one shared object too.
+- [Facade](../facade/lesson.md): a front door to a subsystem is often one shared object too.
 
 > [!OVERUSE]
 > - Code reaches for `Thing.Instance` everywhere: the dependency is **hidden** from the constructor.

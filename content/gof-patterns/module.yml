@@ -3,7 +3,9 @@ order: 2
 summary: The 23 named designs from the Gang of Four book, each with its shape, its modern C# form and when it hurts.
 template: pattern
 # A phrase spells with the first letter of each word; each letter starts the title of its lesson.
-mnemonics: ["Smart Builders Always Follow Plans: singleton, builder, abstract-factory, factory-method, prototype"]
+mnemonics:
+  - "Smart Builders Always Follow Plans: singleton, builder, abstract-factory, factory-method, prototype"
+  - "Architects Build Cities Designed For Future People: adapter, bridge, composite, decorator, facade, flyweight, proxy"
 # Node ids are lesson folder names; each subgraph is a category (a block of the periodic table). Links read
 # "<from> <label> <to>": patterns that travel together. Put spaces around arrows.
 map: |
@@ -15,14 +17,36 @@ map: |
       builder["Builder"]
       prototype["Prototype"]
     end
+    subgraph structural["Structural: fitting objects together"]
+      adapter["Adapter"]
+      facade["Facade"]
+      decorator["Decorator"]
+      proxy["Proxy"]
+      composite["Composite"]
+      bridge["Bridge"]
+      flyweight["Flyweight"]
+    end
     abstract-factory -->|"is often built from"| factory-method
     abstract-factory -->|"is usually one"| singleton
     abstract-factory -->|"can clone its products with"| prototype
     builder -->|"can get its parts from"| abstract-factory
+    facade -->|"is usually one"| singleton
+    facade -->|"can create its parts with"| abstract-factory
+    adapter -->|"often sits under a"| facade
+    composite -->|"is often built with a"| builder
+    decorator -->|"is often used inside a"| composite
+    flyweight -->|"shares the leaves of a"| composite
+    bridge -->|"can get its implementor from"| abstract-factory
+    factory-method -->|"can hand out a"| proxy
 # "Which pattern?" (spec 006 §3.6): every lesson must be reachable; each path asks at most 4 questions.
 picker:
-  start: create
+  start: what
   questions:
+    what:
+      ask: "What is your problem about?"
+      answers:
+        - { label: "Creating objects", next: create }
+        - { label: "Fitting objects together", next: structure }
     create:
       ask: "What is hard about creating the object?"
       answers:
@@ -35,8 +59,35 @@ picker:
       answers:
         - { label: "One kind of product", pick: [factory-method], why: "A subclass (or a delegate) decides which class to make." }
         - { label: "A family that must match", pick: [abstract-factory], why: "One factory makes every product of one family, so they never mix." }
+    structure:
+      ask: "What do you need?"
+      answers:
+        - { label: "Make a class with the wrong interface fit", pick: [adapter], why: "Wrap it and translate each call; neither side changes." }
+        - { label: "One simple door to a messy subsystem", pick: [facade], why: "One class knows the steps; clients make one call." }
+        - { label: "Add to an object, or guard it, without changing its class", next: wrap }
+        - { label: "Treat one item and a group the same (a tree)", pick: [composite], why: "Leaves and groups share one interface; groups ask their children." }
+        - { label: "Something else: too many classes, or too much memory", next: scale }
+    wrap:
+      ask: "Adding behaviour, or controlling access?"
+      answers:
+        - { label: "Adding behaviour, in layers", pick: [decorator], why: "Same interface, wraps one object, adds one thing; stack as needed." }
+        - { label: "Controlling access: lazy, cached, remote or checked", pick: [proxy], why: "A stand-in with the same interface decides when to reach the real one." }
+    scale:
+      ask: "Which one hurts?"
+      answers:
+        - { label: "Classes multiply because two things vary together", pick: [bridge], why: "Split the two directions into two hierarchies joined by a reference." }
+        - { label: "Huge numbers of similar objects use too much memory", pick: [flyweight], why: "Share the heavy, unchanging part; keep only what differs." }
 # Look-alikes (spec 006 §3.7): the one difference, and the question that tells them apart.
 lookalikes:
   - patterns: [factory-method, abstract-factory, builder]
     difference: "Factory Method makes one product; Abstract Factory makes a matching family; Builder assembles one product step by step."
     ask: "One thing, a matching set, or one thing with many parts?"
+  - patterns: [decorator, proxy, adapter]
+    difference: "All three wrap one object: Decorator adds behaviour, Proxy controls access, Adapter changes the interface."
+    ask: "Same interface with extras, same interface guarded, or a different interface?"
+  - patterns: [composite, decorator]
+    difference: "Both are recursive wrappers: Composite holds many children and combines them; Decorator wraps one object and adds to it."
+    ask: "Many children, or one wrapped object?"
+  - patterns: [bridge, adapter]
+    difference: "Bridge is planned up front so two sides can vary; Adapter is added later to make an existing class fit."
+    ask: "Designing for change, or fixing a mismatch after the fact?"

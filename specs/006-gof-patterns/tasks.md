@@ -10,7 +10,7 @@
 - [x] T8 Web: `PatternPicker` sheet (Escape / Android Back steps back)
 - [x] T9 Web: `LookalikeCompare` route + lesson look-alike strip; module page "Look-alikes" list
 - [x] T10 UI pass with the skills: screenshot critique (phone light / dark, desktop), `break-ui` worst case → **owner review: reader features + batch 1**
-- [ ] T11 Batch 2 Structural: Adapter, Facade, Decorator, Proxy, Composite, Bridge, Flyweight (+ Structural mnemonic) → **owner review**
+- [x] T11 Batch 2 Structural: Adapter, Facade, Decorator, Proxy, Composite, Bridge, Flyweight (+ Structural mnemonic) → **owner review**
 - [ ] T12 Batch 3 Behavioral A: Strategy, Template Method, Observer, Command, Iterator, State → **owner review**
 - [ ] T13 Batch 4 Behavioral B: Chain of Responsibility, Mediator, Memento, Visitor, Interpreter (+ Behavioral mnemonic, final picker) → **owner review**
 - [ ] T14 Batch 5 Enterprise: `content/enterprise-patterns/` module + Repository, Unit of Work, Specification, Null Object, DI vs Service Locator (+ mnemonic) → **owner review**

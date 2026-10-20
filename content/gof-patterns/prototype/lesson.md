@@ -80,7 +80,7 @@ copy `with` makes is enough.
 
 - [Abstract Factory](../abstract-factory/lesson.md): a factory can hand out clones of stored prototypes.
 - **Memento** (Behavioral): a snapshot of state is often a clone.
-- **Composite** (Structural): cloning a tree means cloning each child.
+- [Composite](../composite/lesson.md): cloning a tree means cloning each child.
 
 > [!OVERUSE]
 > - Objects are cheap to create: just call the constructor.

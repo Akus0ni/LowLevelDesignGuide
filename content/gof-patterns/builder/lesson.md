@@ -84,7 +84,7 @@ Keep a builder when building has **steps**, **rules across fields**, or produces
 
 ## Travels with
 
-- **Composite** (Structural): builders are a handy way to assemble trees.
+- [Composite](../composite/lesson.md): builders are a handy way to assemble trees.
 - [Abstract Factory](../abstract-factory/lesson.md): a builder can get its parts from a factory.
 
 > [!OVERUSE]
