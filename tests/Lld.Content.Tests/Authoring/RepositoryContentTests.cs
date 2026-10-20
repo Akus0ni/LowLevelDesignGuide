@@ -20,13 +20,14 @@ public sealed class RepositoryContentTests
     }
 
     /// <summary>
-    /// Spec 004 A2 (amended), spec 006 A2: a concept or pattern lesson is a short visual card; the detail waits in
-    /// "Go deeper", which doesn't count towards reading time.
+    /// Spec 004 A2 (amended), spec 006 A2, spec 008 A2: a concept, pattern or diagram lesson is a short visual card;
+    /// the detail waits in "Go deeper", which doesn't count towards reading time.
     /// </summary>
     [Theory]
     [InlineData("oop-solid")]
     [InlineData("gof-patterns")]
     [InlineData("enterprise-patterns")]
+    [InlineData("uml")]
     public void ConceptLessons_AreShortCards_WithAGoDeeperSection(string module)
     {
         const int MaximumCardMinutes = 8;
