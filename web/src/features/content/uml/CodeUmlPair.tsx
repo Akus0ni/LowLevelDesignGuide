@@ -1,11 +1,13 @@
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type KeyboardEvent,
   type MouseEvent,
+  type RefObject,
 } from 'react';
 import { cn } from '../../../ui/cn';
 import { CodeLines } from '../markdown/CodeBlock';
@@ -29,6 +31,7 @@ const NO_LINES: ReadonlySet<number> = new Set();
  */
 export function CodeUmlPair({ diagram, code }: { diagram: Fence; code: Fence }) {
   const figure = useRef<HTMLElement>(null);
+  const diagramPane = useRef<HTMLElement>(null);
   const codePane = useRef<HTMLElement>(null);
   const split = useFitsSideBySide(figure, longestLine(code.code));
   const [side, setSide] = useState<Side>('diagram');
@@ -40,11 +43,15 @@ export function CodeUmlPair({ diagram, code }: { diagram: Fence; code: Fence }) 
   const id = useId();
 
   useEffect(() => () => clearTimeout(switchTimer.current), []);
+  useDiagramHeight(figure, diagramPane);
 
-  // The first lit line comes into view inside the code pane (the page itself doesn't jump).
+  // The first lit line comes into view a third of the way down the code pane; only the pane scrolls, never the page.
   useEffect(() => {
-    if (!selected || (!split && side !== 'code')) return;
-    codePane.current?.querySelector('.code-line[data-mark]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    const pane = codePane.current;
+    const line = pane?.querySelector<HTMLElement>('.code-line[data-mark]');
+    if (!pane || !line || (!split && side !== 'code')) return;
+    const top = line.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop;
+    pane.scrollTo({ top: Math.max(0, top - pane.clientHeight / 3), behavior: reducedMotion() ? 'auto' : 'smooth' });
   }, [selected, split, side]);
 
   const showLater = (next: Side) => {
@@ -117,7 +124,7 @@ export function CodeUmlPair({ diagram, code }: { diagram: Fence; code: Fence }) 
           return (
             <section
               key={name}
-              ref={name === 'code' ? codePane : undefined}
+              ref={name === 'code' ? codePane : diagramPane}
               id={`${id}-${name}`}
               role={split ? undefined : 'tabpanel'}
               aria-labelledby={split ? undefined : `${id}-tab-${name}`}
@@ -148,4 +155,22 @@ export function CodeUmlPair({ diagram, code }: { diagram: Fence; code: Fence }) 
       </p>
     </figure>
   );
+}
+
+function reducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** Publishes the diagram pane's height as `--pair-diagram-height`, so the code pane can be exactly as tall (CSS). */
+function useDiagramHeight(figure: RefObject<HTMLElement | null>, pane: RefObject<HTMLElement | null>) {
+  useLayoutEffect(() => {
+    const box = figure.current;
+    const element = pane.current;
+    if (!box || !element || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() =>
+      box.style.setProperty('--pair-diagram-height', `${element.getBoundingClientRect().height}px`),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [figure, pane]);
 }

@@ -763,6 +763,14 @@
     cursor: pointer;
   }
 
+  /* The code is usually much longer than the diagram: it scrolls inside a pane as tall as the diagram, so the box
+     never grows a screen of empty grid under the drawing (and a tapped arrow scrolls its lines into view). */
+  .uml-pair .uml-pair-code {
+    max-height: max(var(--pair-diagram-height, 24rem), 16rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
   /* The arrow legend (spec 008 §3.5). */
   .legend-popover {
     width: min(26rem, calc(100vw - 2rem));
@@ -797,8 +805,19 @@
     margin: 0.5rem 0 0;
   }
 
-  .arrow-legend-hint {
-    margin-bottom: 0.5rem;
+  /* Inline in a lesson it is a figure like a diagram: framed, with its own tighter type. */
+  .reader-prose .arrow-legend {
+    margin: 1.25em 0;
+    border: 1px solid var(--rule);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    padding: 0.75rem 1rem 0.5rem;
+    line-height: 1.35;
+  }
+
+  .arrow-legend-hint,
+  .reader-prose .arrow-legend .arrow-legend-hint {
+    margin: 0 0 0.5rem;
     font-size: 14px;
     line-height: 1.4;
     color: var(--muted);
@@ -814,7 +833,7 @@
 
   .arrow-legend-row {
     display: grid;
-    grid-template-columns: 9.5rem minmax(0, 1fr);
+    grid-template-columns: 7.5rem minmax(0, 1fr);
     align-items: center;
     gap: 0.75rem;
     border-top: 1px dashed var(--rule);
@@ -833,7 +852,8 @@
     max-height: 3.5rem;
   }
 
-  .arrow-legend-name {
+  .arrow-legend-name,
+  .reader-prose .arrow-legend .arrow-legend-name {
     margin: 0;
     font-weight: 600;
     font-size: 15px;
@@ -844,12 +864,18 @@
     color: var(--muted);
   }
 
-  .arrow-legend-code {
+  /* Beats the reading column's inline-code chip: here the code is a caption, not a word in a sentence. */
+  .arrow-legend code.arrow-legend-code,
+  .reader-prose .arrow-legend code.arrow-legend-code {
     display: block;
+    background: none;
+    border-radius: 0;
+    padding: 0;
     margin-top: 0.15rem;
     overflow-wrap: anywhere;
     font-family: var(--font-mono);
     font-size: 12.5px;
+    line-height: 1.45;
     color: var(--fg);
   }
 

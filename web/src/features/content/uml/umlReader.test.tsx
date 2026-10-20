@@ -187,7 +187,7 @@ describe('activity step-through', () => {
   it('walks a steps flowchart through its decision and fork', async () => {
     await show(activity);
 
-    expect(vi.mocked(renderMermaid).mock.calls.at(-1)![1]).toContain('classDef fork,join');
+    expect(vi.mocked(renderMermaid).mock.calls.slice(-1)[0][1]).toContain('classDef fork,join');
     expect(document.querySelector('g.node[id*="flowchart-fork1-"]')!.getAttribute('data-kind')).toBe('fork');
 
     fireEvent.click(screen.getByRole('button', { name: 'step through' }));
