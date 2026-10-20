@@ -1,0 +1,67 @@
+# Search vocabulary (spec 009 §3.3). Checked at build time:
+# - a key is one word (matched ignoring case) and appears once;
+# - every alternative is written somewhere in the lessons or cheat sheets;
+# - every suggestion finds at least one section.
+# One-way: searching the key also finds its alternatives, not the reverse.
+
+synonyms:
+  # SOLID and other principles
+  SRP: [single responsibility]
+  OCP: [open closed]
+  LSP: [liskov substitution]
+  ISP: [interface segregation]
+  DIP: [dependency inversion]
+  DI: [dependency injection]
+  IoC: [dependency injection, dependency inversion]
+  LoD: [law of demeter]
+  DRY: [repeat yourself]
+  KISS: [keep it simple]
+  YAGNI: [gonna need]
+  OOP: [encapsulation, abstraction, inheritance, polymorphism]
+  isa: [is a, inheritance]
+  hasa: [has a, composition]
+  VO: [value object]
+
+  # Course words
+  LLD: [low level design]
+  HLD: [high level]
+  GoF: [design patterns]
+  UoW: [unit of work]
+  CoR: [chain of responsibility]
+  ctor: [constructor]
+
+  # Pattern nicknames
+  wrapper: [decorator, adapter, proxy]
+  wrap: [decorator, adapter, proxy]
+  pubsub: [observer, publish]
+  listener: [observer]
+  subscriber: [observer]
+  notify: [observer]
+  undo: [command, memento]
+  redo: [command, memento]
+  snapshot: [memento]
+  clone: [prototype]
+  pipeline: [chain of responsibility, middleware]
+  middleware: [chain of responsibility]
+  cache: [flyweight, proxy]
+  policy: [strategy]
+  plugin: [strategy]
+  tree: [composite]
+  traversal: [iterator, visitor]
+  broker: [mediator]
+  grammar: [interpreter]
+  skeleton: [template method]
+  gateway: [facade]
+
+  # Diagrams
+  flowchart: [activity diagram]
+  lifeline: [sequence diagram]
+  FSM: [state machine, state diagram]
+
+suggestions:
+  - SOLID
+  - Observer
+  - sequence diagram
+  - Repository
+  - composition
+  - LLD interview

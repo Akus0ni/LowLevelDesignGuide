@@ -28,6 +28,9 @@ internal static class SearchSql
                 SELECT rowid, bm25(SearchStem, {Weights}) FROM SearchStem WHERE SearchStem MATCH $stem
                 {raw}
             ),
+            titledAll(Id) AS (
+                SELECT rowid FROM SearchStem WHERE SearchStem MATCH $titleAllStem {RawToo("$titleAllRaw")}
+            ),
             titled(Id) AS (
                 SELECT rowid FROM SearchStem WHERE SearchStem MATCH $titleStem {RawToo("$titleRaw")}
             ),
@@ -36,7 +39,8 @@ internal static class SearchSql
             )
             SELECT u.Id, u.Kind, u.ModuleSlug, u.ModuleOrder, u.LessonId, u.LessonSlug, u.LessonTitle, u.LessonOrder,
                    u.SectionOrder, u.Anchor, u.Section, u.NoteId, min(h.Rank) AS Rank,
-                   u.Id IN (SELECT Id FROM titled) AS TitleMatch, u.Id IN (SELECT Id FROM bodied) AS BodyMatch
+                   u.Id IN (SELECT Id FROM titled) AS TitleMatch, u.Id IN (SELECT Id FROM bodied) AS BodyMatch,
+                   u.Id IN (SELECT Id FROM titledAll) AS WholeTitleMatch
             FROM hits AS h JOIN SearchUnits AS u ON u.Id = h.Id
             WHERE u.Owner IN ('', $owner)
               AND ($module IS NULL OR u.ModuleSlug = $module)

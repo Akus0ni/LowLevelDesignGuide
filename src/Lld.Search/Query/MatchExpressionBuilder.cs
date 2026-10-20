@@ -29,6 +29,13 @@ public static class MatchExpressionBuilder
         return query.LastIsPrefix && query.Terms.Count > 0 ? Term(query.Terms[^1], prefix: true) : string.Empty;
     }
 
+    /// <summary>Every term, the last one as a prefix while it is being typed (for the unstemmed index).</summary>
+    public static string Typed(ExpandedQuery query)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        return And(query.Terms.Select((term, i) => Term(term, prefix: query.LastIsPrefix && i == query.Terms.Count - 1)));
+    }
+
     /// <summary>
     /// Any one term (OR), for finding which columns matched and for snippets; with <paramref name="prefixLast"/> the last
     /// term is a prefix when the learner is still typing it (unstemmed index).

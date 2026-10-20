@@ -6,6 +6,7 @@ namespace Lld.Search;
 /// <param name="Rank">bm25: lower is better.</param>
 /// <param name="TitleMatch">A query word matched the lesson title.</param>
 /// <param name="BodyMatch">A query word matched the section heading or text (or the note).</param>
+/// <param name="WholeTitleMatch">Every query word matched the lesson title.</param>
 public sealed record SearchCandidate(
     long Id,
     string Kind,
@@ -21,7 +22,8 @@ public sealed record SearchCandidate(
     string? NoteId,
     double Rank,
     bool TitleMatch,
-    bool BodyMatch);
+    bool BodyMatch,
+    bool WholeTitleMatch = false);
 
 /// <summary>Candidates in result order, collapsed, with the counts the filter chips show.</summary>
 public sealed record RankedHits(IReadOnlyList<SearchCandidate> Hits, IReadOnlyDictionary<string, int> CountsByKind, int Total);
@@ -29,9 +31,10 @@ public sealed record RankedHits(IReadOnlyList<SearchCandidate> Hits, IReadOnlyDi
 /// <summary>
 /// Orders and trims search candidates (spec Q1, Q2):
 /// <list type="number">
-/// <item>Every unit of a lesson carries the lesson title, so a title-only match would list each section. Those collapse
-/// into one hit per lesson and kind (the best one).</item>
-/// <item>Order: a lesson-title match first, then bm25, then course order (module, lesson, kind, section).</item>
+/// <item>Every unit of a lesson carries the lesson title, so a title-only match would list each section. Those are dropped
+/// when another unit of the lesson (same kind) matched, otherwise they collapse into the lesson's intro.</item>
+/// <item>Order: a match of every word in the lesson title, then of some word, the lesson's intro leading; then bm25, then course order (module, lesson,
+/// kind, section).</item>
 /// <item>The kind filter applies after counting, so the chips show what each kind would give.</item>
 /// </list>
 /// </summary>
@@ -41,8 +44,12 @@ public static class HitRanking
     {
         ArgumentNullException.ThrowIfNull(candidates);
         var all = candidates.ToList();
-        var kept = all.Where(c => c.BodyMatch).Concat(TitleOnlyPerLesson(all.Where(c => !c.BodyMatch)))
-            .OrderByDescending(c => c.TitleMatch)
+        var bodyMatches = all.Where(c => c.BodyMatch).ToList();
+        var matchedLessons = bodyMatches.Select(c => (c.Kind, c.LessonId)).ToHashSet();
+        var kept = bodyMatches.Concat(TitleOnlyPerLesson(all.Where(c => !c.BodyMatch && !matchedLessons.Contains((c.Kind, c.LessonId)))))
+            .OrderByDescending(c => c.WholeTitleMatch)
+            .ThenByDescending(c => c.TitleMatch)
+            .ThenByDescending(c => c.TitleMatch && IsLessonIntro(c))
             .ThenBy(c => c.Rank)
             .ThenBy(c => c.ModuleOrder)
             .ThenBy(c => c.LessonOrder)
@@ -55,9 +62,12 @@ public static class HitRanking
         return new RankedHits([.. filtered.Take(Math.Max(0, limit))], counts, filtered.Count);
     }
 
+    /// <summary>The lesson's own entry (its intro): the Best match when the title matched (spec Q2).</summary>
+    private static bool IsLessonIntro(SearchCandidate c) => c.Kind == SearchKinds.Lesson && c.Anchor.Length == 0;
+
     /// <summary>
-    /// One hit per lesson and kind for units that matched on the lesson title alone: the first section (a lesson's intro),
-    /// ranked as the group's best.
+    /// For a lesson and kind where nothing matched but the title: one hit, the first section (the intro), ranked as the
+    /// group's best. Where something else of that lesson matched, title-only units add nothing and are dropped.
     /// </summary>
     private static IEnumerable<SearchCandidate> TitleOnlyPerLesson(IEnumerable<SearchCandidate> titleOnly) =>
         titleOnly

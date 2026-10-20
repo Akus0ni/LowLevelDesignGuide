@@ -54,11 +54,13 @@ public sealed class SqliteSearchIndex(OpenSearchConnection open) : ISearchIndex
         await using var command = SearchContentWriter.Command(connection, null, SearchSql.Candidates(prefix.Length > 0, rest.Length > 0));
         command.Parameters.AddWithValue("$stem", MatchExpressionBuilder.Stem(query));
         command.Parameters.AddWithValue("$titleStem", MatchExpressionBuilder.InColumns(anyStem, "Title"));
+        command.Parameters.AddWithValue("$titleAllStem", MatchExpressionBuilder.InColumns(MatchExpressionBuilder.Stem(query), "Title"));
         command.Parameters.AddWithValue("$bodyStem", MatchExpressionBuilder.InColumns(anyStem, "Heading", "Text"));
         if (prefix.Length > 0)
         {
             command.Parameters.AddWithValue("$prefix", prefix);
             command.Parameters.AddWithValue("$titleRaw", MatchExpressionBuilder.InColumns(anyRaw, "Title"));
+            command.Parameters.AddWithValue("$titleAllRaw", MatchExpressionBuilder.InColumns(MatchExpressionBuilder.Typed(query), "Title"));
             command.Parameters.AddWithValue("$bodyRaw", MatchExpressionBuilder.InColumns(anyRaw, "Heading", "Text"));
         }
 
@@ -78,7 +80,7 @@ public sealed class SqliteSearchIndex(OpenSearchConnection open) : ISearchIndex
                 reader.GetInt64(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetString(4),
                 reader.GetString(5), reader.GetString(6), reader.GetInt32(7), reader.GetInt32(8), reader.GetString(9),
                 reader.GetString(10), reader.IsDBNull(11) ? null : reader.GetString(11), reader.GetDouble(12),
-                reader.GetBoolean(13), reader.GetBoolean(14)));
+                reader.GetBoolean(13), reader.GetBoolean(14), reader.GetBoolean(15)));
         }
 
         return candidates;

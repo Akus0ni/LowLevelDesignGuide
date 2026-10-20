@@ -1,0 +1,9 @@
+{
+  "note": "Spec 009 A10: the fixed query set timed on device (manual run) and by RealContentSearchTests. Mixes finished words, half-typed words, phrases, synonyms, filters-free AND queries and a query that matches almost everything.",
+  "queries": [
+    "decor", "decorator", "obs", "observer pattern", "singl", "single responsibility", "SRP", "DI", "LSP", "inherits",
+    "composition over", "\"open closed\"", "sequence diagram", "state machine", "repository unit", "the", "class",
+    "interface segregation", "strategy vs state", "refresh token", "factory", "abstract fac", "template meth", "visitor",
+    "multiplicity", "aggregation", "law of demeter", "value object", "immutab", "undo"
+  ]
+}

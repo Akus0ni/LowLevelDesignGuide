@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Lld.Search\Lld.Search.csproj" />
+    <ProjectReference Include="..\..\src\Lld.Content.Authoring\Lld.Content.Authoring.csproj" />
   </ItemGroup>
 
   <ItemGroup>
