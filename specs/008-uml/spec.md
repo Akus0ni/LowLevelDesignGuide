@@ -144,7 +144,7 @@ popover on desktop and a bottom sheet on phone; Esc / Android Back closes it. Th
 The `class-relationships` lesson and its cheat sheet show it inline.
 
 ### 3.6 Interactive state diagrams and activity step-through
-- **State diagrams (all `stateDiagram-v2` in the app,** including the GoF State lesson and the Auth case study):
+- **State diagrams (all `stateDiagram-v2` in the app,** including the Auth case study):
   tapping a state highlights its incoming and outgoing transitions and dims the rest (like class diagrams). A
   **Run** control starts at the initial state, shows one button per outgoing event label ("approve", "reject"),
   moves the current-state mark with a short animation, and offers *Reset*; final states end the run. Built on the
@@ -203,7 +203,7 @@ is built and critiqued with `frontend-design`, `emil-design-eng`, `apple-design`
 | A4 | A missing `diagram` section, a missing / second Mistakes stamp, a `code=` pair naming a type not in the snippet, an inheritance arrow not in the base list, and an association with no member of that type each fail validation with file, line and reason | Unit tests (one fixture per rule) |
 | A5 | Code ↔ UML: side by side on desktop, switch on phone without layout jump; tap box / arrow ↔ code lines both ways; Esc clears | Vitest + Playwright (phone + desktop) |
 | A6 | Arrow legend opens from any class diagram (lesson and expanded viewer), closes with Esc / Android Back, renders in light and dark | Vitest + Playwright |
-| A7 | State diagrams: tap a state highlights its transitions; Run fires events from the start state to a final state; Reset; works on the GoF State and Auth diagrams too | Vitest (real Mermaid fixtures) + Playwright |
+| A7 | State diagrams: tap a state highlights its transitions; Run fires events from the start state to a final state; Reset; works on the Auth case study diagram too | Vitest (real Mermaid fixtures) + Playwright |
 | A8 | Activity step-through: Next, branch buttons at decisions, fork highlights branches, Back, Reset; plain flowcharts unchanged | Vitest + Playwright |
 | A9 | "Which diagram?" picker shows on the UML module page and opens the picked lesson; the GoF picker is unchanged | Vitest + Playwright |
 | A10 | Mistakes stamp renders in light and dark with AA contrast; phrase mnemonics draw and open their lessons | Vitest + Playwright + contrast check |
@@ -242,4 +242,4 @@ is built and critiqued with `frontend-design`, `emil-design-eng`, `apple-design`
 | CD-001 | Slugs, titles, order | As §3.1: structure first, behaviour next, interview last; the interview lesson teaches the drawing order |
 | CD-002 | Mnemonics | Keep "Clever Robots Make Objects Carefully" and "Users Always Send Signals" (§3.8) |
 | CD-003 | Picker reachability | "Every lesson reachable" applies to `pattern` modules only; other modules need valid picks only |
-| CD-004 | State Run scope | Every `stateDiagram-v2` in the app (GoF State, Auth case study, UML) |
+| CD-004 | State Run scope | Every `stateDiagram-v2` in the app (Auth case study, UML; the GoF State lesson draws a class diagram, not a state diagram) |

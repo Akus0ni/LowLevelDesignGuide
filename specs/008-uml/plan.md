@@ -166,7 +166,7 @@ container prefix logic (`Rewrite`), so pairs inside lists or quotes stay valid.
 |---|---|
 | Unit (C#) | Mermaid readers (each arrow kind, both directions, generics, aliases, `[*]`); `SnippetCodeModel` (base lists, collections, nullable, enum members, line ranges); `DiagramCodeLinks` (link map + each mismatch); every new / changed rule with a fixture; `FenceEdits` pair packing (incl. inside a list) |
 | Samples | `Lld.Samples.Uml` behaviour: composition / aggregation lifetimes, state machine allows exactly the drawn transitions, activity sample takes the drawn branch |
-| Vitest | `rehypePair`; link parsing; `CodeUmlPair` both directions + phone switch; edge keys on a real Mermaid fixture; `stateMachine` + Run on real fixtures (UML lesson, GoF State, Auth); `activityWalk` (decision, fork / join, back); legend open / close; picker title; Mistakes stamp |
+| Vitest | `rehypePair`; link parsing; `CodeUmlPair` both directions + phone switch; edge keys on a real Mermaid fixture; `stateMachine` + Run on real fixtures (UML lesson, Auth); `activityWalk` (decision, fork / join, back); legend open / close; picker title; Mistakes stamp |
 | Playwright | `e2e/uml.spec.ts`: A1, A5–A11 on phone and desktop viewports; existing specs unchanged |
 | Manual | Windows and Android app: module offline, pair switch on phone, legend + Android Back, Run, step-through, notes and progress kept after upgrade (A12) |
 
