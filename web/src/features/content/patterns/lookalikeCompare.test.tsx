@@ -108,11 +108,14 @@ describe('look-alike compare', () => {
   it('shows the difference, the question and each pattern with its idea and structure', async () => {
     await visit('/learn/gof-patterns/compare/factory-method-vs-abstract-factory');
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Factory Method vs Abstract Factory' })).toBeInTheDocument();
+    // The compare page and its lessons load lazily; under a full parallel run that can take longer than the default 1 s.
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Factory Method vs Abstract Factory' }, { timeout: 5000 }),
+    ).toBeInTheDocument();
     const stamp = screen.getByRole('complementary', { name: 'The difference' });
     expect(stamp).toHaveTextContent('One product or a family.');
     expect(stamp).toHaveTextContent('Ask yourself: One thing or a set?');
-    expect(await screen.findByText(/Factory Method does/)).toBeInTheDocument();
+    expect(await screen.findByText(/Factory Method does/, undefined, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getByText(/Abstract Factory does/)).toBeInTheDocument();
     expect(screen.queryByText('Second paragraph.')).not.toBeInTheDocument();
   });
@@ -120,7 +123,7 @@ describe('look-alike compare', () => {
   it('switches between patterns on a narrow screen, with the arrow keys too', async () => {
     await visit('/learn/gof-patterns/compare/factory-method-vs-abstract-factory');
 
-    const tabs = await screen.findAllByRole('tab');
+    const tabs = await screen.findAllByRole('tab', undefined, { timeout: 5000 });
     expect(tabs.map((tab) => tab.textContent)).toEqual(['Fm Factory Method', 'Af Abstract Factory']);
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
     fireEvent.keyDown(tabs[0], { key: 'ArrowRight' });

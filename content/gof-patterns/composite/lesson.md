@@ -80,7 +80,7 @@ When the kinds of node are fixed, records plus one `switch` can be simpler. Choo
 
 - [Builder](../builder/lesson.md): a handy way to assemble the tree.
 - [Decorator](../decorator/lesson.md): both wrap; decorators often appear inside composite trees.
-- [Iterator](../iterator/lesson.md) and **Visitor** (Behavioral): walk the tree, and add operations to it.
+- [Iterator](../iterator/lesson.md) and [Visitor](../visitor/lesson.md): walk the tree, and add operations to it.
 
 > [!OVERUSE]
 > - Leaves forced to implement `Add` / `Remove` that throw (a broken promise, see

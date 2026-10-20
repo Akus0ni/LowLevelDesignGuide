@@ -1,9 +1,14 @@
+using Chain = Lld.Samples.Patterns.Behavioral.ChainOfResponsibility;
 using Command = Lld.Samples.Patterns.Behavioral.Command;
+using Interpreter = Lld.Samples.Patterns.Behavioral.Interpreter;
 using Iterator = Lld.Samples.Patterns.Behavioral.Iterator;
+using Mediator = Lld.Samples.Patterns.Behavioral.Mediator;
+using Memento = Lld.Samples.Patterns.Behavioral.Memento;
 using Observer = Lld.Samples.Patterns.Behavioral.Observer;
 using State = Lld.Samples.Patterns.Behavioral.State;
 using Strategy = Lld.Samples.Patterns.Behavioral.Strategy;
 using TemplateMethod = Lld.Samples.Patterns.Behavioral.TemplateMethod;
+using Visitor = Lld.Samples.Patterns.Behavioral.Visitor;
 
 namespace Lld.Samples.Tests.Patterns;
 
@@ -204,6 +209,159 @@ public sealed class BehavioralTests
         new State.Before.Document().Invoking(d => d.Approve()).Should().Throw<InvalidOperationException>();
         FluentActions.Invoking(() => State.Modern.DocumentFlow.Next(State.Modern.Status.Draft, State.Modern.DocumentAction.Approve))
             .Should().Throw<InvalidOperationException>();
+    }
+
+    [Theory]
+    [InlineData(500, "travel", "approved by team lead")]
+    [InlineData(5_000, "travel", "approved by manager")]
+    [InlineData(50_000, "hardware", "approved by director")]
+    [InlineData(500_000, "hardware", "nobody can approve this")]
+    [InlineData(100, "gift card", "rejected by fraud check")]
+    public void Chain_EveryVersionRoutesTheExpenseTheSameWay(double amount, string category, string answer)
+    {
+        var expense = new Chain.Expense((decimal)amount, category);
+        var pipeline = Chain.Modern.Pipeline.Build(
+            Chain.Modern.Steps.FraudCheck,
+            Chain.Modern.Steps.Approver("team lead", 1_000m),
+            Chain.Modern.Steps.Approver("manager", 10_000m),
+            Chain.Modern.Steps.Approver("director", 100_000m));
+
+        Chain.Before.Approvals.Approve(expense).Should().Be(answer);
+        Chain.After.Approvals.Chain().Handle(expense).Should().Be(answer);
+        pipeline(expense).Should().Be(answer);
+    }
+
+    [Fact]
+    public void Chain_After_ANewLinkIsInsertedWithoutTouchingTheOthers()
+    {
+        var withCfo = new Chain.After.Approver("director", 100_000m, new Chain.After.Approver("CFO", 1_000_000m, next: null));
+
+        withCfo.Handle(new Chain.Expense(500_000m, "hardware")).Should().Be("approved by CFO");
+    }
+
+    [Theory]
+    [InlineData("IN", "411001", true)]
+    [InlineData("IN", "SW1A 1AA", false)]
+    [InlineData("UK", "SW1A 1AA", true)]
+    public void Mediator_EveryVersionEnablesSubmitTheSameWay(string country, string postcode, bool enabled)
+    {
+        var submit = new Mediator.Before.SubmitButton();
+        var box = new Mediator.Before.PostcodeBox(submit);
+        new Mediator.Before.CountryBox(box, submit).Select(country);
+        box.Type(postcode);
+
+        var form = new Mediator.After.AddressForm();
+        form.Country.Select(country);
+        form.Postcode.Type(postcode);
+
+        form.Submit.Enabled.Should().Be(submit.Enabled).And.Be(enabled);
+    }
+
+    [Fact]
+    public void Mediator_After_ChangingTheCountryReChecksThePostcode()
+    {
+        var form = new Mediator.After.AddressForm();
+        form.Postcode.Type("SW1A 1AA");
+        form.Submit.Enabled.Should().BeFalse();
+
+        form.Country.Select("UK");
+
+        form.Submit.Enabled.Should().BeTrue("the form, not the country box, knows the rule");
+    }
+
+    [Fact]
+    public void Mediator_Modern_MessagesReachWhoeverRegistered()
+    {
+        var messenger = new Mediator.Modern.Messenger();
+        var heard = new List<string>();
+        messenger.Register<Mediator.Modern.CountryChanged>(m => heard.Add(m.Country));
+
+        messenger.Send(new Mediator.Modern.CountryChanged("UK"));
+        messenger.Send(new Mediator.Modern.PostcodeTyped("ignored"));
+
+        heard.Should().Equal("UK");
+    }
+
+    [Fact]
+    public void Memento_EveryVersionUndoesTheSameWay()
+    {
+        var before = new Memento.Before.Editor();
+        var beforeHistory = new Memento.Before.History(before);
+        var after = new Memento.After.Editor();
+        var afterHistory = new Memento.After.History(after);
+        var modern = new Memento.Modern.Editor();
+
+        beforeHistory.Save();
+        afterHistory.Save();
+        before.Type("Hello");
+        after.Type("Hello");
+        modern.Type("Hello");
+        beforeHistory.Save();
+        afterHistory.Save();
+        before.Type(" world");
+        after.Type(" world");
+        modern.Type(" world");
+
+        beforeHistory.Undo();
+        afterHistory.Undo();
+        modern.Undo();
+
+        (after.Text, after.Cursor).Should().Be((before.Text, before.Cursor)).And.Be(("Hello", 5));
+        modern.State.Should().Be(new Memento.Modern.EditorState("Hello", 5));
+    }
+
+    [Fact]
+    public void Memento_After_TheSnapshotShowsNothingOutside() =>
+        typeof(Memento.After.Editor.Snapshot).GetProperties().Should().BeEmpty("only the editor can read a snapshot");
+
+    [Fact]
+    public void Visitor_EveryVersionComputesTheSameResults()
+    {
+        Visitor.Before.IShape[] before = [new Visitor.Before.Circle(1), new Visitor.Before.Square(2)];
+        Visitor.After.IShape[] after = [new Visitor.After.Circle(1), new Visitor.After.Square(2)];
+        Visitor.Modern.Shape[] modern = [new Visitor.Modern.Circle(1), new Visitor.Modern.Square(2)];
+
+        after.Select(s => s.Accept(new Visitor.After.SvgExport())).Should().Equal(before.Select(s => s.ToSvg()));
+        after.Select(s => s.Accept(new Visitor.After.AreaCalculator())).Should().Equal(before.Select(s => s.Area()));
+        modern.Select(Visitor.Modern.Exports.ToSvg).Should().Equal(before.Select(s => s.ToSvg()));
+    }
+
+    [Fact]
+    public void Visitor_After_ANewOperationIsANewVisitor() =>
+        new Visitor.After.Square(3).Accept(new NameVisitor()).Should().Be("square");
+
+    [Theory]
+    [InlineData("member and total>1000", 1500, true, true)]
+    [InlineData("member and total>1000", 1500, false, false)]
+    [InlineData("member and total>1000", 500, true, false)]
+    public void Interpreter_EveryVersionAgreesOnAndRules(string rule, double total, bool member, bool applies)
+    {
+        var cart = new Interpreter.Cart((decimal)total, member);
+        var lambda = Interpreter.Modern.RuleExpressions.Lambda(System.Linq.Expressions.Expression.AndAlso(
+            Interpreter.Modern.RuleExpressions.Member, Interpreter.Modern.RuleExpressions.TotalOver(1000m))).Compile();
+
+        Interpreter.Before.Discounts.Applies(rule, cart).Should().Be(applies);
+        Interpreter.After.RuleParser.Parse(rule).Interpret(cart).Should().Be(applies);
+        lambda(cart).Should().Be(applies);
+    }
+
+    [Theory]
+    [InlineData("member or total>1000", 1500, false, true)]
+    [InlineData("not member", 10, false, true)]
+    [InlineData("member and not total>1000", 1500, true, false)]
+    public void Interpreter_After_OrAndNotJustWork(string rule, double total, bool member, bool applies) =>
+        Interpreter.After.RuleParser.Parse(rule).Interpret(new Interpreter.Cart((decimal)total, member)).Should().Be(applies);
+
+    [Fact]
+    public void Interpreter_Before_OrIsNotUnderstood() =>
+        Interpreter.Before.Discounts.Applies("member or total>1000", new Interpreter.Cart(1500m, IsMember: false))
+            .Should().BeTrue("'member or total>1000' is one unknown part, so nothing is checked at all");
+
+    private sealed class NameVisitor : Visitor.After.IShapeVisitor<string>
+    {
+        public string VisitCircle(Visitor.After.Circle circle) => "circle";
+
+        public string VisitSquare(Visitor.After.Square square) => "square";
     }
 
     private sealed class SameDayShipping : Strategy.After.IShippingCost

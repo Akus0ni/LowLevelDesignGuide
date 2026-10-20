@@ -79,7 +79,7 @@ copy `with` makes is enough.
 ## Travels with
 
 - [Abstract Factory](../abstract-factory/lesson.md): a factory can hand out clones of stored prototypes.
-- **Memento** (Behavioral): a snapshot of state is often a clone.
+- [Memento](../memento/lesson.md): a snapshot of state is often a clone.
 - [Composite](../composite/lesson.md): cloning a tree means cloning each child.
 
 > [!OVERUSE]

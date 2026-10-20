@@ -79,7 +79,7 @@ events use `IObservable<T>` (Reactive Extensions) or `System.Threading.Channels`
 ## Travels with
 
 - [Singleton](../singleton/lesson.md): an app-wide event hub is often one shared object.
-- **Mediator** (Behavioral): a mediator often uses observers to hear from its colleagues.
+- [Mediator](../mediator/lesson.md): a mediator often uses observers to hear from its colleagues.
 
 > [!OVERUSE]
 > - Chains of events triggering events: nobody can tell what happens when an order is placed.

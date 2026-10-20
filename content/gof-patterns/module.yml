@@ -6,6 +6,7 @@ template: pattern
 mnemonics:
   - "Smart Builders Always Follow Plans: singleton, builder, abstract-factory, factory-method, prototype"
   - "Architects Build Cities Designed For Future People: adapter, bridge, composite, decorator, facade, flyweight, proxy"
+  - "Cats Can Ignore Instructions; Mice Mostly Obey Strict Schedules, Then Vanish: chain-of-responsibility, command, interpreter, iterator, mediator, memento, observer, state, strategy, template-method, visitor"
 # Node ids are lesson folder names; each subgraph is a category (a block of the periodic table). Links read
 # "<from> <label> <to>": patterns that travel together. Put spaces around arrows.
 map: |
@@ -33,6 +34,11 @@ map: |
       command["Command"]
       iterator["Iterator"]
       state["State"]
+      chain-of-responsibility["Chain of Responsibility"]
+      mediator["Mediator"]
+      memento["Memento"]
+      visitor["Visitor"]
+      interpreter["Interpreter"]
     end
     abstract-factory -->|"is often built from"| factory-method
     abstract-factory -->|"is usually one"| singleton
@@ -52,6 +58,12 @@ map: |
     command -->|"can be grouped into a"| composite
     iterator -->|"walks a"| composite
     state -->|"can share its states as"| flyweight
+    chain-of-responsibility -->|"often runs up a"| composite
+    mediator -->|"often hears its colleagues through"| observer
+    memento -->|"saves the state to undo a"| command
+    visitor -->|"walks the nodes of a"| composite
+    interpreter -->|"builds its sentences as a"| composite
+    interpreter -->|"is often run by a"| visitor
 # "Which pattern?" (spec 006 §3.6): every lesson must be reachable; each path asks at most 4 questions.
 picker:
   start: what
@@ -96,9 +108,26 @@ picker:
       ask: "What do you need?"
       answers:
         - { label: "Change how a job is done", next: swap }
-        - { label: "Tell other objects when something happens", pick: [observer], why: "Observers subscribe; the subject notifies them without knowing who they are." }
-        - { label: "Turn a request into an object (queue, log, undo)", pick: [command], why: "A command holds what to do, so it can be stored, retried or undone." }
+        - { label: "Objects must tell or coordinate each other", next: talk }
+        - { label: "Requests, history and undo", next: requests }
         - { label: "Walk a collection without seeing its insides", pick: [iterator], why: "An iterator gives you the next item; the storage stays hidden." }
+        - { label: "New operations on fixed classes, or a little language", next: language }
+    talk:
+      ask: "One announces, or many coordinate?"
+      answers:
+        - { label: "One object announces; many listen", pick: [observer], why: "Observers subscribe; the subject notifies them without knowing who they are." }
+        - { label: "Many objects coordinate through one hub", pick: [mediator], why: "Colleagues only talk to the mediator, which holds the rules between them." }
+    requests:
+      ask: "What do you need to do with requests?"
+      answers:
+        - { label: "Queue, log or undo actions", pick: [command], why: "A command holds what to do, so it can be stored, retried or undone." }
+        - { label: "Save and restore an object's state", pick: [memento], why: "The object makes a sealed snapshot of itself; others only keep it." }
+        - { label: "Pass a request along until someone handles it", pick: [chain-of-responsibility], why: "Each handler deals with it or hands it to the next." }
+    language:
+      ask: "Which one?"
+      answers:
+        - { label: "Add operations to a stable set of classes", pick: [visitor], why: "Each operation is a visitor with one method per class." }
+        - { label: "Evaluate sentences of a small rule language", pick: [interpreter], why: "Each grammar rule is a class; a sentence is a tree that evaluates itself." }
     swap:
       ask: "Who decides how it is done?"
       answers:
@@ -128,3 +157,15 @@ lookalikes:
   - patterns: [strategy, command]
     difference: "A strategy says how to do a job the context always does; a command says what to do and is often stored to run later or undo."
     ask: "Choosing how, or packaging what (to queue or undo)?"
+  - patterns: [facade, mediator]
+    difference: "A facade is a one-way front door the subsystem doesn't know; a mediator sits among colleagues that talk through it."
+    ask: "Simplifying for outsiders, or coordinating insiders?"
+  - patterns: [observer, mediator]
+    difference: "Observer broadcasts one subject's news to any listeners; Mediator coordinates many objects and owns the rules between them."
+    ask: "One speaker and listeners, or many talkers and a referee?"
+  - patterns: [chain-of-responsibility, decorator]
+    difference: "Both pass a call to the next object; a decorator always passes it on and adds something, a chain link may handle it and stop."
+    ask: "Must every link run, or can one link answer and stop?"
+  - patterns: [command, memento]
+    difference: "Both power undo: a command reverses its own action; a memento restores a saved snapshot of state."
+    ask: "Undo by doing the opposite, or by going back to a saved copy?"

@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-20 (spec 006: Structural + Behavioral A ready for owner review)_
+_Last updated: 2026-10-20 (spec 006: all 23 GoF lessons done; owner reviews later)_
 
 ## Where we are
 | Item | Status |
@@ -17,7 +17,7 @@ _Last updated: 2026-10-20 (spec 006: Structural + Behavioral A ready for owner r
 | Spec 003 Content engine | ✅ Merged (PR #5) |
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
-| Spec 006 Design patterns | 🔍 T1–T12 done (UI, Creational, Structural, Behavioral A); owner reviews later |
+| Spec 006 Design patterns | 🔍 T1–T13 done (UI + all 23 GoF lessons); next T14 Enterprise |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -141,7 +141,9 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   `specs/006-gof-patterns/screenshots/`.
 - Owner approved the reader UI + Creational batch (2026-10-20). T11 Structural done (7 lessons, samples, tests,
   mnemonic, picker branch, 3 look-alikes). T12 Behavioral A done (Strategy, Template Method, Observer, Command,
-  Iterator, State). Owner said: review later, continue. Next: T13 Behavioral B (+ Behavioral mnemonic).
+  Iterator, State). Owner said: review later, continue. T13 Behavioral B done (Chain, Mediator, Memento, Visitor,
+  Interpreter, Behavioral mnemonic, final picker, 4 look-alikes). Pattern module page now shows the periodic table
+  first, mnemonics after the picker. Next: T14 Enterprise module.
 - Spec 005 open question (fling-to-end marks done): owner will decide later.
 
 ## How to resume (next session)

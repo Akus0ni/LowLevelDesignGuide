@@ -81,7 +81,7 @@ or logged with their data (MediatR-style request objects are commands too).
 
 ## Travels with
 
-- **Memento** (Behavioral): a command can save a snapshot to undo with.
+- [Memento](../memento/lesson.md): a command can save a snapshot to undo with.
 - [Composite](../composite/lesson.md): a macro is a command made of commands.
 
 > [!OVERUSE]
