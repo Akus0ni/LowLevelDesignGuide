@@ -68,6 +68,34 @@ for (const colorScheme of ['light', 'dark'] as const) {
   });
 }
 
+/** WCAG contrast between an element's text colour and its own (solid) background. */
+async function contrastOf(page: Page, name: string): Promise<number> {
+  return page.getByRole('button', { name }).first().evaluate((element: HTMLElement) => {
+    const channels = (value: string) => (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+    const luminance = (value: string) => {
+      const [r, g, b] = channels(value).map((c) => {
+        const s = c / 255;
+        return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const style = getComputedStyle(element);
+    const [light, dark] = [luminance(style.color), luminance(style.backgroundColor)].sort((a, b) => b - a);
+    return (light + 0.05) / (dark + 0.05);
+  });
+}
+
+for (const colorScheme of ['light', 'dark'] as const) {
+  test(`text on accent fills stays AA (${colorScheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme });
+    await page.goto('/#/learn/oop-solid/srp');
+    expect(await contrastOf(page, 'Mark as done')).toBeGreaterThanOrEqual(4.5);
+
+    await page.goto('/#/learn/gof-patterns');
+    expect(await contrastOf(page, 'Which pattern?')).toBeGreaterThanOrEqual(4.5);
+  });
+}
+
 test('A5: app links stay in the app; GitHub links open outside', async ({ page }) => {
   await page.goto('/#/learn/start/how-to-use');
   await page.getByRole('link', { name: "this app's own sign-in" }).click();

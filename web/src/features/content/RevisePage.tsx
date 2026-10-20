@@ -133,7 +133,7 @@ function FilterChip({ label, pressed, onClick }: { label: string; pressed: boole
         'h-9 shrink-0 rounded-full border px-3.5 text-[14px] font-medium whitespace-nowrap select-none',
         'transition-[transform,background-color,border-color,color] duration-[120ms] ease-out active:scale-[0.97]',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-        pressed ? 'border-accent bg-accent text-white' : 'border-rule bg-surface text-fg hover:bg-fg/[0.04]',
+        pressed ? 'border-accent bg-accent text-on-fill' : 'border-rule bg-surface text-fg hover:bg-fg/[0.04]',
       )}
     >
       {label}

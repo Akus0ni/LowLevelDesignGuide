@@ -92,7 +92,7 @@ export function ResetSheet({ modules }: { modules: readonly ModuleDetail[] }) {
                   disabled={scope === null}
                   onClick={confirm}
                   className={cn(
-                    'inline-flex h-12 items-center justify-center rounded-full bg-[var(--tone-rose)] px-6 text-[15px] font-semibold text-white select-none',
+                    'inline-flex h-12 items-center justify-center rounded-full bg-[var(--tone-rose)] px-6 text-[15px] font-semibold text-on-fill select-none',
                     'transition-[transform,opacity] duration-[120ms] ease-out active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100',
                     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
                   )}

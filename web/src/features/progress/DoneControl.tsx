@@ -74,7 +74,7 @@ export function DoneControl({ lessonId, sectionCount }: { lessonId: string; sect
             type="button"
             onClick={toggle}
             className={cn(
-              'inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-accent px-6 text-[15px] font-semibold text-white select-none sm:w-auto',
+              'inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-accent px-6 text-[15px] font-semibold text-on-fill select-none sm:w-auto',
               'transition-[transform,opacity] duration-[120ms] ease-out active:scale-[0.97] hover:opacity-90',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
             )}

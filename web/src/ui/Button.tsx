@@ -10,7 +10,7 @@ const button = cva(
   {
     variants: {
       intent: {
-        primary: 'bg-accent text-white hover:opacity-90',
+        primary: 'bg-accent text-on-fill hover:opacity-90',
         secondary: 'bg-surface text-fg hover:bg-surface/70',
       },
       size: {
