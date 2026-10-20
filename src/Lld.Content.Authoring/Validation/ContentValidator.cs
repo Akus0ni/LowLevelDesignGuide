@@ -38,6 +38,9 @@ public sealed class ContentValidator(IEnumerable<IContentRule> rules)
         new SymbolRule(),
         new PickerRule(),
         new LookalikesRule(),
+        new DiagramSectionsRule(),
+        new DiagramSectionDiagramRule(),
+        new MistakesStampRule(),
     ];
 
     public ContentValidator()

@@ -10,12 +10,15 @@ public sealed record Callout(string Type, int Line);
 public static partial class Callouts
 {
     /// <summary>The types the reader knows; the web app keeps the same list.</summary>
-    public static readonly IReadOnlyList<string> Types = ["REMEMBER", "NOTE", "TIP", "INTERVIEW", "SMELL", "PITFALL", "APP", "WORK", "OVERUSE"];
+    public static readonly IReadOnlyList<string> Types = ["REMEMBER", "NOTE", "TIP", "INTERVIEW", "SMELL", "PITFALL", "APP", "WORK", "OVERUSE", "MISTAKES"];
 
     public const string Remember = "REMEMBER";
 
     /// <summary>"When it hurts" (spec 006 §3.8): drawn as a stamp in the warning colour.</summary>
     public const string Overuse = "OVERUSE";
+
+    /// <summary>"Common mistakes" (spec 008 §3.7): drawn like the Overuse stamp.</summary>
+    public const string Mistakes = "MISTAKES";
 
     public static IReadOnlyList<Callout> Of(SourceDocument source)
     {

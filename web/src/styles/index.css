@@ -1908,8 +1908,9 @@
     }
   }
 
-  /* OVERUSE (spec 006 §3.8): REMEMBER's stamp in the warning tone; its body is a short list, so normal text size. */
-  .reader-prose .callout[data-callout='overuse'] {
+  /* OVERUSE (spec 006 §3.8): REMEMBER's stamp in the warning tone; its body is a short list, so normal text size.
+     MISTAKES (spec 008 §3.7) is the same stamp: a warning about drawing the diagram. */
+  .reader-prose .callout:is([data-callout='overuse'], [data-callout='mistakes']) {
     --tone: var(--tone-rose);
     clip-path: none;
     border: 2px solid var(--tone-rose);

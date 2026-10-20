@@ -25,6 +25,11 @@ const CALLOUTS: Record<CalloutType, { label: string; icon: string[] }> = {
     label: 'when it hurts',
     icon: ['M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1 2.5 2 2.5 0-3-1-5 1-8Z'],
   },
+  // Spec 008 §3.7: what goes wrong when drawing the diagram, drawn like the Overuse stamp.
+  mistakes: {
+    label: 'common mistakes',
+    icon: ['M18 6 6 18', 'm6 6 12 12'],
+  },
   work: {
     label: 'from my work',
     icon: ['M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16', 'M4 6h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z'],

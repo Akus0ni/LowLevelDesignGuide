@@ -285,6 +285,153 @@ internal sealed class ValidRepo
     private static string PatternSheet(string title) =>
         $"---\ntitle: \"Cheat sheet: {title}\"\n---\n# {title}\n\n> [!REMEMBER]\n> Swap how.\n\n## Use it when\n\nThe algorithm varies.\n";
 
+    public const string DiagramModule = "content/uml/module.yml";
+    public const string ClassBasics = "content/uml/class-basics/lesson.md";
+    public const string ClassBasicsSheet = "content/uml/class-basics/cheatsheet.md";
+    public const string UseCase = "content/uml/use-case-diagram/lesson.md";
+    public const string Interviews = "content/uml/uml-in-interviews/lesson.md";
+    public const string DiagramSample = "samples/Uml.cs";
+
+    /// <summary>
+    /// A UML module (spec 008): a diagram lesson with a Code ↔ UML pair, one with From requirements, and the interview
+    /// lesson. Its picker has a title and leaves the interview lesson out (allowed outside pattern modules).
+    /// </summary>
+    public ValidRepo WithDiagramModule()
+    {
+        Set(DiagramModule, """
+            title: UML
+            order: 4
+            summary: Diagrams for interviews.
+            template: diagram
+            picker:
+              title: "Which diagram?"
+              start: what
+              questions:
+                what:
+                  ask: "What should the diagram show?"
+                  answers:
+                    - { label: "The parts", pick: [class-basics], why: "Classes and how they connect." }
+                    - { label: "Who does what", pick: [use-case-diagram], why: "Actors and their goals." }
+            """);
+        Set(DiagramSample, """
+            namespace Samples;
+
+            public sealed class Order(Customer customer)
+            {
+                private readonly List<OrderLine> _lines = [];
+
+                public Customer Customer { get; } = customer;
+
+                public void Add(OrderLine line) => _lines.Add(line);
+            }
+
+            public sealed class OrderLine;
+
+            public sealed class Customer;
+            """);
+        Set(ClassBasics, DiagramLesson("class-basics", "Classes and members", 1, """
+            ## Notation
+
+            ```mermaid
+            classDiagram
+              class Order {
+                +Add(line)
+              }
+            ```
+
+            ## Read it
+
+            ```mermaid
+            classDiagram
+              Order --> Customer
+            ```
+
+            ## Code ↔ UML
+
+            ```mermaid code="samples/Uml.cs#Order,OrderLine,Customer"
+            classDiagram
+              Order *-- OrderLine
+              Order --> Customer
+            ```
+            """));
+        Set(ClassBasicsSheet, DiagramSheet("Classes and members"));
+        Set(UseCase, DiagramLesson("use-case-diagram", "Use case diagram", 2, """
+            ## Notation
+
+            ```mermaid
+            flowchart TD
+              actor["🧍 Learner"] --> read(["Read a lesson"])
+            ```
+
+            ## Read it
+
+            ```mermaid
+            flowchart TD
+              admin["🧍 Admin"] --> approve(["Approve access"])
+            ```
+
+            ## From requirements
+
+            - A learner asks for access.
+
+            ```mermaid
+            flowchart TD
+              learner["🧍 Learner"] --> ask(["Request access"])
+            ```
+            """));
+        Set("content/uml/use-case-diagram/cheatsheet.md", DiagramSheet("Use case diagram"));
+        Set(Interviews, DiagramLesson("uml-in-interviews", "UML in an LLD interview", 3, """
+            ## Which diagram for which question
+
+            | Question | Diagram |
+            |---|---|
+            | Who uses it? | Use case |
+
+            ## Worked example
+
+            ```mermaid
+            classDiagram
+              Library --> Book
+            ```
+            """));
+        Set("content/uml/uml-in-interviews/cheatsheet.md", DiagramSheet("UML in an LLD interview"));
+        return this;
+    }
+
+    private static string DiagramLesson(string id, string title, int order, string middle) => $"""
+        ---
+        id: {id}
+        title: {title}
+        order: {order}
+        summary: A diagram.
+        tags: [uml]
+        icon: "📐"
+        hook: Boxes and arrows
+        ---
+        # {title}
+
+        > [!REMEMBER]
+        > Boxes and arrows.
+
+        ## The idea
+
+        What it shows.
+
+        {middle}
+
+        ## In an interview
+
+        Draw it first.
+
+        > [!MISTAKES]
+        > - Arrows the wrong way.
+
+        {InterviewSection(5)}
+        """;
+
+    private static string DiagramSheet(string title) =>
+        $"---\ntitle: \"Cheat sheet: {title}\"\n---\n# {title}\n\n> [!REMEMBER]\n> Boxes.\n\n## Draw it when\n\nAlways.\n";
+
     /// <summary>1-based line of the first line in <paramref name="path"/> that contains <paramref name="text"/>.</summary>
     public int LineOf(string path, string text)
     {

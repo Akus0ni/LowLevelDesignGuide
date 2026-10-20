@@ -48,7 +48,18 @@ export function rehypeCompare() {
 const EMPTY = { flags: [], marks: new Set<number>() };
 
 /** The callout types the packer accepts (spec 004 §3.5); mirrors `Callouts.Types` in Lld.Content.Authoring. */
-export const CALLOUT_TYPES = ['remember', 'note', 'tip', 'interview', 'smell', 'pitfall', 'app', 'work', 'overuse'] as const;
+export const CALLOUT_TYPES = [
+  'remember',
+  'note',
+  'tip',
+  'interview',
+  'smell',
+  'pitfall',
+  'app',
+  'work',
+  'overuse',
+  'mistakes',
+] as const;
 export type CalloutType = (typeof CALLOUT_TYPES)[number];
 
 const MARKER = /^\[!([A-Za-z-]+)\][ \t]*(?:\r?\n|$)/;

@@ -18,6 +18,19 @@ public sealed class FenceInfo
     public const string TitleAttribute = "title";
     public const string MarkAttribute = "mark";
 
+    /// <summary>On a <c>mermaid</c> fence: the C# the diagram stands for (spec 008 §3.4), in <c>snippet</c> syntax.</summary>
+    public const string CodeAttribute = "code";
+
+    /// <summary>On a <c>mermaid</c> flowchart: the reader offers an activity step-through (spec 008 §3.6).</summary>
+    public const string StepsFlag = "steps";
+
+    /// <summary>Packer output for a <c>code=</c> diagram: the diagram (<c>pair</c>, with <c>links</c>) and its code (<c>paired</c>).</summary>
+    public const string PairFlag = "pair";
+
+    public const string PairedFlag = "paired";
+
+    public const string LinksAttribute = "links";
+
     private const char Quote = '"';
     private const char Equal = '=';
 

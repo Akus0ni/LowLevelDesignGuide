@@ -5,7 +5,8 @@ namespace Lld.Content.Authoring.Validation.Rules;
 
 /// <summary>
 /// A module's "Which pattern?" picker (spec 006 §3.6) is well formed, every answer leads somewhere real, there are no
-/// loops, no path asks more than <see cref="MaxDepth"/> questions, and every lesson of the module can be picked.
+/// loops, no path asks more than <see cref="MaxDepth"/> questions, and (in <c>pattern</c> modules) every lesson of the
+/// module can be picked. Other modules may leave lessons out: not every lesson answers "which one?" (spec 008, CD-003).
 /// </summary>
 public sealed class PickerRule : IContentRule
 {
@@ -34,14 +35,15 @@ public sealed class PickerRule : IContentRule
         }
 
         var lessons = module.Lessons.Select(l => l.Slug).ToHashSet(StringComparer.Ordinal);
-        foreach (var issue in new PickerWalk(module.ManifestPath, picker, lessons).Issues(entry.Line))
+        var mustReachAll = module.Manifest[FrontMatterKeys.Template]?.Scalar == ContentSchemas.PatternTemplate;
+        foreach (var issue in new PickerWalk(module.ManifestPath, picker, lessons, mustReachAll).Issues(entry.Line))
         {
             yield return issue;
         }
     }
 
     /// <summary>Walks the tree from the start question, colouring questions to find loops (depth-first).</summary>
-    private sealed class PickerWalk(string path, ParsedPicker picker, IReadOnlySet<string> lessons)
+    private sealed class PickerWalk(string path, ParsedPicker picker, IReadOnlySet<string> lessons, bool mustReachAll)
     {
         private readonly Dictionary<string, ParsedQuestion> _questions = picker.Questions.ToDictionary(q => q.Id, StringComparer.Ordinal);
         private readonly HashSet<string> _visiting = new(StringComparer.Ordinal);
@@ -65,7 +67,7 @@ public sealed class PickerRule : IContentRule
                 _issues.Add(new(path, question.Line, IssueCodes.PickerUnreachable, $"Question '{question.Id}' is never asked."));
             }
 
-            foreach (var lesson in lessons.Except(_picked).Order(StringComparer.Ordinal))
+            foreach (var lesson in lessons.Except(_picked).Where(_ => mustReachAll).Order(StringComparer.Ordinal))
             {
                 _issues.Add(new(path, pickerLine, IssueCodes.PickerUnreachable, $"No answer picks lesson '{lesson}'."));
             }
