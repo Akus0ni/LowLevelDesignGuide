@@ -256,7 +256,7 @@ repository you removed.
 | A11 upgrade | Windows: the owner's device database (schema 3, backed up first) | ✅ schema 3 → 5 in one start; 45 lessons, 28 symbols, picker and look-alikes stored |
 | Picker Esc steps back | Windows | ✅ |
 | Compare, lesson | Windows | ✅ screenshots `windows-*.png` |
-| A11 upgrade on Android with progress | Emulator: spec 005 Debug build installed, SRP marked done | ⏸️ paused: the emulator was stopped by Claude Code (low memory) before the spec 006 build was installed over it. Covered meanwhile by `SchemaMigratorTests.V5_AddsPatternColumns_AndKeepsProgress` and the loader tests |
+| A11 upgrade on Android with progress | Emulator: spec 005 Debug build installed, SRP marked done | ✅ spec 006 Debug build installed over it: schema 4 → 5, 45 lessons (28 with a symbol), picker and look-alikes stored for GoF, look-alikes for Enterprise; the SRP progress row is byte-for-byte the same and OOP & SOLID shows "1 of 15 lessons done". Five modules on Learn, 23 tiles on GoF. Picker: Android Back steps back one question, then closes the sheet, then leaves the page. Screenshots `android-upgrade-*.png` |
 
 ### Final numbers
 .NET: domain 54 · application 38 · API 41 · admin 11 · server status 30 · content 310 · progress stores 40 · lesson
