@@ -10,6 +10,7 @@ import { BackLink } from './BackLink';
 import { LessonIcon } from './LessonIcon';
 import { ContentBoundary } from './ContentBoundary';
 import { MarkdownView } from './markdown/MarkdownView';
+import { LookalikeContext } from './patterns/lookalikeContext';
 import { formatMinutes } from './navigation';
 import { OutlineColumn, OutlineSheet } from './Outline';
 import { NextUp } from './reader/NextUp';
@@ -56,7 +57,9 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
       <article className="min-w-0">
         <BackLink to={`/learn/${module.slug}`}>{module.title}</BackLink>
         <LessonHeader lesson={lesson} module={module} position={position + 1} reading={reading} />
-        <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} textSize={textSize} />
+        <LookalikeContext value={{ module, lessonSlug: lesson.slug }}>
+          <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} textSize={textSize} />
+        </LookalikeContext>
         <footer className="mt-16 border-t border-rule pt-8">
           <DoneControl lessonId={lesson.id} sectionCount={lesson.outline.length} />
           <NextUp lesson={lesson} />

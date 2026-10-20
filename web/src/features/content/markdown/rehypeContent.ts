@@ -75,6 +75,23 @@ export function rehypeCallouts() {
     });
 }
 
+/** The heading id of a pattern lesson's "Seen in .NET" section (github-slugger). */
+export const SEEN_IN_DOTNET_ANCHOR = 'seen-in-net';
+
+/**
+ * Pattern lessons (spec 006 §3.7): leaves an empty `<div data-lookalikes>` at the end of the "Seen in .NET" section,
+ * where the reader puts the "often confused with" strip. Lessons without the section are left alone.
+ */
+export function rehypeLookalikeSlot() {
+  return (tree: Root) => {
+    const start = tree.children.findIndex((node) => isElement(node, 'h2') && node.properties.id === SEEN_IN_DOTNET_ANCHOR);
+    if (start < 0) return;
+    let end = start + 1;
+    while (end < tree.children.length && !isElement(tree.children[end], 'h2')) end++;
+    tree.children.splice(end, 0, { type: 'element', tagName: 'div', properties: { dataLookalikes: '' }, children: [] });
+  };
+}
+
 export const GO_DEEPER_ANCHOR = 'go-deeper';
 
 /**

@@ -8,7 +8,7 @@
 - [x] T6 Web: Overuse stamp; phrase mnemonic tiles
 - [x] T7 Web: `PeriodicTable` on the module page
 - [x] T8 Web: `PatternPicker` sheet (Escape / Android Back steps back)
-- [ ] T9 Web: `LookalikeCompare` route + lesson look-alike strip; module page "Look-alikes" list
+- [x] T9 Web: `LookalikeCompare` route + lesson look-alike strip; module page "Look-alikes" list
 - [ ] T10 UI pass with the skills: screenshot critique (phone light / dark, desktop), `break-ui` worst case → **owner review: reader features + batch 1**
 - [ ] T11 Batch 2 Structural: Adapter, Facade, Decorator, Proxy, Composite, Bridge, Flyweight (+ Structural mnemonic) → **owner review**
 - [ ] T12 Batch 3 Behavioral A: Strategy, Template Method, Observer, Command, Iterator, State → **owner review**

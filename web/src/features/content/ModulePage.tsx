@@ -13,6 +13,7 @@ import { ContentBoundary } from './ContentBoundary';
 import { LessonIcon } from './LessonIcon';
 import { ModuleMap } from './ModuleMap';
 import { ModuleMnemonics } from './ModuleMnemonics';
+import { LookalikeList } from './patterns/LookalikeStrip';
 import { PatternPicker } from './patterns/PatternPicker';
 import { PeriodicTable } from './patterns/PeriodicTable';
 import { BackLink } from './BackLink';
@@ -59,9 +60,14 @@ function ModuleView({ slug }: { slug: string }) {
           <PeriodicTable map={module.map} lessons={module.lessons} lookalikes={module.lookalikes} />
         )}
         {module.map && module.lessons.length > 0 && !asTable && <ModuleMap map={module.map} lessons={module.lessons} />}
-        {module.picker && module.lessons.length > 0 && (
-          <div className="mb-7 flex flex-wrap items-center gap-3">
-            <PatternPicker picker={module.picker} lessons={module.lessons} />
+        {(module.picker || (module.lookalikes?.length ?? 0) > 0) && module.lessons.length > 0 && (
+          <div className="mb-7 grid gap-4">
+            {module.picker && (
+              <div>
+                <PatternPicker picker={module.picker} lessons={module.lessons} />
+              </div>
+            )}
+            <LookalikeList module={module} />
           </div>
         )}
         {module.lessons.length === 0 ? (

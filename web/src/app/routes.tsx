@@ -10,6 +10,7 @@ import { SECTIONS } from './sections';
 /** The reader's code; imported on first lesson open, or earlier by `warmUpReader`. */
 const loadReader = () => import('../features/content/LessonPage');
 const loadCheatSheet = () => import('../features/content/CheatSheetPage');
+const loadCompare = () => import('../features/content/patterns/LookalikeCompare');
 
 /** Starts loading the reader when the browser is idle, so the first lesson opens without waiting for code. */
 export function warmUpReader(): void {
@@ -35,6 +36,12 @@ const BUILT: Record<string, RouteObject> = {
         path: ':module/:lesson',
         // The reader (Markdown, highlighting) loads on demand and is warmed while the app is idle (main.tsx).
         lazy: async () => ({ Component: (await loadReader()).LessonPage }),
+        handle: { wide: true } satisfies RouteHandle,
+      },
+      // Look-alike compare (spec 006 §3.7): three segments, so it never clashes with a lesson route.
+      {
+        path: ':module/compare/:pair',
+        lazy: async () => ({ Component: (await loadCompare()).LookalikeCompare }),
         handle: { wide: true } satisfies RouteHandle,
       },
     ],
