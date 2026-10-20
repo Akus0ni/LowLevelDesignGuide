@@ -1520,6 +1520,148 @@
     }
   }
 
+  /* "Which pattern?" (spec 006 §3.6): one question at a time in the bottom sheet; answers are big, plain buttons. */
+  .picker-trigger {
+    display: inline-flex;
+    height: 2.75rem;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    background: var(--accent);
+    padding-inline: 1.1rem;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .picker-back {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.15rem;
+    border-radius: 0.5rem;
+    padding-inline: 0.4rem;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .picker-path {
+    margin-bottom: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  .picker-ask {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-size: 1.4rem;
+    font-weight: 650;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  /* Each question slides in a little from the side it came from; instant with reduced motion (rule at the end). */
+  .picker-step {
+    transition:
+      opacity 180ms var(--ease-out),
+      transform 180ms var(--ease-out);
+
+    @starting-style {
+      opacity: 0;
+      transform: translateX(10px);
+    }
+  }
+
+  .picker-answer,
+  .picker-result {
+    display: flex;
+    width: 100%;
+    min-height: 3.25rem;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.75rem;
+    background: var(--bg);
+    padding: 0.6rem 0.9rem;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      border-color 150ms ease;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: var(--accent);
+      }
+    }
+
+    & svg {
+      flex-shrink: 0;
+      color: var(--muted);
+    }
+  }
+
+  .picker-result {
+    border-color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 6%, var(--surface));
+  }
+
+  .picker-symbol {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 0.45rem;
+    background: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .picker-step {
+      transition: opacity 120ms ease;
+
+      @starting-style {
+        opacity: 0;
+        transform: none;
+      }
+    }
+  }
+
   /* Memory aids (spec 004 §3.8). The concept's face: colour emoji from the platform font, never tinted. */
   .lesson-icon {
     flex-shrink: 0;
