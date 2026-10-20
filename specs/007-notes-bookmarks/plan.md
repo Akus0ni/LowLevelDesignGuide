@@ -234,3 +234,43 @@ web/src/features/shared/writeBehind.ts   quiet-delay / hidden / pagehide / dispo
   and a section tick always agree.
 - **Two places write the same note** (sheet open on desktop, Notes tab in another window): later edit wins, which is
   the same rule spec 010 uses.
+
+## 5. Outcomes
+
+### Changes from this plan
+| Plan | As built | Why |
+|---|---|---|
+| `INotesStore.DeleteAllAsync` | Not on the port; `SqliteNotesStore.AdoptGuestAsync` merges and empties the guest in one transaction (as progress does) | Only the device empties a guest; the API never holds one |
+| Contracts and `NotesWire` in T4 | Built in T3 | The device store needed them first |
+| Section names: readable anchor until the outline loads | The Notes tab and export wait for the outlines of lessons with notes (local reads, cached); the sheet and Revise use the lesson's own outline | Simpler and never shows a placeholder title; the stand-in is still used for a removed section |
+| Undo for deleting a note: a toast | Undo inside the notes sheet; toasts stay for bookmarks and the Notes tab | The sheet is modal: everything outside it, the toaster included, is inert while it is open (found by the Playwright run) |
+| Toasts above the tab bar | The app's existing top-centre toaster | One toaster for the whole app (ask-sonner); it already clears the notch |
+| Starters as bold lines | Starters as a bulleted list | Single lines ran together into one paragraph in Preview |
+| `--tone-note` picked from 2–3 candidates | Vermilion red pencil: `#c2361d` light (5.5 : 1 on surface), `#ff8a70` dark (7.7 : 1) | Clearly a red pencil; told apart from `--tone-rose` callouts by the left rule and no dog-ear; AA checked by Playwright (A15) |
+| — | Android keyboard resizes the page (`WindowSoftInputModeAdjust.Resize`) | On the emulator the keyboard covered the note editor (risk §4); now the sheet sits above it |
+| — | `excerpt()` drops list markers and tags from note previews | The Windows run showed "- Where:" and tag words in the cards |
+
+### Findings
+- `dotnet build -t:Run` only launches what is already built: the Windows run first showed the spec 006 bundle.
+  Build, then start the exe.
+- Playwright `getByText('Saved')` matches substrings without regard to case ("…saved as you type"); use `exact: true`.
+- The editor's emptied-note check must look at the latest text, not the pending save: the autosave timer clears it.
+
+### T15: manual run (2026-10-20)
+| Check | Where | Result |
+|---|---|---|
+| A14 upgrade V5 → V6 | Windows (owner database, backed up first) | ✅ schema 6, all 17 progress rows kept; test note and bookmark removed afterwards |
+| A1, A4 write, restart | Windows | ✅ section note via a starter, lesson bookmark; both back after a restart; Revise shows "Your notes (1)" |
+| A10 export | Windows | ✅ `lld-notes-2026-10-20.md` written to the app cache in the §3.7 shape, share UI opened |
+| A14 upgrade V5 → V6 | Android emulator (spec 006 build with SRP done) | ✅ schema 6, SRP Done kept |
+| A2 offline, A1 restart | Android, airplane mode | ✅ note and bookmark written offline, kept after force-stop and relaunch |
+| Keyboard | Android | ✅ after the Resize fix the editor stays above the keyboard (`android-editor-keyboard.png`) |
+| A10 share sheet | Android | ✅ "Sharing 1 file: lld-notes-2026-10-20.md" |
+| A11 guest adoption on a device | — | ⚠️ not run by hand (needs the API and a real sign-in); covered by `DeviceNotesTests`, `SqliteNotesStoreTests` and `NotesApiTests.Adopt…` |
+
+Screenshots: `screenshots/` (phone light / dark, desktop, 320 px worst case, Windows, Android).
+
+### Final numbers
+.NET: domain 97 · application 38 · API 55 · admin 11 · server status 30 · content 312 · progress and notes stores 86 ·
+lesson samples 148 · Aspire integration 4. Web: Vitest 286 · Playwright 101 (phone + desktop, 1 skipped as before).
+0 build warnings; lint and guardrails clean.

@@ -162,7 +162,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | **004** | Content | OOP & SOLID | Lessons + cheat sheets | Module complete and readable in the app |
 | **005** | Feature | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
 | **006** | Content | GoF + Enterprise patterns | 23 GoF + 5 Enterprise patterns, compiled samples, cheat sheets; periodic table, "Which pattern?" picker, look-alike compare (PRD R93–R100) | Modules complete; samples compile and are tested |
-| **007** | Feature | Notes & bookmarks | Per-lesson notes, bookmarks, list view | CRUD works offline on device |
+| **007** | Feature | Notes & bookmarks | Lesson and section notes, bookmarks (lesson / section / cheat sheet), Notes tab, tags, starters, notes in Revise, export (PRD R102–R108) | CRUD works offline on device |
 | **008** | Content | UML | Class / sequence / state / activity with Mermaid | Module complete |
 | **009** | Feature | Search | FTS5 on device (API copy for browser dev), highlighted results | Query → results under 200 ms on device |
 | **010** | Feature | Offline sync | One combined `/sync` call, LWW conflict rule, sync triggers, **Sync button disabled while server offline**, auto-sync when status → online | Airplane-mode scenario passes; offline → online auto-sync passes; monthly request estimate under budget |
@@ -236,6 +236,8 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | 2026-10-19 | **Progress per user, guest on the device** adopted at sign-in; stored on device and API now, synced in spec 010 (PRD R85–R88) |
 | 2026-10-19 | **Activity strip instead of a streak**: the one exception to "no gamification" (PRD §3, R89) |
 | 2026-10-19 | Progress transitions live in the web app; the domain only stores, compares (last-write-wins) and merges records, shared through `Lld.Wire` |
+| 2026-10-20 | **Notes like progress**: per owner (user or device guest, adopted at sign-in), device SQLite (schema step 6) + API tables, soft deletes for spec 010; tags derived from the text, never stored (PRD R102–R108) |
+| 2026-10-20 | **Android keyboard resizes the page** (`WindowSoftInputModeAdjust.Resize`), so editors and sheets stay above it |
 
 ## 8. Phase 2: Apple builds (deferred 2026-10-14)
 Owner decision: Apple CI does not block PRs until Phase 2. The job is kept, ready to run, in
