@@ -82,7 +82,7 @@ subclasses also customise.
 ## Travels with
 
 - [Abstract Factory](../abstract-factory/lesson.md): each of its methods is often a factory method.
-- **Template Method** (Behavioral): the factory method is one step of a template method.
+- [Template Method](../template-method/lesson.md): the factory method is one step of a template method.
 
 > [!OVERUSE]
 > - A creator subclass exists **only** to create one class: a delegate or `new` would do.

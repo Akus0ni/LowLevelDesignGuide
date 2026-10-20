@@ -75,7 +75,7 @@ them. For your own services, the Scrutor library's `Decorate<T, TDecorator>()` w
 ## Travels with
 
 - [Composite](../composite/lesson.md): both wrap; decorators are often used inside composite trees.
-- **Strategy** (Behavioral): a decorator changes the outside of an object, a strategy its inside.
+- [Strategy](../strategy/lesson.md): a decorator changes the outside of an object, a strategy its inside.
 - **Chain of Responsibility** (Behavioral): a chain of decorators that may stop early is a chain.
 
 > [!OVERUSE]

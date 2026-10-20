@@ -11,7 +11,7 @@
 - [x] T9 Web: `LookalikeCompare` route + lesson look-alike strip; module page "Look-alikes" list
 - [x] T10 UI pass with the skills: screenshot critique (phone light / dark, desktop), `break-ui` worst case → **owner review: reader features + batch 1**
 - [x] T11 Batch 2 Structural: Adapter, Facade, Decorator, Proxy, Composite, Bridge, Flyweight (+ Structural mnemonic) → **owner review**
-- [ ] T12 Batch 3 Behavioral A: Strategy, Template Method, Observer, Command, Iterator, State → **owner review**
+- [x] T12 Batch 3 Behavioral A: Strategy, Template Method, Observer, Command, Iterator, State → **owner review**
 - [ ] T13 Batch 4 Behavioral B: Chain of Responsibility, Mediator, Memento, Visitor, Interpreter (+ Behavioral mnemonic, final picker) → **owner review**
 - [ ] T14 Batch 5 Enterprise: `content/enterprise-patterns/` module + Repository, Unit of Work, Specification, Null Object, DI vs Service Locator (+ mnemonic) → **owner review**
 - [ ] T15 Playwright `e2e/patterns.spec.ts` (A1, A5–A10, both modules)

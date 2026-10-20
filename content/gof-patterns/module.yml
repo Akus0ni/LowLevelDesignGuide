@@ -26,6 +26,14 @@ map: |
       bridge["Bridge"]
       flyweight["Flyweight"]
     end
+    subgraph behavioral["Behavioral: how objects behave and talk"]
+      strategy["Strategy"]
+      template-method["Template Method"]
+      observer["Observer"]
+      command["Command"]
+      iterator["Iterator"]
+      state["State"]
+    end
     abstract-factory -->|"is often built from"| factory-method
     abstract-factory -->|"is usually one"| singleton
     abstract-factory -->|"can clone its products with"| prototype
@@ -38,6 +46,12 @@ map: |
     flyweight -->|"shares the leaves of a"| composite
     bridge -->|"can get its implementor from"| abstract-factory
     factory-method -->|"can hand out a"| proxy
+    template-method -->|"often calls a"| factory-method
+    strategy -->|"is often picked by a"| factory-method
+    observer -->|"often reports to a shared"| singleton
+    command -->|"can be grouped into a"| composite
+    iterator -->|"walks a"| composite
+    state -->|"can share its states as"| flyweight
 # "Which pattern?" (spec 006 §3.6): every lesson must be reachable; each path asks at most 4 questions.
 picker:
   start: what
@@ -47,6 +61,7 @@ picker:
       answers:
         - { label: "Creating objects", next: create }
         - { label: "Fitting objects together", next: structure }
+        - { label: "How objects behave and talk", next: behave }
     create:
       ask: "What is hard about creating the object?"
       answers:
@@ -77,6 +92,19 @@ picker:
       answers:
         - { label: "Classes multiply because two things vary together", pick: [bridge], why: "Split the two directions into two hierarchies joined by a reference." }
         - { label: "Huge numbers of similar objects use too much memory", pick: [flyweight], why: "Share the heavy, unchanging part; keep only what differs." }
+    behave:
+      ask: "What do you need?"
+      answers:
+        - { label: "Change how a job is done", next: swap }
+        - { label: "Tell other objects when something happens", pick: [observer], why: "Observers subscribe; the subject notifies them without knowing who they are." }
+        - { label: "Turn a request into an object (queue, log, undo)", pick: [command], why: "A command holds what to do, so it can be stored, retried or undone." }
+        - { label: "Walk a collection without seeing its insides", pick: [iterator], why: "An iterator gives you the next item; the storage stays hidden." }
+    swap:
+      ask: "Who decides how it is done?"
+      answers:
+        - { label: "The caller picks the algorithm", pick: [strategy], why: "Each way is a class behind one interface; pass in the one you want." }
+        - { label: "The object, as its own state changes", pick: [state], why: "Each state is a class; the object swaps its state as things happen." }
+        - { label: "Fixed steps; subclasses fill in some of them", pick: [template-method], why: "A base class runs the steps; subclasses override only what differs." }
 # Look-alikes (spec 006 §3.7): the one difference, and the question that tells them apart.
 lookalikes:
   - patterns: [factory-method, abstract-factory, builder]
@@ -91,3 +119,12 @@ lookalikes:
   - patterns: [bridge, adapter]
     difference: "Bridge is planned up front so two sides can vary; Adapter is added later to make an existing class fit."
     ask: "Designing for change, or fixing a mismatch after the fact?"
+  - patterns: [strategy, state]
+    difference: "Strategy is chosen by the caller and rarely changes; State switches itself as the object's situation changes."
+    ask: "Who swaps the behaviour: the client, or the object itself?"
+  - patterns: [strategy, template-method]
+    difference: "Strategy swaps the whole algorithm by passing an object; Template Method fixes the steps and lets subclasses fill some in."
+    ask: "Composition at runtime, or inheritance with fixed steps?"
+  - patterns: [strategy, command]
+    difference: "A strategy says how to do a job the context always does; a command says what to do and is often stored to run later or undo."
+    ask: "Choosing how, or packaging what (to queue or undo)?"

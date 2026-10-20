@@ -1393,12 +1393,13 @@
     min-height: 6rem;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    /* Symbols sit at the same height in every tile; a two-line name only grows downwards. */
+    justify-content: flex-start;
     gap: 0.15rem;
     border: 1px solid color-mix(in oklab, var(--category) 35%, var(--rule));
     border-radius: 0.45rem;
     background: color-mix(in oklab, var(--category) 7%, var(--surface));
-    padding: 1.1rem 0.3rem 0.5rem;
+    padding: 1.55rem 0.3rem 0.5rem;
     color: var(--fg);
     transition:
       transform 120ms var(--ease-out),
