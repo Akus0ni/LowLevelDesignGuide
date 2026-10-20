@@ -66,7 +66,15 @@ internal static class ContentCli
         });
 
         var snapshotOut = OutOption("Folder to write the API responses to (used by the Playwright tests).");
-        var snapshot = new Command("snapshot", "Validate, then write every /api/content response as a static JSON file.") { snapshotOut };
+        var searchRequests = new Option<FileInfo?>("--search-requests")
+        {
+            Description = "A JSON list of search requests whose /api/search responses are written too (spec 009).",
+        };
+        var snapshot = new Command("snapshot", "Validate, then write every /api/content response as a static JSON file.")
+        {
+            snapshotOut,
+            searchRequests,
+        };
         snapshot.SetAction(async (parse, ct) =>
         {
             var result = Build(parse.GetValue(repo)!, parse.GetValue(format), error);
@@ -76,6 +84,11 @@ internal static class ContentCli
             }
 
             var files = await ApiSnapshotWriter.WriteAsync(new InMemoryContentCatalog(result.Pack), parse.GetValue(snapshotOut)!, ct);
+            if (parse.GetValue(searchRequests) is { } requests)
+            {
+                files += await SearchSnapshotWriter.WriteAsync(result.Pack, requests, parse.GetValue(snapshotOut)!, ct);
+            }
+
             output.WriteLine($"Wrote {files} API responses -> {parse.GetValue(snapshotOut)!.FullName}");
             return Success;
         });

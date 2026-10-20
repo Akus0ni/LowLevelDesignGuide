@@ -6,7 +6,7 @@ export const CONTENT_SNAPSHOT = fileURLToPath(new URL('./.content', import.meta.
 
 /**
  * The e2e tests read the repository's real content: `lld-content snapshot` writes every content API response as a
- * file, and `routeContent` serves them. Needs the .NET SDK (CI's web job installs it).
+ * file (and the search responses listed in fixtures/search-requests.json), and `routeContent` serves them. Needs the .NET SDK (CI's web job installs it).
  */
 export default function globalSetup(): void {
   const repo = fileURLToPath(new URL('../..', import.meta.url)).replace(/[\\/]$/, '');
@@ -22,6 +22,8 @@ export default function globalSetup(): void {
       repo,
       '--out',
       CONTENT_SNAPSHOT,
+      '--search-requests',
+      fileURLToPath(new URL('./fixtures/search-requests.json', import.meta.url)),
     ],
     { stdio: 'inherit' },
   );

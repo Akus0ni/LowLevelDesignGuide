@@ -1,0 +1,11 @@
+[
+  { "query": "" },
+  { "query": "decor" },
+  { "query": "decor", "kind": "cheatSheet" },
+  { "query": "decor", "kind": "lesson", "lessonId": "decorator" },
+  { "query": "SRP" },
+  { "query": "Observer" },
+  { "query": "observer" },
+  { "query": "observer", "kind": "lesson", "lessonId": "observer" },
+  { "query": "wraps", "kind": "cheatSheet", "lessonId": "decorator" }
+]
