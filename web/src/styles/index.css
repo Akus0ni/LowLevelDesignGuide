@@ -701,6 +701,16 @@
     }
   }
 
+  /* While stepping, focus may rest on the diagram figure itself (so ← → keep working): ring for keyboards only. */
+  .diagram:focus {
+    outline: none;
+  }
+
+  .diagram:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   /* Under a running diagram: the events (or branches) you can fire next, as big plain buttons. */
   .diagram-run-bar {
     display: flex;

@@ -196,6 +196,8 @@ container prefix logic (`Rewrite`), so pairs inside lists or quotes stay valid.
   `state-<Name>-<n>`, flowchart nodes `flowchart-<id>-<n>`, flowchart edges `L_<from>_<to>_<n>`.
 - Flowchart edge labels may be quoted (`-->|"no"|`); the Playwright run caught the quotes reaching the buttons.
 - A forced Playwright click hits the middle of an L-shaped edge's box, not the line; real taps hit the 16 px twin.
+- Pressing "step through" (or "run") replaced the button that had focus, so ← → went to the page: a race the
+  full parallel Playwright run hit (spec 003's A14). Focus now stays in the diagram figure while stepping.
 - Locators filtered by "has a run button" move to the next diagram once Run is pressed: pin the element first.
 - The Windows app uses the owner's real device database: browsing in a manual run writes progress, so back it up and
   remove the test rows afterwards (done: two `LessonProgress` rows and one `ActivityDays` row).

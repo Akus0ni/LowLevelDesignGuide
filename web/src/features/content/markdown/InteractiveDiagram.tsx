@@ -1,4 +1,13 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import { Icon } from '../../../ui/Icon';
 import { ArrowLegendButton } from '../uml/ArrowLegend';
 import { ActivityBar, ActivityStrip, StateRunBar, StateStrip } from '../uml/DiagramControls';
@@ -58,6 +67,8 @@ export function InteractiveDiagram({
   const sequence = useSequenceSteps(canvas, svg);
   const machine = useStateDiagram(canvas, svg, source, selection);
   const walk = useActivitySteps(canvas, svg, source, steps);
+  const figure = useRef<HTMLElement>(null);
+  useKeepFocusWhileStepping(figure, sequence.current !== null || walk.stepping || machine.run !== null);
 
   const onKeyDown = (event: KeyboardEvent) => {
     if (sequence.current !== null) {
@@ -79,7 +90,7 @@ export function InteractiveDiagram({
   };
 
   return (
-    <figure className={className} aria-label={label} onKeyDown={onKeyDown}>
+    <figure ref={figure} tabIndex={-1} className={className} aria-label={label} onKeyDown={onKeyDown}>
       <figcaption className="diagram-label">
         <span className="min-w-0 truncate">{showLabel ? label : ''}</span>
         <span className="flex shrink-0 items-center gap-1">
@@ -121,6 +132,17 @@ export function InteractiveDiagram({
       </p>
     </figure>
   );
+}
+
+/**
+ * Starting a walk replaces the button that started it, which would drop focus to the page and lose ← → / Esc. While
+ * stepping, focus stays inside the figure (moved to the figure itself if it left).
+ */
+function useKeepFocusWhileStepping(figure: RefObject<HTMLElement | null>, stepping: boolean) {
+  useLayoutEffect(() => {
+    const element = figure.current;
+    if (stepping && element && !element.contains(document.activeElement)) element.focus({ preventScroll: true });
+  }, [figure, stepping]);
 }
 
 function svgIn(canvas: RefObject<HTMLDivElement | null>): SVGSVGElement | null {
