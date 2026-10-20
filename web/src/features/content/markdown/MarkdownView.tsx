@@ -10,11 +10,14 @@ import type { LessonTerm } from '../../../data/types';
 import { Callout } from './Callout';
 import { CodeBlock } from './CodeBlock';
 import { CodeCompare } from './CodeCompare';
+import { ArrowLegend } from '../uml/ArrowLegend';
+import { CodeUmlPair } from '../uml/CodeUmlPair';
 import { fenceOf, markKindOf, sideOf } from './fence';
 import { TermsContext } from './terms';
 import {
   rehypeCallouts,
   rehypeCompare,
+  rehypePair,
   rehypeGoDeeper,
   rehypeInterview,
   rehypeLookalikeSlot,
@@ -96,7 +99,7 @@ function rehypeDropLeadingTitle() {
   };
 }
 
-const COMMON_PLUGINS = [rehypeSlug, rehypeDropLeadingTitle, rehypeCompare, rehypeCallouts];
+const COMMON_PLUGINS = [rehypeSlug, rehypeDropLeadingTitle, rehypeCompare, rehypePair, rehypeCallouts];
 const LESSON_PLUGINS = [...COMMON_PLUGINS, rehypeLookalikeSlot, rehypeInterview, rehypeGoDeeper];
 const CHEAT_SHEET_PLUGINS = [...COMMON_PLUGINS, rehypeRecallSections];
 
@@ -116,6 +119,7 @@ const components: Components = {
   div: ({ node, children, ...props }) => {
     const properties = node?.properties ?? {};
     if (properties.dataCompare !== undefined) return <Compare node={node} />;
+    if (properties.dataPair !== undefined) return <Pair node={node} />;
     if (properties.dataLookalikes !== undefined) return <LookalikeStrip />;
     if (typeof properties.dataGoDeeper === 'string') {
       return <GoDeeper topics={properties.dataGoDeeper.split('\n').filter(Boolean)}>{children}</GoDeeper>;
@@ -149,7 +153,10 @@ const components: Components = {
   pre: ({ node }) => {
     const fence = fenceOf(node);
     if (!fence) return null;
-    if (fence.language === 'mermaid') return <MermaidDiagram source={fence.code} />;
+    if (fence.language === 'mermaid') {
+      return <MermaidDiagram source={fence.code} steps={fence.meta.flags.includes('steps')} />;
+    }
+    if (fence.language === 'uml-arrows') return <ArrowLegend />;
     return (
       <CodeBlock
         code={fence.code}
@@ -170,6 +177,14 @@ const noteComponents: Components = {
     return fence ? <CodeBlock code={fence.code} info={fence.language} /> : null;
   },
 };
+
+/** The diagram and code rehypePair grouped. */
+function Pair({ node }: { node?: Element }) {
+  const [diagram, code] = (node?.children ?? []).filter((child): child is Element => child.type === 'element');
+  const diagramFence = fenceOf(diagram);
+  const codeFence = fenceOf(code);
+  return diagramFence && codeFence ? <CodeUmlPair diagram={diagramFence} code={codeFence} /> : null;
+}
 
 /** The two `<pre>`s rehypeCompare grouped. */
 function Compare({ node }: { node?: Element }) {

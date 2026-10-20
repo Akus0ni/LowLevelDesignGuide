@@ -3,6 +3,8 @@ import { CodeBlock } from './CodeBlock';
 import { DiagramViewer } from './DiagramViewer';
 import { InteractiveDiagram } from './InteractiveDiagram';
 import { currentColorScheme, renderMermaid } from './mermaid';
+import { ACTIVITY_CLASS_DEFS } from '../uml/umlSource';
+import type { DiagramSelection } from '../uml/useUmlDiagrams';
 
 const DARK = '(prefers-color-scheme: dark)';
 
@@ -19,14 +21,24 @@ type Diagram =
  * A ```mermaid block. Mermaid loads only when a lesson has a diagram, and the diagram re-renders when the system
  * switches between light and dark. If the source has an error, the reader still sees it, with a short note.
  */
-export function MermaidDiagram({ source }: { source: string }) {
+export function MermaidDiagram({
+  source,
+  steps = false,
+  selection,
+}: {
+  source: string;
+  /** An activity flowchart (`mermaid steps`, spec 008 §3.6): it can be walked, and forks / joins draw as bars. */
+  steps?: boolean;
+  /** Set by a Code ↔ UML pair: taps on the diagram select code. */
+  selection?: DiagramSelection;
+}) {
   const scheme = useSyncExternalStore(subscribeToScheme, currentColorScheme, () => 'light');
   const id = `mermaid-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const [diagram, setDiagram] = useState<Diagram>({ status: 'loading' });
 
   useEffect(() => {
     let current = true;
-    renderMermaid(`${id}-${scheme}`, source).then(
+    renderMermaid(`${id}-${scheme}`, steps ? source + ACTIVITY_CLASS_DEFS : source).then(
       (svg) => current && setDiagram({ status: 'ready', svg }),
       (error: unknown) =>
         current &&
@@ -35,7 +47,7 @@ export function MermaidDiagram({ source }: { source: string }) {
     return () => {
       current = false;
     };
-  }, [id, scheme, source]);
+  }, [id, scheme, source, steps]);
 
   if (diagram.status === 'failed') {
     return (
@@ -58,10 +70,13 @@ export function MermaidDiagram({ source }: { source: string }) {
   return (
     <InteractiveDiagram
       svg={diagram.svg}
+      source={source}
+      steps={steps}
+      selection={selection}
       label={label}
       className="diagram"
       canvasClassName="diagram-canvas"
-      actions={<DiagramViewer svg={diagram.svg} label={label} />}
+      actions={<DiagramViewer svg={diagram.svg} source={source} steps={steps} label={label} />}
     />
   );
 }

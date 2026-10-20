@@ -8,15 +8,18 @@ import { LessonIcon } from '../LessonIcon';
 import { chevronLeft, chevronRight } from '../navigation';
 import { walkPicker } from './pickerWalk';
 
+const DEFAULT_TITLE = 'Which pattern?';
 const compass = ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z', 'm15.5 8.5-2 5-5 2 2-5 5-2Z'];
 
 /**
  * "Which pattern?" (spec 006 §3.6): a bottom sheet that asks one question at a time and ends at the pattern(s) that
  * fit, with a one-line why. Back (the button, Esc or Android Back) steps back one question; at the first question it
- * closes. Nothing is saved: the next open starts from the beginning.
+ * closes. Nothing is saved: the next open starts from the beginning. A module may name it (`picker.title`, spec 008:
+ * "Which diagram?").
  */
 export function PatternPicker({ picker, lessons }: { picker: ModulePicker; lessons: LessonSummary[] }) {
   const [open, setOpen] = useState(false);
+  const title = picker.title ?? DEFAULT_TITLE;
   const [chosen, setChosen] = useState<number[]>([]);
   const { step, path } = walkPicker(picker, chosen);
   const bySlug = new Map(lessons.map((lesson) => [lesson.slug, lesson]));
@@ -34,7 +37,7 @@ export function PatternPicker({ picker, lessons }: { picker: ModulePicker; lesso
     >
       <Drawer.Trigger className="picker-trigger">
         <Icon d={compass} size={18} />
-        Which pattern?
+        {title}
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Backdrop className="sheet-backdrop" />
@@ -50,10 +53,10 @@ export function PatternPicker({ picker, lessons }: { picker: ModulePicker; lesso
               ) : (
                 <span className="w-2" />
               )}
-              <Drawer.Title className="text-[17px] font-semibold">Which pattern?</Drawer.Title>
+              <Drawer.Title className="text-[17px] font-semibold">{title}</Drawer.Title>
             </div>
             <Drawer.Description className="sr-only">
-              Answer a few questions about your problem; the guide points you to the pattern that fits.
+              Answer a few questions about your problem; the guide points you to the lesson that fits.
             </Drawer.Description>
             <Drawer.Content className="max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pt-2 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))]">
               {path.length > 0 && (
