@@ -3,12 +3,12 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-20 (spec 006: all content done (23 GoF + 5 Enterprise); owner reviews later)_
+_Last updated: 2026-10-20 (spec 006 PR ready for review)_
 
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.7 (spec 005 decisions R85–R92) |
+| PRD | v0.8 (spec 006 decisions R93–R100) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
@@ -17,7 +17,7 @@ _Last updated: 2026-10-20 (spec 006: all content done (23 GoF + 5 Enterprise); o
 | Spec 003 Content engine | ✅ Merged (PR #5) |
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
-| Spec 006 Design patterns | 🔍 T1–T14 done (UI + 28 lessons); next T15 Playwright, T16 manual run |
+| Spec 006 Design patterns | 🔍 PR open for owner review (Android upgrade check paused) |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -29,7 +29,7 @@ _Last updated: 2026-10-20 (spec 006: all content done (23 GoF + 5 Enterprise); o
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
 | 004 | OOP & SOLID content | ✅ merged (PR #6) |
 | 005 | Progress | ✅ merged (PR #7) |
-| 006 | GoF + Enterprise patterns content | 🚧 in progress |
+| 006 | GoF + Enterprise patterns content | 🔍 PR, owner review |
 | 007 | Notes & bookmarks | planned |
 | 008 | UML content | planned |
 | 009 | Search | planned |
@@ -130,29 +130,30 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Manual run on Windows + Android (upgrade V3 → V4, restart, offline). Details: `specs/005-progress/plan.md` §5.
 - Open question for the owner: fling-to-end marks a lesson done (spec 003 tick rule). Keep?
 
-## Spec 006: where it stands (2026-10-20)
-- Owner choices: all 23 GoF + 5 extras in their own module "Enterprise & .NET patterns"; spec 004 card + structure,
-  Modern C#, Seen in .NET, look-alikes, travels with, Overuse stamp; reader gets a periodic table, a "Which pattern?"
-  picker and a look-alike compare; Claude proposes category mnemonics; review in category batches.
-- Spec approved as is (slugs, order, mnemonics, symbols, look-alikes). `plan.md` + `tasks.md` written.
-- Done (T1–T10): samples project; nested YAML + phrase mnemonics; template `pattern` + rules; picker + look-alikes
-  (pack format 3, device step 5); GoF module with Creational (5 lessons, samples, tests); reader: Overuse stamp, phrase
-  mnemonics, periodic table, "Which pattern?" sheet, look-alike compare route + lesson strip. Screenshots in
-  `specs/006-gof-patterns/screenshots/`.
-- Owner approved the reader UI + Creational batch (2026-10-20). T11 Structural done (7 lessons, samples, tests,
-  mnemonic, picker branch, 3 look-alikes). T12 Behavioral A done (Strategy, Template Method, Observer, Command,
-  Iterator, State). Owner said: review later, continue. T13 Behavioral B done (Chain, Mediator, Memento, Visitor,
-  Interpreter, Behavioral mnemonic, final picker, 4 look-alikes). Pattern module page now shows the periodic table
-  first, mnemonics after the picker. T14 Enterprise module done (Repository, Unit of Work, Specification, Null Object,
-  DI vs Service Locator). Next: T15 Playwright patterns.spec.ts, T16 manual Windows + Android run, T17 docs, T18 PR.
-- Spec 005 open question (fling-to-end marks done): owner will decide later.
+## Spec 006: what was delivered
+- Two modules: "GoF Design Patterns" (23 lessons in Creational / Structural / Behavioral) and "Enterprise & .NET
+  patterns" (Repository, Unit of Work, Specification, Null Object, DI vs Service Locator); case studies moved to order 5.
+- Template `pattern` (fixed sections, class diagram, Before / After, Modern C#, Seen in .NET, Travels with, Overuse
+  stamp, symbol) with 11 new validation rules; nested `module.yml` values (`picker:`, `lookalikes:`), phrase mnemonics.
+- Pack format 3, device schema step 5 (symbol, picker, look-alikes); contracts and web types.
+- Reader: periodic table (table first on pattern modules), "Which pattern?" sheet (Esc / Android Back step back),
+  look-alike compare route + lesson strip + module list, Overuse stamp, phrase mnemonics.
+- Compiled samples `samples/Lld.Samples.Patterns` (Before / After / Modern for all 28) with 85 new tests.
+- Docs: PRD v0.8 (R93-R100), `docs/plan.md` roadmap, README authoring guide for pattern lessons, plan section 4.
+- Manual run: Windows upgrade 3 to 5 verified; Android upgrade with progress paused (emulator stopped for low
+  memory, see plan section 4). Owner review of batches 2-5 still to come ("review later").
+- Open questions for the owner: dark-mode white text on the light accent (app-wide fix as a separate PR?); spec 005
+  fling-to-end rule (decide later).
 
 ## How to resume (next session)
-1. `git switch spec/006-gof-patterns`, open `specs/006-gof-patterns/tasks.md` and continue at the first unticked task.
-2. Stop for owner review after T10 (UI + Creational) and after each content batch.
-3. Shell note: write files containing `
-` escapes with the Write/Edit tools; Python heredocs in the Bash tool turn them
-   into real newlines. Screenshots: `node shot.mjs` with `MSYS_NO_PATHCONV=1` (hash routes: `/#/learn/...`).
-3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
-   src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
-4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.
+1. If PR for spec 006 is open: apply review changes on `spec/006-gof-patterns`, push, update the PR.
+2. Android A11 check, when memory allows: boot the AVD, the spec 005 Debug build is already installed with SRP done;
+   run `dotnet build src/Lld.App -f net10.0-android -t:Install` from this branch, relaunch, pull
+   `files/lld-device.db` with `adb exec-out run-as com.akus0ni.lldguide cat files/lld-device.db` and check
+   `pragma user_version` = 5 and the SRP progress row. Remove the `C:/lldwt` worktree afterwards
+   (`git worktree remove --force C:/lldwt`, after deleting its `web/node_modules` junction).
+3. Shell notes: write files that contain backslash escapes with the Write / Edit tools, not Python heredocs. Screenshot
+   scripts need `MSYS_NO_PATHCONV=1` and hash routes (`/#/learn/...`).
+4. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
+   src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`. Run one heavy process at a time.
+5. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

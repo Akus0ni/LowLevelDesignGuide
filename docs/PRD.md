@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | v0.7 |
+| **Status** | v0.8 |
 | **Owner** | Akus0ni |
 | **Last updated** | 2026-10-20 |
 | **Platforms** | Android · iOS · Windows · macOS |
@@ -314,6 +314,14 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R90 | A cheat sheet counts as revised when its end has stayed on screen for 2 s, or recall mode has every block revealed | F3 | 005 |
 | R91 | Done celebration: the Done check draws in once per lesson; a «complete» stamp once per module (and a toast when finished from a lesson); ≤ 600 ms, reduced motion = fade | F4, §11 | 005 |
 | R92 | Visual language for progress, "pencil, then ink": hatching fills a module as lessons finish, the frame inks at 100% | F4 | 005 |
+| R93 | Patterns content: "GoF Design Patterns" (all 23, Creational / Structural / Behavioral) and "Enterprise & .NET patterns" (Repository, Unit of Work, Specification, Null Object, DI vs Service Locator), each lesson with a cheat sheet; modules ordered Start, OOP & SOLID, GoF, Enterprise, UML, Case studies | F2, §7 | 006 |
+| R94 | Lesson template `pattern`: the concept card plus fixed sections (The idea, Structure as a UML class diagram, See it Before / After, Modern C#, Seen in .NET, Travels with, optional In this app), an Overuse stamp and a two-letter `symbol`; every rule enforced at pack time | F2 | 006 |
+| R95 | Pattern modules show a periodic table: one coloured block per category, a tile per pattern; tapping a tile rings what it travels with (solid) and its look-alikes (dashed) and opens a card; arrow keys move | F2, §11 | 006 |
+| R96 | "Which pattern?" picker per module (`picker:` in `module.yml`): one question at a time in a sheet, Esc / Android Back step back; every lesson must be reachable, at most 4 questions deep; nothing saved (R21) | F2 | 006 |
+| R97 | Look-alike compare (`lookalikes:` in `module.yml`): the one difference and an "ask yourself" question, then each pattern's idea and structure; columns when they fit, a switch otherwise; linked from lessons, tiles and the module page | F2, F3 | 006 |
+| R98 | Callout `[!OVERUSE]` ("when it hurts"), drawn as a stamp in the warning tone (extends R79) | F2 | 006 |
+| R99 | Mnemonics may be phrases ("Smart Builders Always Follow Plans"): one tile per word; C# and the web split words from one shared test vector | F3 | 006 |
+| R100 | Pattern samples compile in `samples/Lld.Samples.Patterns` (Before / After / Modern per pattern) and are tested in `Lld.Samples.Tests`; "In this app" only where the app really uses the pattern | §7 | 006 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.

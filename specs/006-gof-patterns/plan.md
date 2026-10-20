@@ -223,3 +223,42 @@ repository you removed.
 | Web (Vitest) | phrase tiles, Overuse callout, `patternFacts`, periodic table (highlight, keyboard), picker (walk, Back / Escape steps back, result), compare (columns vs switch, pair parsing), look-alike strip |
 | Playwright | `e2e/patterns.spec.ts`: A1 (23 + 5 lessons, order), A5–A9 on phone and desktop, 320 px no sideways scroll, A10 cheat sheet heights (loops over both modules) |
 | Manual | Windows + Android: table, picker with Android Back, compare, a lesson; A11 upgrade from the spec 005 build (format 2, schema 4) on the emulator with existing progress |
+
+## 4. Outcomes
+
+### Deviations from the plan
+| Planned | What happened | Why |
+|---|---|---|
+| Reader UI (T6–T9) before the first content batch | Batch 1 Creational (T5) was written first, then the UI was built and critiqued against it | Real lessons made the screenshot critique meaningful; the owner reviewed UI + batch 1 together as planned |
+| `ParsedMnemonic.Words` for the web | Not added; the web splits the phrase itself (`mnemonicTiles.ts`), checked against the same `mnemonics.json` vector | One rule, two implementations, one shared test file (as with the slugger) |
+| Module page order: mnemonics, table, picker, look-alikes | Pattern modules show the table first, then the picker, mnemonics and look-alikes; concept modules keep their order | With three GoF mnemonics (23 rows) the table sat two screens down on a phone |
+| Visitor "In this app": `CSharpSymbolFinder` as a Roslyn syntax walker | It uses `switch` pattern matching over node types, not a walker; the lesson says so and uses it as the modern alternative | Honest example; the spec's assumption was wrong |
+| Picker: Esc steps back through Base UI's `onOpenChange` `cancel()` | A window capture-phase Escape listener while a step can be undone | On touch devices the drawer still closed after `cancel()`; found by the phone Playwright run |
+| "In this app" for every pattern where the plan guessed one | Template Method, Command, Iterator and Composite were checked: Template Method uses `RequestBudgetFlusher.ExecuteAsync`, Iterator a `yield` rule, Command and Composite have none | Only real uses (spec §3.1) |
+
+### Findings
+1. **Two wrong claims caught while writing:** Strategy (`ResetPassword` doesn't take `IPasswordPolicy`; Identity's
+   `PolicyPasswordValidator` does) and Chain (the rate limiter runs after the budget middleware, not before). Every
+   "In this app" line is now checked against the code before it is written.
+2. **C# 14 extension members** compile with the pinned Roslyn and are quoted fine by the snippet finder (Adapter's
+   Modern sample).
+3. **Bash tool + Python heredocs** turn `\n` escapes into real newlines; files containing escapes are written with the
+   Write / Edit tools.
+4. **Long paths break `aapt2`:** an Android build in a deep temp folder fails with APT2098; worktrees for device
+   builds go to a short path (`C:\lldwt`).
+5. **Memory:** the dev API, Vite and the emulator together exceeded what the PC had free; Claude Code stopped
+   background jobs twice. Run them one at a time.
+
+### T16: manual run (2026-10-20)
+| Check | Where | Result |
+|---|---|---|
+| A1 modules + order | Windows (Debug build) | ✅ Start, OOP & SOLID, GoF, Enterprise, Case studies; 23 tiles |
+| A11 upgrade | Windows: the owner's device database (schema 3, backed up first) | ✅ schema 3 → 5 in one start; 45 lessons, 28 symbols, picker and look-alikes stored |
+| Picker Esc steps back | Windows | ✅ |
+| Compare, lesson | Windows | ✅ screenshots `windows-*.png` |
+| A11 upgrade on Android with progress | Emulator: spec 005 Debug build installed, SRP marked done | ⏸️ paused: the emulator was stopped by Claude Code (low memory) before the spec 006 build was installed over it. Covered meanwhile by `SchemaMigratorTests.V5_AddsPatternColumns_AndKeepsProgress` and the loader tests |
+
+### Final numbers
+.NET: domain 54 · application 38 · API 41 · admin 11 · server status 30 · content 310 · progress stores 40 · lesson
+samples 148 · Aspire integration 4. Web: Vitest 230 · Playwright 83 (phone + desktop). 0 build warnings; lint and
+guardrails clean. Content: 5 modules, 45 lessons, every card ≤ 3 minutes.
