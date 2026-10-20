@@ -3,12 +3,12 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-20 (spec 006 PR ready for review)_
+_Last updated: 2026-10-21 (spec 008 done, PR ready for owner review)_
 
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.9 (spec 007 decisions R102–R108) |
+| PRD | v0.10 (spec 008 decisions R109–R116) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
@@ -18,7 +18,9 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
 | Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
-| Spec 007 Notes & bookmarks | 🔍 PR #12 open for owner review |
+| Spec 007 Notes & bookmarks | ✅ Merged (PR #12) |
+| Spec 008 UML | 🔍 PR open for owner review (one review on the PR, owner choice) |
+| Decisions by Claude | `docs/claude-decisions.md`: CD-001..CD-008, ⏳ awaiting owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -31,8 +33,8 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | 004 | OOP & SOLID content | ✅ merged (PR #6) |
 | 005 | Progress | ✅ merged (PR #7) |
 | 006 | GoF + Enterprise patterns content | ✅ merged (PR #8) |
-| 007 | Notes & bookmarks | 🔍 PR #12, owner review |
-| 008 | UML content | planned |
+| 007 | Notes & bookmarks | ✅ merged (PR #12) |
+| 008 | UML content | 🔍 PR, owner review |
 | 009 | Search | planned |
 | 010 | Offline sync | planned |
 | 011+ | Case studies (ask owner first each time) | planned |
@@ -158,9 +160,23 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Manual run: Windows (owner DB, schema 5 to 6, restart, export file) and Android (airplane mode, restart, keyboard,
   share sheet). Details and findings: `specs/007-notes-bookmarks/plan.md` section 5.
 
+## Spec 008: what was delivered
+- "UML" module (order 4): 10 lessons + cheat sheets (class ×3, object, component / deployment, use case, sequence,
+  state, activity, UML in an LLD interview), two phrase mnemonics, a «package» map and a "Which diagram?" picker.
+- Template `diagram` (4 rules), callout `MISTAKES`, fence keys `code=` / `steps` / `uml-arrows`.
+- Code ↔ UML: `Uml/` Mermaid readers + Roslyn `SnippetCodeModel` + `DiagramCodeLinks`; the build fails when a diagram
+  and its code disagree; the packer writes `mermaid pair links=…` + `csharp paired` (pack format still 3, CD-006).
+- Reader: Code ↔ UML pair (tap a box or arrow ↔ its lines), arrow legend (every class diagram, popover / sheet),
+  state Run on every state diagram, activity step-through with UML notation, picker on any module with a title.
+- `samples/Lld.Samples.Uml` + 24 tests; `web/scripts/check-mermaid.mjs` renders every content diagram.
+- Open questions delegated to Claude: CD-001..CD-008 in `docs/claude-decisions.md` (owner reviews later).
+- Manual run: Windows (owner DB; test rows removed afterwards) and Android (airplane mode, upgrade keeps progress,
+  notes, bookmarks). Details: `specs/008-uml/plan.md` section 5.
+
 ## How to resume (next session)
-1. Spec 007 PR #12 is open: apply review changes on `spec/007-notes-bookmarks`, push, update the PR. Check
-   `gh pr view` first: pushing to a merged spec branch re-creates it.
+1. Spec 008's PR is open: apply review changes on `spec/008-uml`, push, update the PR. Check `gh pr view` first:
+   pushing to a merged spec branch re-creates it. Ask the owner to review `docs/claude-decisions.md` too.
+   Next spec after the merge: 009 Search (needs the owner's OK).
 2. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
    net10.0-windows10.0.19041.0`), then start `bin/.../Lld.App.exe` with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.
 3. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files

@@ -1,22 +1,22 @@
 # Spec 008: Tasks
 
-- [ ] T1 `samples/Lld.Samples.Uml` skeleton, slnx folder, `Lld.Samples.Tests` reference; build green
-- [ ] T2 Template `diagram`: schema, `DiagramLessons`, `MISTAKES` callout (C# + web list); rules `DiagramSectionsRule`, `DiagramSectionDiagramRule`, `MistakesStampRule` (+ fixtures)
-- [ ] T3 Fence keys `code=` / `steps` / `uml-arrows` in `FenceInfoRule`; picker `title` (contracts, parser, web type) and reachability for `pattern` modules only (CD-003)
-- [ ] T4 `Uml/` readers: `MermaidClassDiagram`, `MermaidStateDiagram`, `MermaidSequenceDiagram` (+ unit tests)
-- [ ] T5 `SnippetCodeModel` and `DiagramCodeLinks` (+ unit tests); rules `CodePairSnippetRule`, `DiagramCodeMatchRule` (+ fixtures)
-- [ ] T6 Packing: `FenceEdits` pair rewrite (`mermaid pair links=…` + `csharp paired`) (+ tests)
-- [ ] T7 Mermaid fixtures: real SVG for a class pair, state diagrams (UML, GoF State, Auth) and a `steps` flowchart
-- [ ] T8 Web: `rehypePair`, `CodeUmlPair` (side by side / switch, tap both ways, tappable edges)
-- [ ] T9 Web: `ArrowLegend` (strip button on every class diagram, popover / drawer, Android Back, inline `uml-arrows`)
-- [ ] T10 Web: state diagrams: tap a state, Run with event buttons, Reset; reduced motion
-- [ ] T11 Web: activity Step through (`steps` flowcharts): Next, branches, fork / join, Back, Reset
-- [ ] T12 Web: picker on any module + title; Mistakes stamp
-- [ ] T13 Content: `content/uml/module.yml` (map, mnemonics, picker); samples + tests for every pair
-- [ ] T14 Content: lessons 1–5 (Classes and members, Relationships, Multiplicity, Object, Component and deployment) + cheat sheets
-- [ ] T15 Content: lessons 6–10 (Use case, Sequence, State, Activity, UML in an LLD interview) + cheat sheets
-- [ ] T16 UI pass with the skills: screenshot critique (phone light / dark, desktop), `break-ui` worst case; fixes
-- [ ] T17 Playwright `e2e/uml.spec.ts` (A1, A5–A11)
-- [ ] T18 Manual run: Windows and Android (offline, pair switch, legend + Android Back, Run, steps, upgrade keeps progress and notes)
-- [ ] T19 Docs: PRD v1.0 (new R rows), `docs/plan.md` roadmap, plan §5 outcomes, README authoring guide (`diagram` template, `code=`, `steps`, `uml-arrows`), progress log, decisions log
+- [x] T1 `samples/Lld.Samples.Uml` skeleton, slnx folder, `Lld.Samples.Tests` reference; build green
+- [x] T2 Template `diagram`: schema, `DiagramLessons`, `MISTAKES` callout (C# + web list); rules `DiagramSectionsRule`, `DiagramSectionDiagramRule`, `MistakesStampRule` (+ fixtures)
+- [x] T3 Fence keys `code=` / `steps` / `uml-arrows` in `FenceInfoRule`; picker `title` (contracts, parser, web type) and reachability for `pattern` modules only (CD-003)
+- [x] T4 `Uml/` readers: `MermaidClassDiagram`, `MermaidStateDiagram`, `MermaidSequenceDiagram` (+ unit tests)
+- [x] T5 `SnippetCodeModel` and `DiagramCodeLinks` (+ unit tests); rules `CodePairSnippetRule`, `DiagramCodeMatchRule` (+ fixtures)
+- [x] T6 Packing: `FenceEdits` pair rewrite (`mermaid pair links=…` + `csharp paired`) (+ tests)
+- [x] T7 Mermaid fixtures: real SVG for a class pair, state diagrams (UML, Auth) and a `steps` flowchart
+- [x] T8 Web: `rehypePair`, `CodeUmlPair` (side by side / switch, tap both ways, tappable edges)
+- [x] T9 Web: `ArrowLegend` (strip button on every class diagram, popover / drawer, Android Back, inline `uml-arrows`)
+- [x] T10 Web: state diagrams: tap a state, Run with event buttons, Reset; reduced motion
+- [x] T11 Web: activity Step through (`steps` flowcharts): Next, branches, fork / join, Back, Reset
+- [x] T12 Web: picker on any module + title; Mistakes stamp
+- [x] T13 Content: `content/uml/module.yml` (map, mnemonics, picker); samples + tests for every pair
+- [x] T14 Content: lessons 1–5 (Classes and members, Relationships, Multiplicity, Object, Component and deployment) + cheat sheets
+- [x] T15 Content: lessons 6–10 (Use case, Sequence, State, Activity, UML in an LLD interview) + cheat sheets
+- [x] T16 UI pass with the skills: screenshot critique (phone light / dark, desktop) and fixes; no separate `break-ui` run (diagram text is authored content; long state / class / event names truncate or wrap in the strip and run bar)
+- [x] T17 Playwright `e2e/uml.spec.ts` (A1, A5–A11)
+- [x] T18 Manual run: Windows ✅ (owner DB, content upgrade, 17 progress rows kept; test rows removed) and Android ✅ (airplane mode, Run, legend + Android Back, steps; SRP Done, note and bookmark kept)
+- [x] T19 Docs: PRD v0.10 (R109–R116), `docs/plan.md` roadmap, plan §5 outcomes, README authoring guide (`diagram` template, `code=`, `steps`, `uml-arrows`), progress log, decisions log
 - [ ] T20 PR with the acceptance-criteria table

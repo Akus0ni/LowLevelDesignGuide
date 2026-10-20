@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Status** | v0.9 |
+| **Status** | v0.10 |
 | **Owner** | Akus0ni |
-| **Last updated** | 2026-10-20 |
+| **Last updated** | 2026-10-21 |
 | **Platforms** | Android · iOS · Windows · macOS |
 | **App name / ID** | LLD Guide · `com.akus0ni.lldguide` |
 | **License** | MIT |
@@ -332,6 +332,14 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R106 | Note starters that nudge interview-ready notes: "My example from work", "Interview answer (STAR)", "Gotcha I hit" (each with its tag) | F5 | 007 |
 | R107 | A lesson's notes appear folded under its cheat sheet in Revise ("Your notes (n)"); not part of recall and not counted as revised | F3, F5 | 007 |
 | R108 | Export all notes as one Markdown file (`lld-notes-YYYY-MM-DD.md`): a download in the browser, the system share sheet in the app; no network | F5 | 007 |
+| R109 | UML content: one "UML" module (order 4) with 10 lessons: Classes and members, Relationships (the six arrows), Multiplicity and navigability, Object, Component and deployment, Use case, Sequence, State, Activity, UML in an LLD interview; each with a cheat sheet; "In this app" diagrams draw this repo's own code | F2, §7 | 008 |
+| R110 | Lesson template `diagram`: the concept card plus The idea, Notation, Read it, Code ↔ UML (or From requirements), In an interview and one Mistakes stamp; the interview lesson uses Which diagram for which question + Worked example; enforced at pack time | F2 | 008 |
+| R111 | Code ↔ UML pairs: a `mermaid` fence with `code="path#Types"` names the C# it draws; at pack time every class / participant / state must be a type or enum member in that code and every arrow must be backed by a base type, member or use (else the build fails); the reader shows diagram and code together and lights up one from the other | F2, §7 | 008 |
+| R112 | Arrow legend: the six class-diagram arrows with their meaning and C#, one tap from every class diagram (popover on wide screens, bottom sheet on phones, closed by Android Back) and inline via a ```` ```uml-arrows ```` fence | F2 | 008 |
+| R113 | Every `stateDiagram-v2` is interactive: tap a state to trace its transitions; Run fires events from the initial state to a final state, with undo and stop (CD-004) | F2 | 008 |
+| R114 | Activity diagrams are flowcharts flagged `steps` (start `(( ))`, end `((( )))`, decisions `{ }`, forks / joins `:::fork` / `:::join`, CD-007) and can be walked node by node, choosing at decisions; plain flowcharts stay static | F2 | 008 |
+| R115 | The picker shows on any module that has one, with an optional `title` (UML: "Which diagram?", CD-005); every lesson must be reachable only in `pattern` modules (CD-003) | F2 | 008 |
+| R116 | Callout `[!MISTAKES]` ("common mistakes"), drawn as the Overuse stamp; required once in every `diagram` lesson | F2 | 008 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.

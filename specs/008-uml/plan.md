@@ -179,4 +179,36 @@ container prefix logic (`Rewrite`), so pairs inside lists or quotes stay valid.
 | Ten lessons + four features is a big PR | one review on the PR (owner choice); tasks keep commits small and the PR body maps every criterion |
 
 ## 5. Outcomes
-_Filled in when the spec is done._
+
+### Changes from this plan
+| Plan | As built | Why |
+|---|---|---|
+| Dependency link = "the first mention" | Every line that mentions the target | Lights up all the uses, which reads better |
+| Taps on sequence participants select code | Class boxes, arrows and states select code; sequence participants don't (their code still links) | Mermaid's sequence actors are drawn twice (top and bottom); kept out of scope |
+| Code pane as tall as the code | The code pane scrolls inside a box as tall as the diagram (`--pair-diagram-height`) and the lit line comes to a third of it | Screenshots showed a screen of empty grid under the diagram on phones |
+| GoF State lesson gets the Run | No `stateDiagram-v2` there (it draws a class diagram); Run is on the Auth case study and UML | Found while capturing fixtures; spec and CD-004 corrected |
+| — | `web/scripts/check-mermaid.mjs`: renders every content diagram with the real Mermaid | The validator checks structure; only Mermaid can say a diagram parses |
+| — | `web/scripts/render-mermaid-fixtures.mjs` for the UML fixtures | Fixtures must be real Mermaid 12 output, regenerated when Mermaid changes |
+| Relationships cheat sheet quotes `Order` | One line mapping each C# shape to its arrow, under the inline legend | Kept the sheet within 3 phone screens (A11) |
+
+### Findings
+- Mermaid ids: class edges `id_A_B_<n>` (n = source order from 1), state edges `edge<n>` (from 0), state nodes
+  `state-<Name>-<n>`, flowchart nodes `flowchart-<id>-<n>`, flowchart edges `L_<from>_<to>_<n>`.
+- Flowchart edge labels may be quoted (`-->|"no"|`); the Playwright run caught the quotes reaching the buttons.
+- A forced Playwright click hits the middle of an L-shaped edge's box, not the line; real taps hit the 16 px twin.
+- Locators filtered by "has a run button" move to the next diagram once Run is pressed: pin the element first.
+- The Windows app uses the owner's real device database: browsing in a manual run writes progress, so back it up and
+  remove the test rows afterwards (done: two `LessonProgress` rows and one `ActivityDays` row).
+
+### T18: manual run (2026-10-21)
+| Check | Where | Result |
+|---|---|---|
+| A1, A12 upgrade | Windows (owner DB, backed up first) | ✅ 55 lessons, UML at position 4, content version updated, 17 progress rows kept; test rows removed |
+| A5, A7 | Windows | ✅ pair arrow lights its code; Run to Cancelled (`windows-3-pair.png`, `windows-4-state-run.png`) |
+| A1 offline, A12 upgrade | Android emulator, airplane mode (spec 007 build with SRP Done, 1 note, 1 bookmark) | ✅ schema 6, 55 lessons, SRP Done, note and bookmark kept |
+| A6, A7, A8 | Android | ✅ legend sheet closed by Android Back (`lldBack` → closed), Run, activity choices (`android-*.png`) |
+
+### Final numbers
+.NET: domain 97 · application 38 · API 55 · admin 11 · server status 30 · content 377 · progress and notes stores 86 ·
+lesson samples 172 · Aspire integration 4. Web: Vitest 311 · Playwright 122 passed (phone + desktop, 2 skipped).
+0 build warnings; lint and guardrails clean; 48 of 48 UML diagrams draw.
