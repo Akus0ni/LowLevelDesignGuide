@@ -98,7 +98,7 @@ function LessonHeader({
         <Link
           to={`/revise/${lesson.moduleSlug}/${lesson.slug}`}
           className={cn(
-            'inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[14px] font-medium text-white select-none',
+            'inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[14px] font-medium text-on-fill select-none',
             'transition-[transform,opacity] duration-[120ms] ease-out active:scale-[0.97] hover:opacity-90',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
           )}

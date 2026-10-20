@@ -68,6 +68,8 @@
   --rule: #d6dce5;
   --accent: #1d5bff;
   --highlight: #e59a1f;
+  /* Text and icons on a solid accent or tone fill: the surface colour, so it flips with the theme (AA in both). */
+  --on-fill: var(--surface);
   /* Spec 004 tones, used sparingly: callout stereotypes and Before / After marks (all AA as text on --surface). */
   --tone-rose: #c0304a;
   --tone-green: #0a7a52;
@@ -108,6 +110,7 @@
   --color-rule: var(--rule);
   --color-accent: var(--accent);
   --color-highlight: var(--highlight);
+  --color-on-fill: var(--on-fill);
 }
 
 /* Drafting-table dot grid behind diagram screens (Learn, a module); never behind reading text. */
@@ -1210,10 +1213,10 @@
     &[data-state='selected'] {
       border-color: var(--accent);
       background: var(--accent);
-      color: #fff;
+      color: var(--on-fill);
 
       & .map-chip-number {
-        color: rgb(255 255 255 / 0.75);
+        color: color-mix(in oklab, var(--on-fill) 75%, transparent);
       }
     }
 
@@ -1314,7 +1317,7 @@
     padding-inline: 1rem;
     font-size: 14px;
     font-weight: 500;
-    color: #fff;
+    color: var(--on-fill);
     transition: transform 120ms var(--ease-out);
 
     &:active {
@@ -1425,11 +1428,11 @@
     &[data-state='selected'] {
       border-color: var(--category);
       background: var(--category);
-      color: var(--surface);
+      color: var(--on-fill);
 
       & .ptable-symbol,
       & .ptable-number {
-        color: var(--surface);
+        color: var(--on-fill);
       }
     }
 
@@ -1496,7 +1499,7 @@
   }
 
   .ptable-tile[data-state='selected'] .ptable-status {
-    color: var(--surface);
+    color: var(--on-fill);
   }
 
   .ptable-hook {
@@ -1539,7 +1542,7 @@
     padding-inline: 1.1rem;
     font-size: 15px;
     font-weight: 600;
-    color: #fff;
+    color: var(--on-fill);
     transition: transform 120ms var(--ease-out);
 
     &:active {
@@ -1658,7 +1661,7 @@
     font-family: var(--font-display);
     font-size: 1.3rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--on-fill);
   }
 
   @media (prefers-reduced-motion: reduce) {
