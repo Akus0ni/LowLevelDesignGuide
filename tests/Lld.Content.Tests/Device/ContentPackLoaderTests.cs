@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Lld.App.Data.Content;
+using Lld.App.Data.Notes;
 using Lld.App.Data.Progress;
+using Lld.Domain.Notes;
 using Lld.Domain.Progress;
 using Microsoft.Data.Sqlite;
 
@@ -72,6 +74,23 @@ public sealed class ContentPackLoaderTests : IDisposable
         await Loader.EnsureLoadedAsync(new FakePackSource(smaller), Ct);
 
         (await progress.GetAsync(ProgressOwner.Guest, Ct)).Lessons.Should().ContainSingle(l => l.LessonId == "case-study-auth");
+    }
+
+    [Fact]
+    public async Task NewVersion_KeepsNotesAndBookmarks_EvenForLessonsThatLeft()
+    {
+        await _device.MigrateAsync(Ct);
+        await _device.LoadAsync(TestPacks.Sample(), Ct);
+        var notes = new SqliteNotesStore(_device.Database);
+        var note = new Note(Guid.NewGuid(), "case-study-auth", "", "Mine #work", DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch, null, "device-a");
+        var bookmark = new Bookmark(BookmarkKind.Lesson, "case-study-auth", "", DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch, null, "device-a");
+        await notes.SaveNotesAsync(ProgressOwner.Guest, [note], Ct);
+        await notes.SaveBookmarksAsync(ProgressOwner.Guest, [bookmark], Ct);
+        var smaller = TestPacks.Sample() with { Version = "v-2", Modules = [TestPacks.Sample().Modules[1]] };
+
+        await Loader.EnsureLoadedAsync(new FakePackSource(smaller), Ct);
+
+        (await notes.GetAsync(ProgressOwner.Guest, Ct)).Should().BeEquivalentTo(new NotesSnapshot([note], [bookmark]));
     }
 
     [Fact]
