@@ -175,6 +175,7 @@ describe('activity diagrams', () => {
     });
     expect(graph.edges.filter((e) => e.label).map((e) => e.label)).toEqual(['yes', 'no']);
     expect(activityGraph('flowchart TD\n  a --> b --> c').edges).toHaveLength(2);
+    expect(activityGraph('flowchart TD\n  a -->|"yes"| b').edges[0].label).toBe('yes');
   });
 
   it('walks: next, a choice at the decision, fork branches together, join, end', () => {

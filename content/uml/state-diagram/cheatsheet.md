@@ -25,7 +25,7 @@ stateDiagram-v2
 
 ## From C#
 
-```csharp snippet="samples/Lld.Samples.Uml/State/Parcel.cs#Parcel"
+```csharp snippet="samples/Lld.Samples.Uml/State/Parcel.cs#Parcel.Ship,Parcel.Cancel,Parcel.Deliver"
 ```
 
 Each method is allowed in one source state and moves to one target: one arrow each.

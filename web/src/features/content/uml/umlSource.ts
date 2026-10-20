@@ -169,11 +169,16 @@ export function activityGraph(source: string): ActivityGraph {
       rest = rest.slice(text.length);
       const link = LINK_AT_START.exec(rest);
       if (!link) break;
-      label = link[1]?.trim() || null;
+      label = unquote(link[1]?.trim() ?? '') || null;
       rest = rest.slice(link[0].length);
     }
   }
   return { nodes, edges };
+}
+
+/** `"yes"` → `yes`: labels may be quoted in the source. */
+function unquote(text: string): string {
+  return text.replace(/^"(.*)"$/, '$1');
 }
 
 function kindOf(shape: string | undefined, className: string | undefined): ActivityKind {

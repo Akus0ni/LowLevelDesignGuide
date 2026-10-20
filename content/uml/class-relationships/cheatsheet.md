@@ -10,7 +10,7 @@ title: "Cheat sheet: Relationships: the six arrows"
 
 ## Draw it when
 
-Ownership, lifetimes or an interface between classes matter to the design.
+Ownership, lifetimes or an interface between classes matter.
 
 ## The symbols
 
@@ -19,10 +19,8 @@ Ownership, lifetimes or an interface between classes matter to the design.
 
 ## From C#
 
-```csharp snippet="samples/Lld.Samples.Uml/Relationships/Shop.cs#Order"
-```
-
-`List<OrderLine>` it fills itself → `Order *-- OrderLine`; `Total(TaxCalculator tax)` → `Order ..> TaxCalculator`.
+A field → `-->`; a list it fills itself → `*--`; a list handed in → `o--`; a base class → `<|--`; an interface
+→ `<|..`; a parameter or `new` → `..>`.
 
 ## Mistakes
 
