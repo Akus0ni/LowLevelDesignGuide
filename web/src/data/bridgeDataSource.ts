@@ -16,9 +16,14 @@ import {
   type NotesSnapshot,
   type ModuleSummary,
   type ProgressSnapshot,
+  type SearchRequest,
+  type SearchResults,
   type ServerStatus,
   type UserSummary,
 } from './types';
+
+/** The most hits one search returns (Lld.Search SqliteSearchIndex.MaxLimit). */
+export const SEARCH_LIMIT = 50;
 
 /** Raw messages C# pushes with HybridWebView.SendRawMessage (see Lld.App BridgeEvent). */
 export const RAW_MESSAGE_EVENT = 'HybridWebViewMessageReceived';
@@ -177,6 +182,13 @@ export class BridgeDataSource implements DataSource {
 
   async exportNotes(fileName: string, markdown: string): Promise<void> {
     await this.call('ShareNotes', [fileName, markdown]);
+  }
+
+  // Search: the device's own index (spec 009); no network.
+
+  async search(request: SearchRequest): Promise<SearchResults> {
+    const { query, kind = null, module = null, lessonId = null, limit = SEARCH_LIMIT } = request;
+    return toCamelCaseDeep(await this.call('Search', [query, kind, module, lessonId, limit])) as SearchResults;
   }
 
   /** Content records are nested (outline, previous / next), so convert every key at once instead of picking. */

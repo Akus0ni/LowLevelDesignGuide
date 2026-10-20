@@ -7,7 +7,7 @@
 - [x] T5 Content: author `content/search.yml` (≈ 40 synonyms limited to covered terms, 6 suggestions); repository test runs every suggestion through the real index
 - [x] T6 Device: `V7Search`, `ContentPackLoader` fills content units and re-indexes notes in its transaction; `DeviceSearch`; tests: V6 → V7 upgrade, format-4 reload, notes edit/delete/adopt show at once (A7, A12)
 - [x] T7 API dev: `DevSearchIndex`, `GET /api/search` (Development only); integration tests (content hits, signed-in notes, isolation, not mapped outside Development)
-- [ ] T8 App + web data: `BridgeService.Search`, contracts + `types.ts`, `DataSource.search` in bridge / HTTP / fake; tests
+- [x] T8 App + web data: `BridgeService.Search`, contracts + `types.ts`, `DataSource.search` in bridge / HTTP / fake; tests
 - [ ] T9 Web search UI: `useSearch`, `searchResults`, `searchParams`, `recentSearches`, `SearchPage`, `ResultRow`, route + section; Vitest (A5, A8)
 - [ ] T10 Reader marks: `useSearchMarks`, `findRanges`, `MatchBar`, `FoldRegistry` + `hiddenUntilFound` folds, cheat sheet `?at=` + recall reveal, Android Back clears marks; lesson-open timing before / after; Vitest (A6)
 - [ ] T11 Quick search dialog (`Ctrl+K` / `⌘K` / `/`, wide + fine pointer), focus return; Vitest (A9)

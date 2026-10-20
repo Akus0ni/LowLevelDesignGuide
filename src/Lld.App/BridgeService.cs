@@ -3,6 +3,7 @@ using Lld.App.Content;
 using Lld.App.Hosting;
 using Lld.App.Notes;
 using Lld.App.Progress;
+using Lld.App.Search;
 using Lld.Contracts;
 using IMauiAppInfo = Microsoft.Maui.ApplicationModel.IAppInfo;
 using SharedAppInfo = Lld.Contracts.AppInfo;
@@ -36,6 +37,7 @@ public sealed class BridgeService(
     ProgressService progress,
     NotesService notes,
     NotesExport export,
+    SearchService search,
     IBrowser browser)
 {
     private const string ApplicationName = "LLD Guide";
@@ -119,6 +121,13 @@ public sealed class BridgeService(
 
     /// <summary>Opens the share sheet with the exported notes file (spec 007 §3.7).</summary>
     public Task<BridgeResult<bool>> ShareNotes(string fileName, string markdown) => export.ShareAsync(fileName, markdown);
+
+    // Search (spec 009): over the device's own index, content plus this owner's notes; no network.
+
+    /// <param name="kind">lesson, cheatSheet or note; null for all.</param>
+    /// <param name="lessonId">Only this lesson, for the reader's marks.</param>
+    public Task<BridgeResult<SearchResultsDto>> Search(string query, string? kind, string? module, string? lessonId, int limit) =>
+        search.SearchAsync(new SearchRequestDto(query, kind, module, lessonId, limit));
 
     /// <summary>
     /// Opens a web link (e.g. source code on GitHub) in the system browser, so the WebView never leaves the app.

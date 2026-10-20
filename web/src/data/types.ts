@@ -283,6 +283,61 @@ export interface NotesSnapshot {
   bookmarks: Bookmark[];
 }
 
+// ---- Search (spec 009). Mirrors Lld.Contracts.SearchRequestDto / SearchHitDto / SearchResultsDto. -----------------
+
+export type SearchKind = 'lesson' | 'cheatSheet' | 'note';
+
+export interface SearchRequest {
+  /** What the learner typed; parsed on the device (or the dev API), never used as search syntax. */
+  query: string;
+  kind?: SearchKind;
+  /** A module slug. */
+  module?: string;
+  /** Only this lesson: the reader asks for the words to mark. */
+  lessonId?: string;
+  /** At most 50. */
+  limit?: number;
+}
+
+/** A short piece of text with the matched words as `[start, length]` ranges (no HTML crosses the bridge). */
+export interface SearchSnippet {
+  text: string;
+  marks: [number, number][];
+}
+
+export interface SearchHit {
+  kind: SearchKind;
+  /** Empty for a note on a lesson that left the content. */
+  moduleSlug: string;
+  lessonId: string;
+  lessonSlug: string;
+  lessonTitle: string;
+  /** The section's heading id; '' for a lesson's intro or a whole-lesson note. */
+  anchor: string;
+  /** The section's heading, '' for an intro, "Whole lesson" for such notes. */
+  heading: string;
+  noteId: string | null;
+  snippet: SearchSnippet;
+  /** A query word matched the lesson title (these sort first). */
+  titleMatch: boolean;
+}
+
+export interface SearchResults {
+  query: string;
+  /** Synonyms searched too ("single responsibility" for SRP). */
+  expansions: string[];
+  /** Hits that pass every filter, before the limit. */
+  total: number;
+  /** Per kind, ignoring the kind filter, for the filter chips. */
+  countsByKind: Record<SearchKind, number>;
+  /** In result order: the best first. */
+  hits: SearchHit[];
+  /** With `lessonId`: the matched words as written in the lesson. */
+  words: string[];
+  /** Only when the query is too short to search: searches to offer. */
+  suggestions: string[];
+}
+
 /**
  * The only way UI code reads or writes data. Two strategies implement it:
  * HttpDataSource (browser, talks to the API) and BridgeDataSource (inside the MAUI app).
@@ -331,6 +386,9 @@ export interface DataSource {
   saveBookmarks(bookmarks: Bookmark[]): Promise<void>;
   /** Hands the exported Markdown to the learner: a download in the browser, the share sheet in the app. */
   exportNotes(fileName: string, markdown: string): Promise<void>;
+
+  // Search (spec 009): content plus this owner's notes. On the device in the app (offline); the dev API in the browser.
+  search(request: SearchRequest): Promise<SearchResults>;
 }
 
 /** Shape of window.HybridWebView, injected by _framework/hybridwebview.js inside the MAUI app. */

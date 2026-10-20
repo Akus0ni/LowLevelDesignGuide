@@ -6,9 +6,11 @@ using Lld.App.Data.Content;
 using Lld.App.Data.Notes;
 using Lld.App.Data.Progress;
 using Lld.App.Data.Schema;
+using Lld.App.Data.Search;
 using Lld.App.Hosting;
 using Lld.App.Notes;
 using Lld.App.Progress;
+using Lld.App.Search;
 using Lld.Content;
 using Lld.ServerStatus;
 using Microsoft.Extensions.Hosting;
@@ -85,6 +87,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<NotesService>();
         builder.Services.AddSingleton(Share.Default);
         builder.Services.AddSingleton<NotesExport>();
+        builder.Services.AddSingleton<DeviceSearch>();
+        builder.Services.AddSingleton<SearchService>();
         builder.Services.AddSingleton<BridgeService>();
         builder.Services.AddTransient<MainPage>();
 
