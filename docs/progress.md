@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-21 (spec 008 done, PR ready for owner review)_
+_Last updated: 2026-10-21 (spec 008 merged; spec 009 spec drafted, awaiting owner review)_
 
 ## Where we are
 | Item | Status |
@@ -19,7 +19,8 @@ _Last updated: 2026-10-21 (spec 008 done, PR ready for owner review)_
 | Spec 005 Progress | ✅ Merged (PR #7) |
 | Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
 | Spec 007 Notes & bookmarks | ✅ Merged (PR #12) |
-| Spec 008 UML | 🔍 PR #13 open for owner review (one review on the PR, owner choice) |
+| Spec 008 UML | ✅ Merged (PR #13) |
+| Spec 009 Search | 📝 `specs/009-search/spec.md` drafted, awaiting owner review (open questions Q1-Q10) |
 | Decisions by Claude | `docs/claude-decisions.md`: CD-001..CD-008, ⏳ awaiting owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
@@ -34,8 +35,8 @@ _Last updated: 2026-10-21 (spec 008 done, PR ready for owner review)_
 | 005 | Progress | ✅ merged (PR #7) |
 | 006 | GoF + Enterprise patterns content | ✅ merged (PR #8) |
 | 007 | Notes & bookmarks | ✅ merged (PR #12) |
-| 008 | UML content | 🔍 PR #13, owner review |
-| 009 | Search | planned |
+| 008 | UML content | ✅ merged (PR #13) |
+| 009 | Search | 📝 spec in review |
 | 010 | Offline sync | planned |
 | 011+ | Case studies (ask owner first each time) | planned |
 | P2 | Admin UI, **Apple builds** (`docs/plan.md` §8), optional cloud | deferred |
@@ -174,9 +175,9 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   notes, bookmarks). Details: `specs/008-uml/plan.md` section 5.
 
 ## How to resume (next session)
-1. Spec 008 PR #13 is open: apply review changes on `spec/008-uml`, push, update the PR. Check `gh pr view` first:
-   pushing to a merged spec branch re-creates it. Ask the owner to review `docs/claude-decisions.md` too.
-   Next spec after the merge: 009 Search (needs the owner's OK).
+1. Spec 009 Search: the spec is on `spec/009-search` and awaits the owner's review (open questions Q1-Q10 in §8).
+   After approval: record the answers in §7, add R117+ to the PRD, then write `plan.md` + `tasks.md`.
+   Still pending: the owner's review of `docs/claude-decisions.md` (CD-001..CD-008).
 2. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
    net10.0-windows10.0.19041.0`), then start `bin/.../Lld.App.exe` with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.
 3. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files
