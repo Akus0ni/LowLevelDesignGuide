@@ -31,8 +31,8 @@ public sealed record RankedHits(IReadOnlyList<SearchCandidate> Hits, IReadOnlyDi
 /// <summary>
 /// Orders and trims search candidates (spec Q1, Q2):
 /// <list type="number">
-/// <item>Every unit of a lesson carries the lesson title, so a title-only match would list each section. Those are dropped
-/// when another unit of the lesson (same kind) matched, otherwise they collapse into the lesson's intro.</item>
+/// <item>Every unit of a lesson carries the lesson title, so a title-only match would list each section. Those collapse
+/// into the lesson's intro, or are dropped when the intro already matched on its own text.</item>
 /// <item>Order: a match of every word in the lesson title, then of some word, the lesson's intro leading; then bm25, then course order (module, lesson,
 /// kind, section).</item>
 /// <item>The kind filter applies after counting, so the chips show what each kind would give.</item>
@@ -46,7 +46,7 @@ public static class HitRanking
         var all = candidates.ToList();
         var bodyMatches = all.Where(c => c.BodyMatch).ToList();
         var matchedLessons = bodyMatches.Select(c => (c.Kind, c.LessonId)).ToHashSet();
-        var kept = bodyMatches.Concat(TitleOnlyPerLesson(all.Where(c => !c.BodyMatch && !matchedLessons.Contains((c.Kind, c.LessonId)))))
+        var kept = bodyMatches.Concat(TitleOnly(all.Where(c => !c.BodyMatch), matchedLessons))
             .OrderByDescending(c => c.WholeTitleMatch)
             .ThenByDescending(c => c.TitleMatch)
             .ThenByDescending(c => c.TitleMatch && IsLessonIntro(c))
@@ -66,13 +66,20 @@ public static class HitRanking
     private static bool IsLessonIntro(SearchCandidate c) => c.Kind == SearchKinds.Lesson && c.Anchor.Length == 0;
 
     /// <summary>
-    /// For a lesson and kind where nothing matched but the title: one hit, the first section (the intro), ranked as the
-    /// group's best. Where something else of that lesson matched, title-only units add nothing and are dropped.
+    /// Units that matched on the lesson title alone, one per lesson and kind: the intro, which stands for the lesson
+    /// (spec Q2); or, when the intro isn't among them and nothing else of that lesson matched, its first such section.
+    /// Each is ranked as its group's best.
     /// </summary>
-    private static IEnumerable<SearchCandidate> TitleOnlyPerLesson(IEnumerable<SearchCandidate> titleOnly) =>
+    private static IEnumerable<SearchCandidate> TitleOnly(IEnumerable<SearchCandidate> titleOnly, HashSet<(string Kind, string LessonId)> matchedLessons) =>
         titleOnly
             .GroupBy(c => (c.Kind, c.LessonId))
-            .Select(group => group.OrderBy(c => c.SectionOrder).ThenBy(c => c.Id).First() with { Rank = group.Min(c => c.Rank) });
+            .Select(group =>
+            {
+                var first = group.OrderBy(c => c.SectionOrder).ThenBy(c => c.Id).First();
+                var keep = first.Anchor.Length == 0 || !matchedLessons.Contains(group.Key);
+                return keep ? first with { Rank = group.Min(c => c.Rank) } : null;
+            })
+            .OfType<SearchCandidate>();
 
     private static int KindIndex(string kind) => kind switch
     {
