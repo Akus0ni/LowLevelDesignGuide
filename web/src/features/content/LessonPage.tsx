@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { useDataSource } from '../../data/DataSourceContext';
 import type { LessonDetail, ModuleDetail, OutlineEntry } from '../../data/types';
@@ -10,6 +10,8 @@ import { NotesSheet } from '../notes/NotesSheet';
 import { SectionAnnotationsContext, type NotesFocus } from '../notes/sectionAnnotations';
 import { useLessonNotes, useSectionMarks } from '../notes/useNotes';
 import { DoneControl } from '../progress/DoneControl';
+import { MatchBar } from '../search/marks/MatchBar';
+import { useSearchMarks } from '../search/marks/useSearchMarks';
 import { useModuleCompleteToast } from '../progress/moduleCelebration';
 import { Icon } from '../../ui/Icon';
 import { BackLink } from './BackLink';
@@ -52,6 +54,8 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
   const marks = useSectionMarks(lesson.id);
   useModuleCompleteToast(module);
   useAnchorScroll();
+  const body = useRef<HTMLDivElement>(null);
+  const matches = useSearchMarks(body, lesson.id, 'lesson');
 
   // The next lesson is the likeliest tap: have it ready.
   if (lesson.next) {
@@ -64,6 +68,7 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
       <title>{`${lesson.title} · LLD Guide`}</title>
       <article className="min-w-0">
         <BackLink to={`/learn/${module.slug}`}>{module.title}</BackLink>
+        <MatchBar marks={matches} />
         <LessonHeader
           lesson={lesson}
           module={module}
@@ -74,7 +79,9 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
         />
         <LookalikeContext value={{ module, lessonSlug: lesson.slug }}>
           <SectionAnnotationsContext value={notes.annotations}>
-            <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} textSize={textSize} />
+            <div ref={body}>
+              <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} textSize={textSize} />
+            </div>
           </SectionAnnotationsContext>
         </LookalikeContext>
         <NotesSheet
@@ -116,10 +123,15 @@ function useLessonNotesSheet(lesson: LessonDetail) {
   const [params, setParams] = useSearchParams();
   const linkedNote = params.get('note');
   const [state, setState] = useState<{ open: boolean; focus?: NotesFocus }>(() =>
-    linkedNote ? { open: true, focus: { noteId: linkedNote, anchor: params.get('at') ?? '' } } : { open: false },
+    linkedNote
+      ? { open: true, focus: { noteId: linkedNote, anchor: params.get('at') ?? '' } }
+      : { open: false },
   );
   const sections = useMemo(
-    () => lesson.outline.filter((entry) => entry.level === 2).map((entry) => ({ anchor: entry.anchor, title: entry.text })),
+    () =>
+      lesson.outline
+        .filter((entry) => entry.level === 2)
+        .map((entry) => ({ anchor: entry.anchor, title: entry.text })),
     [lesson.outline],
   );
   const annotations = useMemo(
@@ -186,7 +198,12 @@ function LessonHeader({
           Cheat sheet
         </Link>
         <div className="lg:hidden">
-          <OutlineSheet outline={lesson.outline} current={reading.current} read={reading.read} marks={marks} />
+          <OutlineSheet
+            outline={lesson.outline}
+            current={reading.current}
+            read={reading.read}
+            marks={marks}
+          />
         </div>
         <button
           type="button"
@@ -199,7 +216,9 @@ function LessonHeader({
         >
           <Icon d={pencilIcon} size={16} />
           Notes
-          {noteCount > 0 && <span className="font-mono text-[13px] text-muted tabular-nums">· {noteCount}</span>}
+          {noteCount > 0 && (
+            <span className="font-mono text-[13px] text-muted tabular-nums">· {noteCount}</span>
+          )}
         </button>
         <BookmarkToggle kind="lesson" lessonId={lesson.id} />
         <TextSizeControl />

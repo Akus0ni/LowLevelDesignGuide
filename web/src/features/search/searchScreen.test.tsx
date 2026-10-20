@@ -30,7 +30,14 @@ const decorResults: SearchResults = {
   hits: [
     hit({}),
     hit({ anchor: 'the-idea', heading: 'The idea', snippet: { text: 'A decorator wraps', marks: [[2, 9]] } }),
-    hit({ kind: 'cheatSheet', moduleSlug: 'uml', lessonId: 'class', lessonSlug: 'class', lessonTitle: 'Classes', heading: 'Rule' }),
+    hit({
+      kind: 'cheatSheet',
+      moduleSlug: 'uml',
+      lessonId: 'class',
+      lessonSlug: 'class',
+      lessonTitle: 'Classes',
+      heading: 'Rule',
+    }),
   ],
   words: [],
   suggestions: [],
@@ -69,7 +76,10 @@ afterEach(() => localStorage.clear());
 
 describe('The Search tab (spec 009 §3.4)', () => {
   it('shows a Best match, then module groups with counts, and marks the matched words', async () => {
-    await renderAt('/search?q=decor', source(async () => decorResults));
+    await renderAt(
+      '/search?q=decor',
+      source(async () => decorResults),
+    );
     await settle();
 
     expect(screen.getByText(/results$/)).toHaveTextContent('3 results');
@@ -82,10 +92,13 @@ describe('The Search tab (spec 009 §3.4)', () => {
       '/learn/gof-patterns/decorator?at=the-idea&q=decor',
     );
     const uml = screen.getByRole('region', { name: 'UML' });
-    expect(within(uml).getByRole('link', { name: /cheat sheet/i })).toHaveAttribute('href', '/revise/uml/class?q=decor');
+    expect(within(uml).getByRole('link', { name: /cheat sheet/i })).toHaveAttribute(
+      'href',
+      '/revise/uml/class?q=decor',
+    );
   });
 
-  it('filters by kind and module through the URL, and the chips keep every kind\'s count', async () => {
+  it("filters by kind and module through the URL, and the chips keep every kind's count", async () => {
     const data = source(async ({ query }) => ({ ...decorResults, query }));
     const router = await renderAt('/search?q=decor', data);
     await settle();
@@ -96,13 +109,21 @@ describe('The Search tab (spec 009 §3.4)', () => {
     await settle();
 
     expect(router.state.location.search).toBe('?q=decor&kind=cheatSheet&module=uml');
-    expect(data.search).toHaveBeenLastCalledWith({ query: 'decor', kind: 'cheatSheet', module: 'uml', limit: undefined });
+    expect(data.search).toHaveBeenLastCalledWith({
+      query: 'decor',
+      kind: 'cheatSheet',
+      module: 'uml',
+      limit: undefined,
+    });
     expect(screen.getByRole('button', { name: /Cheat sheets/ })).toHaveAttribute('aria-pressed', 'true');
     expect(within(screen.getByRole('button', { name: /Lessons/ })).getByText('2')).toBeInTheDocument();
   });
 
   it('says what it also searched and offers to drop the filters when nothing matched', async () => {
-    const data = source(async ({ query }) => ({ ...noResults(query), expansions: ['single responsibility'] }));
+    const data = source(async ({ query }) => ({
+      ...noResults(query),
+      expansions: ['single responsibility'],
+    }));
     const router = await renderAt('/search?q=srp&kind=note', data);
     await settle();
 
@@ -143,7 +164,10 @@ describe('The Search tab (spec 009 §3.4)', () => {
   });
 
   it('opens the top result on Enter, moves through results with the arrows, clears on Escape', async () => {
-    const router = await renderAt('/search?q=decor', source(async () => decorResults));
+    const router = await renderAt(
+      '/search?q=decor',
+      source(async () => decorResults),
+    );
     await settle();
     const box = screen.getByRole('searchbox');
 

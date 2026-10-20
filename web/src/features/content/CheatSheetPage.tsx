@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useCheatSheet, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { BookmarkToggle } from '../notes/BookmarkToggle';
 import { YourNotes } from '../notes/YourNotes';
 import { useRevisedTracker } from '../progress/useRevisedTracker';
+import { MatchBar } from '../search/marks/MatchBar';
+import { useSearchMarks } from '../search/marks/useSearchMarks';
 import { BackLink } from './BackLink';
 import { LessonIcon } from './LessonIcon';
 import { ContentBoundary } from './ContentBoundary';
@@ -14,6 +16,7 @@ import { loadRecall, saveRecall } from './reader/readerStore';
 import { TextSizeControl } from './reader/TextSizeControl';
 import { useTextSize } from './reader/useTextSize';
 import { LessonSkeleton } from './Skeletons';
+import { useAnchorScroll } from './useAnchorScroll';
 
 /** A cheat sheet: read it, or switch on recall to test yourself section by section. */
 export function CheatSheetPage() {
@@ -36,6 +39,11 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
   const [allRevealed, setAllRevealed] = useState(false);
   const endRef = useRevisedTracker(lessonId, { recall, allRevealed });
+  const body = useRef<HTMLDivElement>(null);
+  // A search result opens the sheet at its section with the words marked; in recall mode only that section is
+  // revealed, by the mark opening its fold (spec 009 §3.6, Q8).
+  const matches = useSearchMarks(body, lessonId, 'cheatSheet');
+  useAnchorScroll();
 
   // Recall is finished once every folded block is open (the blocks are in the rendered page, not in state).
   useEffect(() => {
@@ -54,6 +62,7 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
     <article>
       <title>{`${sheet.title} · LLD Guide`}</title>
       <BackLink to="/revise">Revise</BackLink>
+      <MatchBar marks={matches} />
       <header className="mt-3 border-b border-rule pb-6">
         <p className="font-mono text-[12px] tracking-[0.08em] text-muted">
           cheat sheet · {sheet.moduleTitle}
@@ -89,7 +98,9 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
           reveal: (id) => setRevealed((before) => new Set(before).add(id)),
         }}
       >
-        <MarkdownView markdown={sheet.bodyMarkdown} textSize={textSize} recall />
+        <div ref={body}>
+          <MarkdownView markdown={sheet.bodyMarkdown} textSize={textSize} recall />
+        </div>
       </RecallContext>
       <div ref={endRef} aria-hidden="true" className="h-px" />
       {/* After the end mark on purpose: the learner's notes never count towards "revised" (spec 007 §3.6). */}

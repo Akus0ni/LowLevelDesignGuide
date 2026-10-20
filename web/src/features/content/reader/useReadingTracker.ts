@@ -117,7 +117,8 @@ export function useReadingTracker(lessonId: string, outline: OutlineEntry[]) {
     const tickRead = () => {
       if (!scrolled) return;
       const newlyRead = anchors.filter(
-        (anchor) => passed.has(anchor) && (onScreenMs.get(anchor) ?? 0) >= DWELL_MS && !known.current.has(anchor),
+        (anchor) =>
+          passed.has(anchor) && (onScreenMs.get(anchor) ?? 0) >= DWELL_MS && !known.current.has(anchor),
       );
       if (newlyRead.length === 0) return;
       known.current = new Set([...known.current, ...newlyRead]);

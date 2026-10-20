@@ -2,6 +2,7 @@ import { Collapsible } from '@base-ui/react/collapsible';
 import { use, type ReactNode } from 'react';
 import { cn } from '../../../ui/cn';
 import { RecallContext } from './recall';
+import { useSearchableFolds } from './searchFolds';
 
 /**
  * One cheat sheet section. In recall mode its body folds under the heading behind a "reveal" button; revealing opens
@@ -10,6 +11,7 @@ import { RecallContext } from './recall';
 export function RecallSection({ id, heading, body }: { id: string; heading: ReactNode; body: ReactNode }) {
   const recall = use(RecallContext);
   const open = !recall.on || recall.isRevealed(id);
+  const searchable = useSearchableFolds();
 
   return (
     <section data-recall={id}>
@@ -28,7 +30,9 @@ export function RecallSection({ id, heading, body }: { id: string; heading: Reac
             <span className="text-accent">reveal</span>
           </Collapsible.Trigger>
         )}
-        <Collapsible.Panel className="recall-panel">{body}</Collapsible.Panel>
+        <Collapsible.Panel className="recall-panel" hiddenUntilFound={searchable}>
+          {body}
+        </Collapsible.Panel>
       </Collapsible.Root>
     </section>
   );

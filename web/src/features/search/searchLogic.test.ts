@@ -48,9 +48,15 @@ describe('groupResults (spec Q2)', () => {
 
 describe('hitLink (spec §3.6)', () => {
   it('opens a lesson at its section with the query, a cheat sheet in Revise, a note in its lesson', () => {
-    expect(hitLink(hit({ anchor: 'the-idea' }), ' decor ')).toBe('/learn/gof-patterns/decorator?at=the-idea&q=decor');
-    expect(hitLink(hit({ kind: 'cheatSheet', anchor: 'shape' }), 'wrap')).toBe('/revise/gof-patterns/decorator?at=shape&q=wrap');
-    expect(hitLink(hit({ kind: 'note', noteId: 'n1' }), 'retry')).toBe('/learn/gof-patterns/decorator?note=n1&q=retry');
+    expect(hitLink(hit({ anchor: 'the-idea' }), ' decor ')).toBe(
+      '/learn/gof-patterns/decorator?at=the-idea&q=decor',
+    );
+    expect(hitLink(hit({ kind: 'cheatSheet', anchor: 'shape' }), 'wrap')).toBe(
+      '/revise/gof-patterns/decorator?at=shape&q=wrap',
+    );
+    expect(hitLink(hit({ kind: 'note', noteId: 'n1' }), 'retry')).toBe(
+      '/learn/gof-patterns/decorator?note=n1&q=retry',
+    );
   });
 
   it('opens the Notes tab for a note on a removed lesson', () => {
@@ -60,7 +66,15 @@ describe('hitLink (spec §3.6)', () => {
 
 describe('snippetParts', () => {
   it('splits text into plain and marked runs', () => {
-    expect(snippetParts({ text: 'a class inherits from Base', marks: [[8, 8], [22, 4]] })).toEqual([
+    expect(
+      snippetParts({
+        text: 'a class inherits from Base',
+        marks: [
+          [8, 8],
+          [22, 4],
+        ],
+      }),
+    ).toEqual([
       { text: 'a class ', marked: false },
       { text: 'inherits', marked: true },
       { text: ' from ', marked: false },
@@ -69,7 +83,16 @@ describe('snippetParts', () => {
   });
 
   it('clips marks that overlap, come out of order or run past the end', () => {
-    expect(snippetParts({ text: 'abcdef', marks: [[4, 9], [0, 3], [1, 3]] })).toEqual([
+    expect(
+      snippetParts({
+        text: 'abcdef',
+        marks: [
+          [4, 9],
+          [0, 3],
+          [1, 3],
+        ],
+      }),
+    ).toEqual([
       { text: 'abc', marked: true },
       { text: 'd', marked: true },
       { text: 'ef', marked: true },
@@ -79,8 +102,16 @@ describe('snippetParts', () => {
 
 describe('search state in the URL', () => {
   it('reads and writes q, kind and module, ignoring an unknown kind', () => {
-    expect(readSearchState(new URLSearchParams('q=srp&kind=note&module=oop-solid'))).toEqual({ query: 'srp', kind: 'note', module: 'oop-solid' });
-    expect(readSearchState(new URLSearchParams('kind=video'))).toEqual({ query: '', kind: null, module: null });
+    expect(readSearchState(new URLSearchParams('q=srp&kind=note&module=oop-solid'))).toEqual({
+      query: 'srp',
+      kind: 'note',
+      module: 'oop-solid',
+    });
+    expect(readSearchState(new URLSearchParams('kind=video'))).toEqual({
+      query: '',
+      kind: null,
+      module: null,
+    });
     expect(writeSearchState({ query: 'srp', kind: null, module: 'uml' }).toString()).toBe('q=srp&module=uml');
   });
 });
