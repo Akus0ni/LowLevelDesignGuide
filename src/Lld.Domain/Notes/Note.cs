@@ -53,5 +53,19 @@ public sealed record NotesSnapshot(IReadOnlyList<Note> Notes, IReadOnlyList<Book
 {
     public static NotesSnapshot Empty { get; } = new([], []);
 
+    /// <summary>
+    /// A snapshot in the one order every store returns: oldest first, ties broken by id or key, so stores compare equal.
+    /// </summary>
+    public static NotesSnapshot Of(IEnumerable<Note> notes, IEnumerable<Bookmark> bookmarks) =>
+        new(
+            [.. notes.OrderBy(note => note.CreatedAt).ThenBy(note => note.Id)],
+            [
+                .. bookmarks
+                    .OrderBy(bookmark => bookmark.CreatedAt)
+                    .ThenBy(bookmark => bookmark.Kind)
+                    .ThenBy(bookmark => bookmark.LessonId, StringComparer.Ordinal)
+                    .ThenBy(bookmark => bookmark.Anchor, StringComparer.Ordinal),
+            ]);
+
     public bool IsEmpty => Notes.Count == 0 && Bookmarks.Count == 0;
 }

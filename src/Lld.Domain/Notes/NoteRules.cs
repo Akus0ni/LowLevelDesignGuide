@@ -39,8 +39,6 @@ public static class NoteRules
             bookmarks[bookmark.Key] = bookmarks.TryGetValue(bookmark.Key, out var existing) ? Newer(existing, bookmark) : bookmark;
         }
 
-        return new NotesSnapshot(
-            [.. notes.Values.OrderBy(note => note.CreatedAt).ThenBy(note => note.Id)],
-            [.. bookmarks.Values.OrderBy(bookmark => bookmark.CreatedAt).ThenBy(bookmark => bookmark.Key.ToString(), StringComparer.Ordinal)]);
+        return NotesSnapshot.Of(notes.Values, bookmarks.Values);
     }
 }

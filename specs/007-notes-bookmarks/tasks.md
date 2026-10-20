@@ -1,7 +1,7 @@
 # Spec 007: Tasks
 
 - [x] T1 Domain: `Note`, `Bookmark`, `BookmarkKind`, `NotesSnapshot`, `NoteRules` (`Newer`, `Merge`), `NoteLimits`, `TagParser` + shared vector `tests/fixtures/notes/tags.json`, `INotesStore`; tests
-- [ ] T2 Store contract suite `NotesStoreContract` + in-memory store
+- [x] T2 Store contract suite `NotesStoreContract` + in-memory store
 - [ ] T3 Device: `V6Notes`, `SqliteNotesStore`, `DeviceNotes` (adopt); contract + V5 → V6 upgrade + "content reload keeps notes" tests
 - [ ] T4 API: rows, migration `AddNotes`, `EfNotesStore` (contract tests), use cases, contracts, `NotesWire`, endpoints; integration tests (auth, isolation, adopt, limits)
 - [ ] T5 App: `NotesService`, `ExportService` (share sheet), bridge methods, adoption after sign-in
