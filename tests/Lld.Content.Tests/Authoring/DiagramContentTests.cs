@@ -133,6 +133,53 @@ public sealed class DiagramContentTests
         IssuesOf(repo).Should().Equal((ValidRepo.DiagramModule, repo.LineOf(ValidRepo.DiagramModule, "  title:"), IssueCodes.PickerShape));
     }
 
+    [Theory]
+    [InlineData("samples/Uml.cs#Order,OrderLine,Customer", "samples/Missing.cs#Order")]
+    [InlineData("samples/Uml.cs#Order,OrderLine,Customer", "samples/Uml.cs#Order,Ghost")]
+    [InlineData("samples/Uml.cs#Order,OrderLine,Customer", "Uml.cs")]
+    public void CodePair_Unresolved(string oldReference, string newReference)
+    {
+        var repo = Diagrams().Replace(ValidRepo.ClassBasics, oldReference, newReference);
+
+        IssuesOf(repo).Should().Equal((ValidRepo.ClassBasics, repo.LineOf(ValidRepo.ClassBasics, "```mermaid code="), IssueCodes.CodePairUnresolved));
+    }
+
+    [Fact]
+    public void CodePair_OnAFlowchart()
+    {
+        var repo = Diagrams().Replace(ValidRepo.ClassBasics, "classDiagram\n  Order *-- OrderLine\n  Order --> Customer", "flowchart TD\n  a --> b");
+
+        IssuesOf(repo).Should().Equal((ValidRepo.ClassBasics, repo.LineOf(ValidRepo.ClassBasics, "```mermaid code="), IssueCodes.CodePairNotSupported));
+    }
+
+    [Fact]
+    public void CodePair_QuotingOnlyAMember()
+    {
+        var repo = Diagrams().Replace(ValidRepo.ClassBasics, "samples/Uml.cs#Order,OrderLine,Customer", "samples/Uml.cs#Order.Add");
+
+        IssuesOf(repo).Should().Equal((ValidRepo.ClassBasics, repo.LineOf(ValidRepo.ClassBasics, "```mermaid code="), IssueCodes.CodePairNoTypes));
+    }
+
+    [Theory]
+    [InlineData("Order --> Ghost")]
+    [InlineData("Customer <|-- Order")]
+    [InlineData("Customer --> Order")]
+    public void CodePair_DiagramDoesNotMatchTheCode(string badLine)
+    {
+        var repo = Diagrams().Replace(ValidRepo.ClassBasics, "  Order *-- OrderLine\n  Order --> Customer\n", $"  Order *-- OrderLine\n  Order --> Customer\n  {badLine}\n");
+
+        IssuesOf(repo).Should().Equal((ValidRepo.ClassBasics, repo.LineOf(ValidRepo.ClassBasics, badLine), IssueCodes.CodePairMismatch));
+    }
+
+    [Fact]
+    public void CodePair_IsCheckedInAnyTemplate()
+    {
+        var repo = Diagrams().Replace(ValidRepo.Auth, "```mermaid\nstateDiagram-v2\n  Pending --> Approved\n```",
+            "```mermaid code=\"samples/Uml.cs#Order\"\nclassDiagram\n  Order --> Ghost\n```");
+
+        IssuesOf(repo).Should().Equal((ValidRepo.Auth, repo.LineOf(ValidRepo.Auth, "  Order --> Ghost"), IssueCodes.CodePairMismatch));
+    }
+
     private static ValidRepo Diagrams() => new ValidRepo().WithDiagramModule();
 
     private static ContentBuildResult Build(ValidRepo repo) => new ContentPipeline(repo.Files(), new ContentOptions()).Build();

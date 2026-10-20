@@ -72,6 +72,10 @@ public static class IssueCodes
     public const string DiagramSectionNoDiagram = "diagram.section_no_diagram";
     public const string MistakesMissing = "mistakes.missing";
     public const string MistakesDuplicate = "mistakes.duplicate";
+    public const string CodePairUnresolved = "code_pair.unresolved";
+    public const string CodePairNotSupported = "code_pair.not_supported";
+    public const string CodePairNoTypes = "code_pair.no_types";
+    public const string CodePairMismatch = "code_pair.mismatch";
     public const string SymbolMissing = "symbol.missing";
     public const string SymbolFormat = "symbol.format";
     public const string SymbolDuplicate = "symbol.duplicate";

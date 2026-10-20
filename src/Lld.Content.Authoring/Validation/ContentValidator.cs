@@ -41,6 +41,8 @@ public sealed class ContentValidator(IEnumerable<IContentRule> rules)
         new DiagramSectionsRule(),
         new DiagramSectionDiagramRule(),
         new MistakesStampRule(),
+        new CodePairSnippetRule(),
+        new DiagramCodeMatchRule(),
     ];
 
     public ContentValidator()
