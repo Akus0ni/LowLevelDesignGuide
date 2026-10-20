@@ -241,6 +241,41 @@ namespace Lld.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Lld.Infrastructure.Persistence.BookmarkRow", b =>
+                {
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LessonId")
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Anchor")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("DeletedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UpdatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("OwnerId", "Kind", "LessonId", "Anchor");
+
+                    b.ToTable("Bookmarks", (string)null);
+                });
+
             modelBuilder.Entity("Lld.Infrastructure.Persistence.LessonProgressRow", b =>
                 {
                     b.Property<string>("OwnerId")
@@ -287,6 +322,50 @@ namespace Lld.Infrastructure.Persistence.Migrations
                     b.HasKey("OwnerId", "LessonId");
 
                     b.ToTable("LessonProgress", (string)null);
+                });
+
+            modelBuilder.Entity("Lld.Infrastructure.Persistence.NoteRow", b =>
+                {
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Anchor")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(20000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("DeletedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LessonId")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UpdatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("OwnerId", "Id");
+
+                    b.HasIndex("OwnerId", "LessonId");
+
+                    b.ToTable("Notes", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -451,7 +530,25 @@ namespace Lld.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Lld.Infrastructure.Persistence.BookmarkRow", b =>
+                {
+                    b.HasOne("Lld.Infrastructure.Persistence.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Lld.Infrastructure.Persistence.LessonProgressRow", b =>
+                {
+                    b.HasOne("Lld.Infrastructure.Persistence.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Lld.Infrastructure.Persistence.NoteRow", b =>
                 {
                     b.HasOne("Lld.Infrastructure.Persistence.AppUser", null)
                         .WithMany()

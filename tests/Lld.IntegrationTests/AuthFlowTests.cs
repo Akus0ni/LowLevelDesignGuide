@@ -18,7 +18,7 @@ namespace Lld.IntegrationTests;
 /// <summary>
 /// Spec 001 A1, end to end through the real AppHost: request access over HTTP, approve it the way the admin
 /// console does (application layer on the same database), sign in with the temporary password, change it, and save
-/// progress as the signed-in learner (spec 005 A6).
+/// progress and notes as the signed-in learner (spec 005 A6, spec 007 A12).
 /// </summary>
 public sealed class AuthFlowTests : IAsyncLifetime
 {
@@ -47,7 +47,7 @@ public sealed class AuthFlowTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task RequestApproveLoginChangePassword_ThenKeepProgress()
+    public async Task RequestApproveLoginChangePassword_ThenKeepProgressAndNotes()
     {
         using var client = _app!.CreateHttpClient("api", "http");
         const string email = "it-learner@example.com";
@@ -83,6 +83,13 @@ public sealed class AuthFlowTests : IAsyncLifetime
             .Should().Be(HttpStatusCode.NoContent);
         var progress = await SendAsync(client, HttpMethod.Get, "/api/progress", session.AccessToken);
         (await progress.Content.ReadFromJsonAsync<ProgressSnapshotDto>(Ct))!.Lessons.Should().ContainSingle(l => l.LessonId == "srp");
+
+        // Spec 007 A12: and notes on the server, through the real AppHost and its migrated database.
+        var note = new NoteDto(Guid.NewGuid().ToString(), "srp", "the-rule", "My example #work", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null, "it-device");
+        (await SendAsync(client, HttpMethod.Put, "/api/notes", session.AccessToken, new[] { note })).StatusCode
+            .Should().Be(HttpStatusCode.NoContent);
+        var notes = await SendAsync(client, HttpMethod.Get, "/api/notes", session.AccessToken);
+        (await notes.Content.ReadFromJsonAsync<NotesSnapshotDto>(Ct))!.Notes.Should().ContainSingle(n => n.Body == note.Body);
     }
 
     private static Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string path, string accessToken, object? body = null)

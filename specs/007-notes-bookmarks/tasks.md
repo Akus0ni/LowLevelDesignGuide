@@ -3,7 +3,7 @@
 - [x] T1 Domain: `Note`, `Bookmark`, `BookmarkKind`, `NotesSnapshot`, `NoteRules` (`Newer`, `Merge`), `NoteLimits`, `TagParser` + shared vector `tests/fixtures/notes/tags.json`, `INotesStore`; tests
 - [x] T2 Store contract suite `NotesStoreContract` + in-memory store
 - [x] T3 Device: `V6Notes`, `SqliteNotesStore`, `DeviceNotes` (adopt); contract + V5 → V6 upgrade + "content reload keeps notes" tests
-- [ ] T4 API: rows, migration `AddNotes`, `EfNotesStore` (contract tests), use cases, contracts, `NotesWire`, endpoints; integration tests (auth, isolation, adopt, limits)
+- [x] T4 API: rows, migration `AddNotes`, `EfNotesStore` (contract tests), use cases, contracts, `NotesWire`, endpoints; integration tests (auth, isolation, adopt, limits)
 - [ ] T5 App: `NotesService`, `ExportService` (share sheet), bridge methods, adoption after sign-in
 - [ ] T6 Web data: `DataSource` notes methods, `BridgeDataSource`, `HttpDataSource` (API / guest localStorage / adopt / batch split / download), fakes; tests
 - [ ] T7 Web logic: `tags.ts` (vector), `noteRecords.ts`, `starters.ts`, `notesQuery.ts`, `exportNotes.ts`, `writeBehind.ts` (moved out of `ProgressStore`), `notesStore.ts`, `NotesProvider`, hooks; tests
