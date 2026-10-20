@@ -16,8 +16,7 @@ symbol: Sg
 
 ```mermaid
 flowchart TD
-    office["🏢 One office"] --> printer["🖨️ One shared printer"]
-    a["👩 Asha"] -->|"prints on"| printer
+    a["👩 Asha"] -->|"prints on"| printer["🖨️ The one office printer"]
     b["👨 Ravi"] -->|"prints on"| printer
 ```
 

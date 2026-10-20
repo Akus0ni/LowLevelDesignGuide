@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-20 (spec 006 approved; plan + tasks written)_
+_Last updated: 2026-10-20 (spec 006: reader UI + Creational batch ready for owner review)_
 
 ## Where we are
 | Item | Status |
@@ -17,7 +17,7 @@ _Last updated: 2026-10-20 (spec 006 approved; plan + tasks written)_
 | Spec 003 Content engine | ✅ Merged (PR #5) |
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
-| Spec 006 Design patterns | 🚧 spec approved; plan + tasks written; implementing |
+| Spec 006 Design patterns | 🔍 T1–T10 done: reader UI + Creational batch, owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -134,13 +134,20 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Owner choices: all 23 GoF + 5 extras in their own module "Enterprise & .NET patterns"; spec 004 card + structure,
   Modern C#, Seen in .NET, look-alikes, travels with, Overuse stamp; reader gets a periodic table, a "Which pattern?"
   picker and a look-alike compare; Claude proposes category mnemonics; review in category batches.
-- Spec approved as is (slugs, order, mnemonics, symbols, look-alikes). `plan.md` + `tasks.md` written: pipeline (T1–T4),
-  batch 1 Creational (T5), reader UI (T6–T10) → owner reviews UI + batch 1 together, then batches T11–T14.
+- Spec approved as is (slugs, order, mnemonics, symbols, look-alikes). `plan.md` + `tasks.md` written.
+- Done (T1–T10): samples project; nested YAML + phrase mnemonics; template `pattern` + rules; picker + look-alikes
+  (pack format 3, device step 5); GoF module with Creational (5 lessons, samples, tests); reader: Overuse stamp, phrase
+  mnemonics, periodic table, "Which pattern?" sheet, look-alike compare route + lesson strip. Screenshots in
+  `specs/006-gof-patterns/screenshots/`.
+- **Waiting for owner review** of the reader UI + Creational batch before T11 (Structural).
 - Spec 005 open question (fling-to-end marks done): owner will decide later.
 
 ## How to resume (next session)
 1. `git switch spec/006-gof-patterns`, open `specs/006-gof-patterns/tasks.md` and continue at the first unticked task.
 2. Stop for owner review after T10 (UI + Creational) and after each content batch.
+3. Shell note: write files containing `
+` escapes with the Write/Edit tools; Python heredocs in the Bash tool turn them
+   into real newlines. Screenshots: `node shot.mjs` with `MSYS_NO_PATHCONV=1` (hash routes: `/#/learn/...`).
 3. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`.
 4. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

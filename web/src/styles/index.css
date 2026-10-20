@@ -1338,8 +1338,15 @@
     margin-bottom: 1.75rem;
   }
 
+  /* On narrow phones the legend drops below the label instead of breaking "periodic table" in two. */
   .ptable .map-head {
+    flex-wrap: wrap;
+    gap: 0.1rem 1rem;
     margin-bottom: -0.25rem;
+
+    & > :first-child {
+      white-space: nowrap;
+    }
   }
 
   .ptable-block {
@@ -1571,6 +1578,7 @@
   }
 
   .picker-ask {
+    overflow-wrap: anywhere;
     font-family: var(--font-display);
     font-optical-sizing: auto;
     font-size: 1.4rem;
@@ -1633,6 +1641,7 @@
   }
 
   .picker-result {
+    overflow-wrap: anywhere;
     border-color: var(--accent);
     background: color-mix(in oklab, var(--accent) 6%, var(--surface));
   }
@@ -1764,6 +1773,17 @@
     &:not([data-shown]) {
       visibility: hidden;
       opacity: 0;
+    }
+  }
+
+  /* Side by side, the "Open" links line up at the bottom of every pane. */
+  .lookalike[data-layout='split'] .lookalike-pane {
+    display: flex;
+    flex-direction: column;
+
+    & > a:last-child {
+      margin-top: auto;
+      align-self: flex-start;
     }
   }
 
