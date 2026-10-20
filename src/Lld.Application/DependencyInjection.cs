@@ -4,6 +4,7 @@ using Lld.Application.Accounts;
 using Lld.Application.Audit;
 using Lld.Application.Auth;
 using Lld.Application.Common;
+using Lld.Application.Notes;
 using Lld.Application.Progress;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -50,6 +51,10 @@ public static class DependencyInjection
         services.AddScoped<SaveLessonProgress>();
         services.AddScoped<RecordActivityDay>();
         services.AddScoped<AdoptGuestProgress>();
+        services.AddScoped<GetNotes>();
+        services.AddScoped<SaveNotes>();
+        services.AddScoped<SaveBookmarks>();
+        services.AddScoped<AdoptGuestNotes>();
         return services;
     }
 }

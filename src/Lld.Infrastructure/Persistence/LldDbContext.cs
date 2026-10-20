@@ -1,6 +1,7 @@
 using Lld.Domain.Access;
 using Lld.Domain.Audit;
 using Lld.Domain.Identity;
+using Lld.Domain.Notes;
 using Lld.Domain.Progress;
 using Lld.Domain.Sessions;
 using Lld.Infrastructure.Hosting;
@@ -35,6 +36,10 @@ public sealed class LldDbContext(DbContextOptions<LldDbContext> options) : Ident
     public DbSet<LessonProgressRow> LessonProgress => Set<LessonProgressRow>();
 
     public DbSet<ActivityDayRow> ActivityDays => Set<ActivityDayRow>();
+
+    public DbSet<NoteRow> Notes => Set<NoteRow>();
+
+    public DbSet<BookmarkRow> Bookmarks => Set<BookmarkRow>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -110,6 +115,30 @@ public sealed class LldDbContext(DbContextOptions<LldDbContext> options) : Ident
             day.ToTable("ActivityDays");
             day.HasKey(d => new { d.OwnerId, d.Day });
             day.HasOne<AppUser>().WithMany().HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<NoteRow>(note =>
+        {
+            note.ToTable("Notes");
+            note.HasKey(n => new { n.OwnerId, n.Id });
+            note.HasIndex(n => new { n.OwnerId, n.LessonId });
+            note.Property(n => n.LessonId).HasMaxLength(NoteLimits.MaxLessonIdLength);
+            note.Property(n => n.Anchor).HasMaxLength(NoteLimits.MaxAnchorLength);
+            note.Property(n => n.Body).HasMaxLength(NoteLimits.MaxBodyLength);
+            note.Property(n => n.DeviceId).HasMaxLength(NoteLimits.MaxDeviceIdLength);
+            note.HasOne<AppUser>().WithMany().HasForeignKey(n => n.OwnerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<BookmarkRow>(bookmark =>
+        {
+            bookmark.ToTable("Bookmarks");
+            bookmark.HasKey(b => new { b.OwnerId, b.Kind, b.LessonId, b.Anchor });
+            bookmark.Ignore(b => b.Key);
+            bookmark.Property(b => b.Kind).HasConversion<int>();
+            bookmark.Property(b => b.LessonId).HasMaxLength(NoteLimits.MaxLessonIdLength);
+            bookmark.Property(b => b.Anchor).HasMaxLength(NoteLimits.MaxAnchorLength);
+            bookmark.Property(b => b.DeviceId).HasMaxLength(NoteLimits.MaxDeviceIdLength);
+            bookmark.HasOne<AppUser>().WithMany().HasForeignKey(b => b.OwnerId).OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<IdentityRole>().HasData(

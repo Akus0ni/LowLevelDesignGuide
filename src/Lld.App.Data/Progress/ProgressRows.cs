@@ -2,6 +2,7 @@ using System.Globalization;
 using Lld.App.Data.Content;
 using Lld.Domain.Progress;
 using Microsoft.Data.Sqlite;
+using static Lld.App.Data.DeviceSql;
 
 namespace Lld.App.Data.Progress;
 
@@ -94,31 +95,4 @@ internal static class ProgressRows
             Time(r, 8),
             Time(r, 9)!.Value,
             r.GetString(10));
-
-    private static string? Text(DateTimeOffset? value) =>
-        value?.UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
-
-    private static DateTimeOffset? Time(SqliteDataReader reader, int ordinal) =>
-        reader.IsDBNull(ordinal)
-            ? null
-            : DateTimeOffset.Parse(reader.GetString(ordinal), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-
-    private static SqliteCommand Command(
-        SqliteConnection connection, SqliteTransaction? transaction, string sql, params (string Name, object? Value)[] parameters)
-    {
-        var command = connection.CreateCommand();
-        command.Transaction = transaction;
-        command.CommandText = sql;
-        Bind(command, parameters);
-        return command;
-    }
-
-    private static void Bind(SqliteCommand command, params (string Name, object? Value)[] parameters)
-    {
-        command.Parameters.Clear();
-        foreach (var (name, value) in parameters)
-        {
-            command.Parameters.AddWithValue(name, value ?? DBNull.Value);
-        }
-    }
 }

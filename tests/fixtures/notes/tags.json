@@ -1,0 +1,21 @@
+[
+  { "name": "plain tags", "body": "Revisit this #weak and #ask-in-interview", "tags": ["weak", "ask-in-interview"] },
+  { "name": "start of text and line", "body": "#work\nWhere: billing\n#gotcha", "tags": ["work", "gotcha"] },
+  { "name": "lower case, no repeats, first-seen order", "body": "#Weak then #weak then #API and #weak", "tags": ["weak", "api"] },
+  { "name": "punctuation after a tag", "body": "Tags: #one, #two. (#three) #four!", "tags": ["one", "two", "three", "four"] },
+  { "name": "digits and hyphens after the first letter", "body": "#c-sharp-14 #solid2", "tags": ["c-sharp-14", "solid2"] },
+  { "name": "must start with a letter", "body": "#1 #-x #_x issue", "tags": [] },
+  { "name": "30 characters at most", "body": "#abcdefghijklmnopqrstuvwxyzabcde #abcdefghijklmnopqrstuvwxyzabcd", "tags": ["abcdefghijklmnopqrstuvwxyzabcd"] },
+  { "name": "headings are not tags", "body": "# Title\n## Section\n### #real", "tags": ["real"] },
+  { "name": "double hash is not a tag", "body": "##weak", "tags": [] },
+  { "name": "URL fragments are not tags", "body": "See https://learn.microsoft.com/dotnet#overview and docs/page#part", "tags": [] },
+  { "name": "inside a word is not a tag", "body": "C#14 and F#weak", "tags": [] },
+  { "name": "HTML entity is not a tag", "body": "Tom &#x26; Jerry", "tags": [] },
+  { "name": "code span", "body": "Use `#pragma warning` here #real", "tags": ["real"] },
+  { "name": "double-backtick code span", "body": "`` a ` #not `` #yes", "tags": ["yes"] },
+  { "name": "fenced code block", "body": "Before #a\n```csharp\n#region Setup\nvar x = 1; // #todo\n```\nAfter #b", "tags": ["a", "b"] },
+  { "name": "tilde fence", "body": "~~~\n#hidden\n~~~\n#shown", "tags": ["shown"] },
+  { "name": "unclosed fence hides the rest", "body": "#seen\n```\n#unseen", "tags": ["seen"] },
+  { "name": "Windows line endings", "body": "#one\r\n```\r\n#hidden\r\n```\r\n#two", "tags": ["one", "two"] },
+  { "name": "bold and list markers around tags", "body": "- **#strong** tag\n* *#em* tag\n_#snake_ is not", "tags": ["strong", "em"] }
+]

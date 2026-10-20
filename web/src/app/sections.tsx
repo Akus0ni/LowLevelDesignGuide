@@ -33,7 +33,6 @@ export const SECTIONS: Section[] = [
   {
     path: 'notes',
     label: 'Notes',
-    comingIn: 'Spec 007',
     summary: 'Your notes and bookmarks, saved on this device and synced when online.',
     icon: <Icon d={['M4 20h4L19 9l-4-4L4 16v4Z', 'm13 7 4 4']} />,
   },

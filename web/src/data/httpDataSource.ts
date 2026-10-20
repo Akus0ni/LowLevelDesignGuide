@@ -1,4 +1,6 @@
 import { isWebLink } from './camelCase';
+import { batchesOf } from './notes/batches';
+import { GuestNotes } from './notes/guestNotes';
 import { GuestProgress } from './progress/guestProgress';
 import { AccessRequestOutbox } from './serverStatus/accessRequestOutbox';
 import { ReachabilityRecovery } from './serverStatus/reachabilityRecovery';
@@ -13,7 +15,10 @@ import {
   type DataSource,
   type LessonDetail,
   type ModuleDetail,
+  type Bookmark,
   type LessonProgress,
+  type Note,
+  type NotesSnapshot,
   type ModuleSummary,
   type ProgressSnapshot,
   type ServerStatus,
@@ -33,6 +38,8 @@ export interface HttpStatusOptions {
   outbox?: AccessRequestOutbox;
   /** Signed-out progress (default: localStorage). */
   guest?: GuestProgress;
+  /** Signed-out notes and bookmarks (default: localStorage). */
+  guestNotes?: GuestNotes;
   /** Source of the browser's `online` event (default: window). */
   events?: EventTarget;
 }
@@ -42,6 +49,8 @@ const GATEWAY_ERRORS = new Set([502, 503, 504]);
 const NETWORK_ERROR = 'network.unavailable';
 const CONTENT = '/api/content';
 const PROGRESS = '/api/progress';
+const NOTES = '/api/notes';
+const BOOKMARKS = '/api/bookmarks';
 
 interface AuthResponse {
   accessToken: string;
@@ -62,6 +71,7 @@ export class HttpDataSource implements DataSource {
   private readonly tracker: ServerStatusTracker;
   private readonly outbox: AccessRequestOutbox;
   private readonly guest: GuestProgress;
+  private readonly guestNotes: GuestNotes;
   private readonly connectStatus?: HttpStatusOptions['connectStatus'];
   private readonly events?: EventTarget;
   private readonly recovery: ReachabilityRecovery;
@@ -77,6 +87,7 @@ export class HttpDataSource implements DataSource {
       options.tracker ?? new ServerStatusTracker(Date.now, options.connectStatus ? 'unknown' : 'online');
     this.outbox = options.outbox ?? new AccessRequestOutbox();
     this.guest = options.guest ?? new GuestProgress();
+    this.guestNotes = options.guestNotes ?? new GuestNotes();
     this.events = options.events ?? (typeof window === 'undefined' ? undefined : window);
     this.recovery = new ReachabilityRecovery(this.tracker, () => this.request('GET', '/health'));
     this.tracker.subscribe((status) => {
@@ -122,7 +133,7 @@ export class HttpDataSource implements DataSource {
 
   async login(email: string, password: string): Promise<UserSummary> {
     const user = this.acceptSession(await this.send('POST', '/api/auth/login', { email, password }));
-    await this.adoptGuestProgress();
+    await this.adoptGuest();
     return user;
   }
 
@@ -193,6 +204,34 @@ export class HttpDataSource implements DataSource {
     else this.guest.addDay(day);
   }
 
+  // Notes and bookmarks (spec 007): the API for a signed-in user; localStorage for the guest (handed over at sign-in).
+
+  async getNotes(): Promise<NotesSnapshot> {
+    if (!(await this.signedIn())) return this.guestNotes.get();
+    return (await this.sendAuthorized('GET', NOTES)) as NotesSnapshot;
+  }
+
+  async saveNotes(notes: Note[]): Promise<void> {
+    const stamped = notes.map((note) => ({ ...note, deviceId: this.guest.deviceId() }));
+    if (!(await this.signedIn())) return this.guestNotes.saveNotes(stamped);
+    for (const batch of batchesOf(stamped)) await this.sendAuthorized('PUT', NOTES, batch);
+  }
+
+  async saveBookmarks(bookmarks: Bookmark[]): Promise<void> {
+    const stamped = bookmarks.map((bookmark) => ({ ...bookmark, deviceId: this.guest.deviceId() }));
+    if (!(await this.signedIn())) return this.guestNotes.saveBookmarks(stamped);
+    for (const batch of batchesOf(stamped)) await this.sendAuthorized('PUT', BOOKMARKS, batch);
+  }
+
+  exportNotes(fileName: string, markdown: string): Promise<void> {
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown;charset=utf-8' }));
+    const link = Object.assign(document.createElement('a'), { href: url, download: fileName });
+    link.click();
+    // Revoked on the next task: the click has started the download by then.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    return Promise.resolve();
+  }
+
   openExternal(url: string): Promise<void> {
     if (!isWebLink(url))
       return Promise.reject(new AppError('link.not_allowed', 'Only web links can be opened.'));
@@ -235,6 +274,12 @@ export class HttpDataSource implements DataSource {
     return this.accessToken !== null;
   }
 
+  /** What was read and written while signed out goes to the user who just signed in (spec 005 §3.9, 007 §3.8). */
+  private async adoptGuest(): Promise<void> {
+    await this.adoptGuestProgress();
+    await this.adoptGuestNotes();
+  }
+
   /** Hands what was read while signed out to the user who just signed in (spec 005 §3.9); keeps it if that fails. */
   private async adoptGuestProgress(): Promise<void> {
     if (this.guest.isEmpty) return;
@@ -247,10 +292,21 @@ export class HttpDataSource implements DataSource {
     }
   }
 
+  /** The same for notes and bookmarks (spec 007 §3.8): kept for the next sign-in if it fails. */
+  private async adoptGuestNotes(): Promise<void> {
+    if (this.guestNotes.isEmpty) return;
+    try {
+      await this.send('POST', `${NOTES}/adopt`, this.guestNotes.get(), true);
+      this.guestNotes.clear();
+    } catch {
+      // Offline, over a limit, or a password change pending: the guest copy stays.
+    }
+  }
+
   private async refresh(): Promise<UserSummary | null> {
     try {
       const user = this.acceptSession(await this.send('POST', '/api/auth/refresh'));
-      await this.adoptGuestProgress();
+      await this.adoptGuest();
       return user;
     } catch (error) {
       if (error instanceof AppError && error.status === 401) {

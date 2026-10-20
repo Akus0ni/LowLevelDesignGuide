@@ -8,6 +8,7 @@ import { createDataSource } from './data/createDataSource';
 import { warmUpHighlighter } from './features/content/markdown/highlighter';
 import { DataSourceProvider } from './data/DataSourceContext';
 import { AuthProvider } from './features/auth/AuthProvider';
+import { NotesProvider } from './features/notes/NotesProvider';
 import { ProgressProvider } from './features/progress/ProgressProvider';
 import { ServerStatusProvider } from './features/serverStatus/ServerStatusProvider';
 import '@fontsource-variable/bricolage-grotesque/opsz.css';
@@ -24,7 +25,9 @@ createRoot(document.getElementById('root')!).render(
       <ServerStatusProvider>
         <AuthProvider>
           <ProgressProvider>
-            <RouterProvider router={router} />
+            <NotesProvider>
+              <RouterProvider router={router} />
+            </NotesProvider>
           </ProgressProvider>
         </AuthProvider>
       </ServerStatusProvider>

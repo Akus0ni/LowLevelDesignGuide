@@ -1,8 +1,14 @@
-import { Link, useParams } from 'react-router';
+import { useMemo, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { useDataSource } from '../../data/DataSourceContext';
-import type { LessonDetail, ModuleDetail } from '../../data/types';
+import type { LessonDetail, ModuleDetail, OutlineEntry } from '../../data/types';
 import { content, preloadContent, useLesson, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
+import { BookmarkToggle } from '../notes/BookmarkToggle';
+import { pencilIcon } from '../notes/noteIcons';
+import { NotesSheet } from '../notes/NotesSheet';
+import { SectionAnnotationsContext, type NotesFocus } from '../notes/sectionAnnotations';
+import { useLessonNotes, useSectionMarks } from '../notes/useNotes';
 import { DoneControl } from '../progress/DoneControl';
 import { useModuleCompleteToast } from '../progress/moduleCelebration';
 import { Icon } from '../../ui/Icon';
@@ -42,6 +48,8 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
   const source = useDataSource();
   const textSize = useTextSize();
   const reading = useReadingTracker(lesson.id, lesson.outline);
+  const notes = useLessonNotesSheet(lesson);
+  const marks = useSectionMarks(lesson.id);
   useModuleCompleteToast(module);
   useAnchorScroll();
 
@@ -56,20 +64,86 @@ function LessonView({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug
       <title>{`${lesson.title} · LLD Guide`}</title>
       <article className="min-w-0">
         <BackLink to={`/learn/${module.slug}`}>{module.title}</BackLink>
-        <LessonHeader lesson={lesson} module={module} position={position + 1} reading={reading} />
+        <LessonHeader
+          lesson={lesson}
+          module={module}
+          position={position + 1}
+          reading={reading}
+          marks={marks}
+          onOpenNotes={() => notes.openNotes()}
+        />
         <LookalikeContext value={{ module, lessonSlug: lesson.slug }}>
-          <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} textSize={textSize} />
+          <SectionAnnotationsContext value={notes.annotations}>
+            <MarkdownView markdown={lesson.bodyMarkdown} terms={lesson.terms} textSize={textSize} />
+          </SectionAnnotationsContext>
         </LookalikeContext>
+        <NotesSheet
+          lessonId={lesson.id}
+          lessonTitle={lesson.title}
+          sections={notes.sections}
+          currentAnchor={sectionOf(lesson.outline, reading.current)}
+          open={notes.open}
+          focus={notes.focus}
+          onOpenChange={notes.setOpen}
+        />
         <footer className="mt-16 border-t border-rule pt-8">
           <DoneControl lessonId={lesson.id} sectionCount={lesson.outline.length} />
           <NextUp lesson={lesson} />
         </footer>
       </article>
       <aside className="hidden lg:block">
-        <OutlineColumn outline={lesson.outline} current={reading.current} read={reading.read} />
+        <OutlineColumn outline={lesson.outline} current={reading.current} read={reading.read} marks={marks} />
       </aside>
     </div>
   );
+}
+
+/** The h2 a heading belongs to (the h2 itself, or the one above an h3): notes and bookmarks sit on h2 sections. */
+function sectionOf(outline: OutlineEntry[], anchor: string | null): string {
+  let section = '';
+  for (const entry of outline) {
+    if (entry.level === 2) section = entry.anchor;
+    if (entry.anchor === anchor) return section;
+  }
+  return '';
+}
+
+/**
+ * The lesson's notes sheet (spec 007 §3.2): opened from the header, a heading's chip or actions, or a deep link
+ * (`?note=<id>` from the Notes tab). Closing it drops the deep link, so a reload doesn't reopen it.
+ */
+function useLessonNotesSheet(lesson: LessonDetail) {
+  const [params, setParams] = useSearchParams();
+  const linkedNote = params.get('note');
+  const [state, setState] = useState<{ open: boolean; focus?: NotesFocus }>(() =>
+    linkedNote ? { open: true, focus: { noteId: linkedNote, anchor: params.get('at') ?? '' } } : { open: false },
+  );
+  const sections = useMemo(
+    () => lesson.outline.filter((entry) => entry.level === 2).map((entry) => ({ anchor: entry.anchor, title: entry.text })),
+    [lesson.outline],
+  );
+  const annotations = useMemo(
+    () => ({
+      lessonId: lesson.id,
+      sectionTitles: new Map(sections.map((section) => [section.anchor, section.title])),
+      openNotes: (focus?: NotesFocus) => setState({ open: true, focus }),
+    }),
+    [lesson.id, sections],
+  );
+  const setOpen = (open: boolean) => {
+    setState((current) => ({ ...current, open }));
+    if (!open && linkedNote) {
+      setParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.delete('note');
+          return next;
+        },
+        { replace: true },
+      );
+    }
+  };
+  return { ...state, sections, annotations, openNotes: annotations.openNotes, setOpen };
 }
 
 function LessonHeader({
@@ -77,12 +151,17 @@ function LessonHeader({
   module,
   position,
   reading,
+  marks,
+  onOpenNotes,
 }: {
   lesson: LessonDetail;
   module: ModuleDetail;
   position: number;
   reading: ReturnType<typeof useReadingTracker>;
+  marks: ReturnType<typeof useSectionMarks>;
+  onOpenNotes: () => void;
 }) {
+  const noteCount = useLessonNotes(lesson.id).length;
   return (
     <header className="mt-3 border-b border-rule pb-6">
       <p className="font-mono text-[12px] tracking-[0.08em] text-muted tabular-nums">
@@ -107,8 +186,22 @@ function LessonHeader({
           Cheat sheet
         </Link>
         <div className="lg:hidden">
-          <OutlineSheet outline={lesson.outline} current={reading.current} read={reading.read} />
+          <OutlineSheet outline={lesson.outline} current={reading.current} read={reading.read} marks={marks} />
         </div>
+        <button
+          type="button"
+          onClick={onOpenNotes}
+          className={cn(
+            'inline-flex h-10 items-center gap-2 rounded-full border border-rule bg-surface px-3.5 text-[14px] font-medium select-none',
+            'transition-transform duration-[120ms] ease-out active:scale-[0.97]',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+          )}
+        >
+          <Icon d={pencilIcon} size={16} />
+          Notes
+          {noteCount > 0 && <span className="font-mono text-[13px] text-muted tabular-nums">· {noteCount}</span>}
+        </button>
+        <BookmarkToggle kind="lesson" lessonId={lesson.id} />
         <TextSizeControl />
       </div>
     </header>

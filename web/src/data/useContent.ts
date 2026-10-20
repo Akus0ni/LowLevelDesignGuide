@@ -91,6 +91,15 @@ export function useLesson(id: string): LessonDetail {
   return useContent(key, fetch);
 }
 
+/** Several lessons at once (the Notes tab's section titles): all requested together, read in the order given. */
+export function useLessons(ids: readonly string[]): LessonDetail[] {
+  const source = useDataSource();
+  return ids.map((id) => {
+    const { key, fetch } = content.lesson(id);
+    return use(load(source, key, fetch));
+  });
+}
+
 export function useCheatSheets(moduleSlug?: string): CheatSheetSummary[] {
   const { key, fetch } = content.cheatSheets(moduleSlug);
   return useContent(key, fetch);

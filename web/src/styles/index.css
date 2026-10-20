@@ -79,6 +79,8 @@
   --category-2: #6a46c8;
   --category-3: #0b6e99;
   --category-4: #a3531a;
+  /* Spec 007: the learner's own marks (redlines). Only notes use it; AA on --surface. */
+  --tone-note: #c2361d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -98,6 +100,7 @@
     --category-2: #b6a1ff;
     --category-3: #6cc6f0;
     --category-4: #f0a46a;
+    --tone-note: #ff8a70;
   }
 }
 
@@ -2271,6 +2274,942 @@
     }
 
     .module-frame[data-fresh] {
+      animation: none;
+    }
+  }
+}
+
+/*
+ * Notes and bookmarks (spec 007 §3.10). The author's notes are UML notes; the learner's own are redlines, the marks
+ * a reviewer adds to a finished drawing: one red-pencil tone (--tone-note), a left rule, never the dog-ear. Everything
+ * around them stays quiet and reuses the sheet, card and press patterns above.
+ */
+@layer components {
+  /* A lesson's h2 with the learner's tools after the title; the tools never wrap under a short title. */
+  .reader-prose h2.section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .section-heading-text {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .section-tools {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.15rem;
+    margin-top: -0.35rem;
+    font-family: var(--font-sans, inherit);
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+
+  .section-actions-trigger {
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: var(--muted);
+    transition:
+      transform 120ms var(--ease-out),
+      opacity 150ms ease,
+      background-color 150ms ease;
+
+    &:active {
+      transform: scale(0.94);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 0;
+    }
+
+    &[data-popup-open] {
+      background: color-mix(in oklab, var(--fg) 7%, transparent);
+      color: var(--fg);
+    }
+  }
+
+  /* Desktop: faint until the heading is hovered or the button is focused, so the text stays the subject. */
+  @media (hover: hover) and (pointer: fine) {
+    .section-actions-trigger {
+      opacity: 0.45;
+    }
+
+    .section-heading:hover .section-actions-trigger,
+    .section-actions-trigger:focus-visible,
+    .section-actions-trigger[data-popup-open] {
+      opacity: 1;
+    }
+
+    .section-actions-trigger:hover {
+      background: color-mix(in oklab, var(--fg) 6%, transparent);
+    }
+  }
+
+  .section-actions {
+    display: flex;
+    min-width: 13rem;
+    flex-direction: column;
+    border: 1px solid var(--rule);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    padding: 0.3rem;
+    box-shadow: 0 8px 28px rgb(0 0 0 / 0.14);
+    transform-origin: var(--transform-origin);
+    transition:
+      opacity 150ms var(--ease-out),
+      transform 150ms var(--ease-out);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+
+    &[data-ending-style] {
+      transition-duration: 100ms;
+    }
+  }
+
+  .section-action {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 0.5rem;
+    padding: 0 0.75rem;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease;
+
+    & svg {
+      color: var(--muted);
+    }
+
+    &:active {
+      transform: scale(0.98);
+      background: color-mix(in oklab, var(--fg) 6%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    &[aria-pressed='true'] svg {
+      color: var(--fg);
+      fill: currentColor;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .section-action:hover {
+      background: color-mix(in oklab, var(--fg) 5%, transparent);
+    }
+  }
+
+  /* Redline marks: the note chip after a heading, the counts in the outline. */
+  .note-chip {
+    display: inline-flex;
+    height: 2.75rem;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    padding: 0 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tone-note);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.94);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 0;
+    }
+  }
+
+  .section-ribbon,
+  .bookmark-mark {
+    display: inline-flex;
+    color: var(--fg);
+
+    & svg {
+      fill: currentColor;
+    }
+  }
+
+  .section-ribbon {
+    padding: 0 0.3rem;
+  }
+
+  .note-marks {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.15rem;
+  }
+
+  .note-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--tone-note);
+  }
+
+  .bookmark-toggle[aria-pressed='true'] {
+    border-color: var(--fg);
+
+    & svg {
+      fill: currentColor;
+    }
+  }
+
+  /* The sheet: a bottom drawer on phones; on desktop a right-hand panel with the same motion, sideways. */
+  .notes-sheet {
+    display: flex;
+    max-height: 85dvh;
+    flex-direction: column;
+
+    /* Base UI focuses the popup itself on open; the controls inside carry the visible focus. */
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  .notes-panel {
+    height: 100dvh;
+    max-height: none;
+    width: min(26rem, 100vw);
+    max-width: none;
+    border-top: 0;
+    border-left: 1px solid var(--rule);
+    border-radius: 0;
+    box-shadow: -8px 0 32px rgb(0 0 0 / 0.12);
+    padding-top: env(safe-area-inset-top, 0px);
+    transform: translateX(var(--drawer-swipe-movement-x, 0px));
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateX(100%);
+    }
+  }
+
+  .notes-sheet-body {
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.75rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .note-new {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1rem;
+  }
+
+  .note-places {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 100%;
+    gap: 0.35rem;
+  }
+
+  .note-place {
+    min-width: 0;
+    min-height: 2.5rem;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0 0.85rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    transition:
+      transform 120ms var(--ease-out),
+      border-color 150ms ease,
+      color 150ms ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &[aria-checked='true'] {
+      border-color: var(--fg);
+      color: var(--fg);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .note-new-button {
+    display: inline-flex;
+    height: 2.75rem;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    background: var(--accent);
+    padding: 0 1.1rem;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--on-fill);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .note-empty {
+    padding: 1.25rem 0.25rem;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .note-group {
+    margin-top: 1.25rem;
+    scroll-margin-top: 0.5rem;
+  }
+
+  .note-group-title {
+    margin-bottom: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  /* «my note»: the redline card, used in the sheet, the Notes tab and Revise. */
+  .note-card {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.4rem;
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--tone-note);
+    border-radius: 0.25rem 0.6rem 0.6rem 0.25rem;
+    background: var(--surface);
+    padding: 0.7rem 0.9rem;
+    text-align: left;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      border-color 150ms ease;
+
+    &:active {
+      transform: scale(0.985);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .note-card:hover {
+      border-color: color-mix(in oklab, var(--fg) 25%, var(--rule));
+      border-left-color: var(--tone-note);
+    }
+  }
+
+  .note-card-text {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    font-size: 15px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .note-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .note-tag {
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--tone-note) 10%, transparent);
+    padding: 0.05rem 0.45rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    color: var(--tone-note);
+  }
+
+  .note-orphan {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .note-stereotype {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--tone-note);
+  }
+
+  /* The editor: plain text, 16px so phones never zoom into it, sized to stay above the keyboard. */
+  .note-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .note-editor-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .note-back {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: -0.5rem;
+    border-radius: 999px;
+    padding: 0 0.6rem 0 0.35rem;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  .note-switch {
+    display: inline-flex;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.2rem;
+
+    & button {
+      min-height: 2.25rem;
+      border-radius: 999px;
+      padding: 0 0.85rem;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: background-color 150ms ease;
+    }
+
+    & button[aria-pressed='true'] {
+      background: color-mix(in oklab, var(--fg) 8%, transparent);
+      color: var(--fg);
+    }
+
+    & button:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  .note-field {
+    min-height: 12rem;
+    max-height: 50dvh;
+    width: 100%;
+    resize: vertical;
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--tone-note);
+    border-radius: 0.25rem 0.6rem 0.6rem 0.25rem;
+    background: var(--bg);
+    padding: 0.75rem 0.9rem;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--fg);
+    scroll-margin-bottom: 1rem;
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+  }
+
+  .note-preview {
+    min-height: 12rem;
+    border-left: 2px solid var(--tone-note);
+    padding: 0.25rem 0 0.25rem 0.9rem;
+  }
+
+  .note-starters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .note-starter {
+    min-height: 2.5rem;
+    border: 1px dashed color-mix(in oklab, var(--tone-note) 55%, var(--rule));
+    border-radius: 999px;
+    padding: 0 0.85rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .note-editor-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .note-status {
+    font-size: 13px;
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity 150ms ease;
+
+    &:not(:empty) {
+      opacity: 1;
+    }
+  }
+
+  .note-delete {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0 0.75rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  /* A note's own Markdown: the reader's text style, smaller, with headings that never look like lesson compartments. */
+  .reader-prose.note-prose {
+    margin-top: 0;
+    --reading-size: 0.9875rem;
+
+    & h1,
+    & h2,
+    & h3,
+    & h4 {
+      margin-top: 1em;
+      border-top: 0;
+      padding-top: 0;
+      font-size: 1.05em;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section-actions {
+      &[data-starting-style],
+      &[data-ending-style] {
+        transform: none;
+      }
+    }
+
+    .notes-panel {
+      &[data-starting-style],
+      &[data-ending-style] {
+        transform: none;
+      }
+    }
+  }
+}
+
+/* Spec 007 §3.6: the learner's notes under a cheat sheet, folded like a recall block, in the redline style. */
+@layer components {
+  .your-notes {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+  }
+
+  .your-notes-trigger {
+    display: flex;
+    width: 100%;
+    min-height: 3rem;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.6rem;
+    text-align: left;
+    font-size: 17px;
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.99);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .your-notes-chevron {
+    color: var(--muted);
+    transition: transform 200ms var(--ease-out);
+  }
+
+  .your-notes-trigger[data-panel-open] .your-notes-chevron {
+    transform: rotate(180deg);
+  }
+
+  .your-note {
+    border-left: 2px solid var(--tone-note);
+    padding: 0.15rem 0 0.25rem 0.9rem;
+  }
+
+  .your-note-edit {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .your-notes-chevron {
+      transition: none;
+    }
+  }
+}
+
+/* The Notes tab (spec 007 §3.4): a two-way switch, quiet filters, and the same redline cards as the sheet. */
+@layer components {
+  .notes-tabs {
+    display: inline-flex;
+    margin-top: 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0.2rem;
+  }
+
+  .notes-tab {
+    min-height: 2.5rem;
+    border-radius: 999px;
+    padding: 0 1.1rem;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--muted);
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &[aria-selected='true'] {
+      background: color-mix(in oklab, var(--fg) 8%, transparent);
+      color: var(--fg);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  .notes-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .notes-filter-text {
+    min-width: 0;
+    height: 2.75rem;
+    flex: 1 1 14rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 1rem;
+    font-size: 16px;
+    color: var(--fg);
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+  }
+
+  .notes-export {
+    display: inline-flex;
+    height: 2.75rem;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 1rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      color: var(--muted);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .notes-tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  .notes-tag-chip {
+    max-width: 100%;
+    min-height: 2.25rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--tone-note) 35%, var(--rule));
+    border-radius: 999px;
+    padding: 0 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--tone-note);
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &[aria-pressed='true'] {
+      border-color: var(--tone-note);
+      background: color-mix(in oklab, var(--tone-note) 12%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .notes-empty {
+    margin-top: 1.5rem;
+    max-width: 36rem;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .notes-module {
+    margin-top: 2rem;
+  }
+
+  .notes-module-title {
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.4rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .notes-lesson {
+    margin-top: 1rem;
+  }
+
+  .notes-lesson-title {
+    margin-bottom: 0.5rem;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .note-card-place {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+  }
+
+  .bookmark-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .bookmark-link {
+    display: flex;
+    min-width: 0;
+    min-height: 3.25rem;
+    flex: 1;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--surface);
+    padding: 0.5rem 0.9rem;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      border-color 150ms ease;
+
+    &:active {
+      transform: scale(0.985);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .bookmark-link:hover {
+      border-color: color-mix(in oklab, var(--fg) 25%, var(--rule));
+    }
+  }
+
+  .bookmark-kind {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--fg);
+
+    & svg {
+      fill: currentColor;
+    }
+  }
+
+  .bookmark-remove {
+    min-height: 2.75rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    padding: 0 0.75rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+}
+
+/* Undo inside the notes sheet: the sheet is modal, so a toast behind it couldn't be reached (spec 007 §3.4). */
+@layer components {
+  .note-undo {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    border-radius: 0.6rem;
+    background: color-mix(in oklab, var(--fg) 7%, transparent);
+    padding: 0 0.4rem 0 0.9rem;
+    font-size: 15px;
+    animation: appear 150ms var(--ease-out) both;
+
+    & button {
+      min-height: 2.5rem;
+      border-radius: 999px;
+      padding: 0 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      transition: transform 120ms var(--ease-out);
+    }
+
+    & button:active {
+      transform: scale(0.97);
+    }
+
+    & button:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .note-undo {
       animation: none;
     }
   }

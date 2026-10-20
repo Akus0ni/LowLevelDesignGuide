@@ -22,7 +22,7 @@ public sealed class SchemaMigratorTests : IDisposable
         (await SchemaMigrator.ReadVersionAsync(connection, Ct)).Should().Be(SchemaMigrator.All.Count);
         (await Scalar(connection, "PRAGMA journal_mode;")).Should().Be("wal");
         (await Scalar(connection, "SELECT group_concat(name, ',') FROM (SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name);"))
-            .Should().Be("ActivityDays,DeviceMeta,LessonProgress,Lessons,Modules");
+            .Should().Be("ActivityDays,Bookmarks,DeviceMeta,LessonProgress,Lessons,Modules,Notes");
     }
 
     [Fact]
@@ -95,11 +95,30 @@ public sealed class SchemaMigratorTests : IDisposable
             await insert.ExecuteNonQueryAsync(Ct);
         }
 
-        (await _device.MigrateAsync(Ct)).Should().Be(1);
+        (await _device.MigrateAsync(Ct)).Should().Be(SchemaMigrator.All.Count - 4);
 
         await using var check = await _device.Database.OpenAsync(Ct);
         (await Scalar(check, "SELECT coalesce(PickerJson, 'none') || ' ' || LookalikesJson FROM Modules WHERE Slug = 'm';")).Should().Be("none []");
         (await Scalar(check, "SELECT count(*) FROM LessonProgress;")).Should().Be("1");
+    }
+
+    [Fact]
+    public async Task V6_AddsEmptyNotesAndBookmarks_AndKeepsProgress()
+    {
+        await new SchemaMigrator(_device.Database,
+            [new V1ContentTables(), new V2LessonTerms(), new V3ModuleMap(), new V4Progress(), new V5PatternAids()]).MigrateAsync(Ct);
+        await using (var connection = await _device.Database.OpenAsync(Ct))
+        {
+            await using var insert = connection.CreateCommand();
+            insert.CommandText = "INSERT INTO LessonProgress (Owner, LessonId, Status, UpdatedAt, DeviceId) VALUES ('guest', 'srp', 2, '2026-10-20T00:00:00Z', 'd');";
+            await insert.ExecuteNonQueryAsync(Ct);
+        }
+
+        (await _device.MigrateAsync(Ct)).Should().Be(1);
+
+        await using var check = await _device.Database.OpenAsync(Ct);
+        (await Scalar(check, "SELECT (SELECT count(*) FROM Notes) || ' ' || (SELECT count(*) FROM Bookmarks);")).Should().Be("0 0");
+        (await Scalar(check, "SELECT Status FROM LessonProgress WHERE LessonId = 'srp';")).Should().Be("2");
     }
 
     [Fact]

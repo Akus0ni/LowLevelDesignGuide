@@ -8,7 +8,7 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.8 (spec 006 decisions R93–R100) |
+| PRD | v0.9 (spec 007 decisions R102–R108) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
@@ -18,6 +18,7 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
 | Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
+| Spec 007 Notes & bookmarks | 🔍 PR #12 open for owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -29,8 +30,8 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
 | 004 | OOP & SOLID content | ✅ merged (PR #6) |
 | 005 | Progress | ✅ merged (PR #7) |
-| 006 | GoF + Enterprise patterns content | 🔍 PR #8, owner review |
-| 007 | Notes & bookmarks | planned |
+| 006 | GoF + Enterprise patterns content | ✅ merged (PR #8) |
+| 007 | Notes & bookmarks | 🔍 PR #12, owner review |
 | 008 | UML content | planned |
 | 009 | Search | planned |
 | 010 | Offline sync | planned |
@@ -145,12 +146,27 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Owner decisions after review: fix dark-mode white text on the light accent (app-wide, `fix/` PR); a section needs time
   on screen before it ticks, so a fling to the end no longer marks a lesson done (`fix/` PR).
 
+## Spec 007: what was delivered
+- Notes on a whole lesson or a section (marks beside headings and in the outline, a sheet with autosave, Edit /
+  Preview, starters, Undo inside the sheet), bookmarks on lessons / sections / cheat sheets, the Notes tab (tag + text
+  filters, export), "Your notes" under cheat sheets in Revise; `#tags` from the text with a shared C# / TS vector.
+- Storage like progress: `Lld.Domain/Notes` (rules, limits, `INotesStore` + one contract suite), device schema step 6,
+  API `Note` / `Bookmark` tables (`AddNotes`) and `/api/notes`, `/api/bookmarks`, `/api/notes/adopt` (browser only).
+- App: `NotesService`, `NotesExport` (share sheet), guest notes adopted after sign-in; Android keyboard now resizes the
+  page (`WindowSoftInputModeAdjust.Resize`).
+- Shared `WriteBehind` (flush timing) now used by both the progress and notes stores; `DeviceSql` helpers on the device.
+- Manual run: Windows (owner DB, schema 5 to 6, restart, export file) and Android (airplane mode, restart, keyboard,
+  share sheet). Details and findings: `specs/007-notes-bookmarks/plan.md` section 5.
+
 ## How to resume (next session)
-1. PR #8 (spec 006) is open: apply review changes on `spec/006-gof-patterns`, push, update the PR.
-2. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files
+1. Spec 007 PR #12 is open: apply review changes on `spec/007-notes-bookmarks`, push, update the PR. Check
+   `gh pr view` first: pushing to a merged spec branch re-creates it.
+2. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
+   net10.0-windows10.0.19041.0`), then start `bin/.../Lld.App.exe` with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.
+3. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files
    (`adb exec-out run-as com.akus0ni.lldguide cat files/<name>`); without the WAL the old schema shows.
-3. Shell notes: write files that contain backslash escapes with the Write / Edit tools, not Python heredocs. Screenshot
+4. Shell notes: write files that contain backslash escapes with the Write / Edit tools, not Python heredocs. Screenshot
    scripts need `MSYS_NO_PATHCONV=1` and hash routes (`/#/learn/...`).
-4. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
+5. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`. Run one heavy process at a time.
-5. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.
+6. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

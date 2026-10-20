@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | v0.8 |
+| **Status** | v0.9 |
 | **Owner** | Akus0ni |
 | **Last updated** | 2026-10-20 |
 | **Platforms** | Android · iOS · Windows · macOS |
@@ -116,7 +116,9 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
   or by hand; counts per module and overall shown as `7/15`; Continue card on Learn; "revised" per cheat sheet; reset.
 
 ### F5. Personal notes and bookmarks
-- Free-text notes per lesson (Markdown); bookmark lessons; a notes/bookmarks list view.
+- Built in spec 007 (sync between devices in spec 010): Markdown notes on a whole lesson or on one section, with
+  starters and `#tags`; bookmarks on lessons, sections and cheat sheets; the Notes tab (Notes / Bookmarks, tag and text
+  filters, export as one Markdown file); a lesson's notes folded under its cheat sheet in Revise.
 - **Acceptance:** notes are created offline and appear on another device after sync.
 
 ### F6. Search
@@ -190,8 +192,8 @@ See `docs/plan.md` for diagrams, solution layout and the spec roadmap.
 | `Lesson` | Id, ModuleId, Slug, Title, Order, BodyMd, CheatSheetMd, Tags, ContentHash | Device (bundled); API read-only for dev |
 | `LessonProgress` | Owner (user or device guest), LessonId, Status, DoneBy, CompletedAt, ReadSections, Position, LastReadAt, LastRevisedAt, UpdatedAt, DeviceId | API + device |
 | `ActivityDay` | Owner, Day (local date) | API + device |
-| `Note` | Id, UserId, LessonId, BodyMd, UpdatedAt, DeletedAt, DeviceId | API + device |
-| `Bookmark` | UserId, LessonId, CreatedAt, DeletedAt | API + device |
+| `Note` | Id (GUID), Owner (user or device guest), LessonId, Anchor (section heading id, or empty for the whole lesson), Body (Markdown, tags inside), CreatedAt, UpdatedAt, DeletedAt, DeviceId | API + device |
+| `Bookmark` | Owner, Kind (lesson / section / cheat sheet), LessonId, Anchor (sections only), CreatedAt, UpdatedAt, DeletedAt, DeviceId | API + device |
 | `LessonSearch` (FTS5) | Title, Body, CheatSheet, user notes | Device (API copy for browser dev only) |
 
 ## 11. Non-functional requirements
@@ -239,7 +241,7 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R15 | Content: OOP & SOLID, GoF patterns, UML, LLD case studies | F2, §7 | 004, 006, 008, 011+ |
 | R16 | Owner's own work in case studies; ask before designing each one; a spec skill for case studies | §7 | 011+ |
 | R17 | Progress tracking | F4 | 005 |
-| R18 | Personal notes (and bookmarks) | F5 | 007 |
+| R18 | Personal notes and bookmarks (details R102–R108) | F5 | 007 |
 | R19 | Search | F6 | 009 |
 | R20 | Cheat sheet for every concept, for pre-interview revision | F3 | 003 |
 | R21 | No quizzes | §3 | — |
@@ -323,6 +325,13 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R99 | Mnemonics may be phrases ("Smart Builders Always Follow Plans"): one tile per word; C# and the web split words from one shared test vector | F3 | 006 |
 | R100 | Pattern samples compile in `samples/Lld.Samples.Patterns` (Before / After / Modern per pattern) and are tested in `Lld.Samples.Tests`; "In this app" only where the app really uses the pattern | §7 | 006 |
 | R101 | A section counts as read once its end has passed the middle of the screen (or the page is at its end) **and** it has been on screen for 2.5 s in all; a fling to the end reads nothing, so it cannot mark a lesson done (owner decision on the spec 005 open question) | F4 | 005 fix |
+| R102 | Notes: several Markdown notes per lesson, on the whole lesson or on one section (an `h2`); autosave (800 ms), Edit / Preview, no toolbar; an emptied note is deleted; notes on a removed section or lesson are kept and labelled | F5 | 007 |
+| R103 | Bookmarks on lessons, sections and cheat sheets; one per (kind, lesson, section); removal and note deletion are soft (`DeletedAt`) with Undo | F5 | 007 |
+| R104 | The Notes tab: Notes / Bookmarks; notes grouped by module (course order) then lesson (latest edit first), with tag (AND) and text filters; removed lessons last | F5 | 007 |
+| R105 | Tags are written in the note text (`#weak`): a letter then up to 29 letters, digits or hyphens, not in code, headings or URLs; parsed the same way in C# and TypeScript from one shared test vector; never stored | F5 | 007 |
+| R106 | Note starters that nudge interview-ready notes: "My example from work", "Interview answer (STAR)", "Gotcha I hit" (each with its tag) | F5 | 007 |
+| R107 | A lesson's notes appear folded under its cheat sheet in Revise ("Your notes (n)"); not part of recall and not counted as revised | F3, F5 | 007 |
+| R108 | Export all notes as one Markdown file (`lld-notes-YYYY-MM-DD.md`): a download in the browser, the system share sheet in the app; no network | F5 | 007 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.
