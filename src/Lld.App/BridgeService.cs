@@ -1,6 +1,7 @@
 using Lld.App.Auth;
 using Lld.App.Content;
 using Lld.App.Hosting;
+using Lld.App.Notes;
 using Lld.App.Progress;
 using Lld.Contracts;
 using IMauiAppInfo = Microsoft.Maui.ApplicationModel.IAppInfo;
@@ -33,6 +34,8 @@ public sealed class BridgeService(
     ServerStatusMonitor status,
     ContentService content,
     ProgressService progress,
+    NotesService notes,
+    NotesExport export,
     IBrowser browser)
 {
     private const string ApplicationName = "LLD Guide";
@@ -49,13 +52,13 @@ public sealed class BridgeService(
     /// <summary>The current status; later changes arrive as <c>serverStatus</c> raw messages.</summary>
     public ServerStatusView GetServerStatus() => ServerStatusView.From(status.Tracker.Current);
 
-    /// <summary>Signs in, then gives what the guest read on this device to the user (spec 005 §3.9).</summary>
+    /// <summary>Signs in, then gives what the guest read and wrote on this device to the user (spec 005 §3.9, spec 007 §3.8).</summary>
     public async Task<BridgeResult<UserSummary>> Login(string email, string password)
     {
         var result = await session.LoginAsync(email, password, CancellationToken.None);
         if (result.Value is { } user)
         {
-            await progress.AdoptGuestAsync(user.Id);
+            await AdoptGuestAsync(user.Id);
         }
 
         return BridgeResult.From(result);
@@ -66,7 +69,7 @@ public sealed class BridgeService(
         var result = await session.RestoreAsync(CancellationToken.None);
         if (result.Value is { } user)
         {
-            await progress.AdoptGuestAsync(user.Id);
+            await AdoptGuestAsync(user.Id);
         }
 
         return BridgeResult.From(result);
@@ -104,6 +107,19 @@ public sealed class BridgeService(
     /// <param name="day">The learner's local date, <c>yyyy-MM-dd</c>.</param>
     public Task<BridgeResult<bool>> RecordActivity(string day) => progress.RecordActivityAsync(day);
 
+    // Notes and bookmarks (spec 007): on the device for the same owner as progress, so these work offline too.
+
+    public Task<BridgeResult<NotesSnapshotDto>> GetNotes() => notes.GetAsync();
+
+    /// <param name="recordsJson">JSON array of notes (edits, deletes, undos); the device id and owner are filled in here.</param>
+    public Task<BridgeResult<bool>> SaveNotes(string recordsJson) => notes.SaveNotesAsync(recordsJson);
+
+    /// <param name="recordsJson">JSON array of bookmarks (added or removed).</param>
+    public Task<BridgeResult<bool>> SaveBookmarks(string recordsJson) => notes.SaveBookmarksAsync(recordsJson);
+
+    /// <summary>Opens the share sheet with the exported notes file (spec 007 §3.7).</summary>
+    public Task<BridgeResult<bool>> ShareNotes(string fileName, string markdown) => export.ShareAsync(fileName, markdown);
+
     /// <summary>
     /// Opens a web link (e.g. source code on GitHub) in the system browser, so the WebView never leaves the app.
     /// Only http and https: a lesson can't make the app open other schemes.
@@ -117,5 +133,12 @@ public sealed class BridgeService(
 
         var opened = await MainThread.InvokeOnMainThreadAsync(() => browser.OpenAsync(uri, BrowserLaunchMode.SystemPreferred));
         return BridgeResult.Success(opened);
+    }
+
+    /// <summary>Progress first, then notes; each logs its own failure and never fails the sign-in.</summary>
+    private async Task AdoptGuestAsync(string userId)
+    {
+        await progress.AdoptGuestAsync(userId);
+        await notes.AdoptGuestAsync(userId);
     }
 }

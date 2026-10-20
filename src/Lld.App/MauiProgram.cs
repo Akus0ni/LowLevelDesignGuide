@@ -3,9 +3,11 @@ using Lld.App.Auth;
 using Lld.App.Content;
 using Lld.App.Data;
 using Lld.App.Data.Content;
+using Lld.App.Data.Notes;
 using Lld.App.Data.Progress;
 using Lld.App.Data.Schema;
 using Lld.App.Hosting;
+using Lld.App.Notes;
 using Lld.App.Progress;
 using Lld.Content;
 using Lld.ServerStatus;
@@ -76,6 +78,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<IProgressOwnerSource, SessionProgressOwner>();
         builder.Services.AddSingleton<DeviceProgress>();
         builder.Services.AddSingleton<ProgressService>();
+
+        // Notes and bookmarks (spec 007): same database and owner as progress; the export uses the share sheet.
+        builder.Services.AddSingleton<SqliteNotesStore>();
+        builder.Services.AddSingleton<DeviceNotes>();
+        builder.Services.AddSingleton<NotesService>();
+        builder.Services.AddSingleton(Share.Default);
+        builder.Services.AddSingleton<NotesExport>();
         builder.Services.AddSingleton<BridgeService>();
         builder.Services.AddTransient<MainPage>();
 
