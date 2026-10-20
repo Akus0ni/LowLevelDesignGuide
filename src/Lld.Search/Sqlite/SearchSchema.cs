@@ -69,10 +69,13 @@ public static class SearchSchema
     /// Keeps a note's unit in step with the <c>Notes</c> table (spec 007's shape; only Owner, Id, LessonId, Anchor, Body
     /// and DeletedAt are read). The lesson and section names come from the lesson's content units, so a note on a removed
     /// section is indexed under "Whole lesson" and a note on a removed lesson has no module (spec §3.1).
+    /// The insert trigger first removes the note's old unit: <c>INSERT OR REPLACE</c> (the device's upsert) deletes the old
+    /// row without firing delete triggers, unless recursive triggers are on.
     /// </summary>
     public static string NoteTriggersSql { get; } = $"""
-        CREATE TRIGGER Notes_Search_Insert AFTER INSERT ON Notes WHEN new.DeletedAt IS NULL BEGIN
-            {NoteUnitInsert("new", OneRow)};
+        CREATE TRIGGER Notes_Search_Insert AFTER INSERT ON Notes BEGIN
+            DELETE FROM SearchUnits WHERE Owner = new.Owner AND NoteId = new.Id;
+            {NoteUnitInsert("new", OneRow)} AND new.DeletedAt IS NULL;
         END;
         CREATE TRIGGER Notes_Search_Update AFTER UPDATE ON Notes BEGIN
             DELETE FROM SearchUnits WHERE Owner = old.Owner AND NoteId = old.Id;

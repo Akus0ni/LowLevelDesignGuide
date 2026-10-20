@@ -1,4 +1,5 @@
 using Lld.Content;
+using Lld.Search.Sqlite;
 using Microsoft.Data.Sqlite;
 
 namespace Lld.App.Data.Content;
@@ -87,6 +88,9 @@ public sealed class ContentPackLoader(DeviceDatabase database)
                 await insertLesson.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
             }
         }
+
+        // Search units and the vocabulary change with the content, in the same transaction (spec 009 §3.8).
+        await SearchContentWriter.ReplaceContentAsync(connection, transaction, pack, cancellationToken).ConfigureAwait(false);
 
         await using (var version = Command(connection, transaction,
             "INSERT INTO DeviceMeta (Key, Value) VALUES ($key, $value) ON CONFLICT (Key) DO UPDATE SET Value = excluded.Value;"))

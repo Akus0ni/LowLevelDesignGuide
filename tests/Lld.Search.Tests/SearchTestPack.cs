@@ -11,7 +11,7 @@ public static class SearchTestPack
     public const string Observer = "observer-id";
     public const string Srp = "srp-id";
 
-    public static ContentPack Create(string decoratorTitle = "Decorator") => new(ContentPack.CurrentFormat, "v-search", [
+    public static ContentPack Create(string decoratorTitle = "Decorator") => new(ContentPack.CurrentFormat, $"v-search-{decoratorTitle}", [
         new PackedModule(Solid, "OOP and SOLID", "", 1, [
             Lesson(Srp, "srp", "Single Responsibility", 1, hook: "One reason to change",
                 [
