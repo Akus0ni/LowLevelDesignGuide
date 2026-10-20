@@ -31,6 +31,8 @@ import {
   InterviewQuestionList,
 } from '../reader/InterviewQuestions';
 import { MermaidDiagram } from './MermaidDiagram';
+import { SectionHeading } from '../../notes/SectionHeading';
+import { SectionAnnotationsContext } from '../../notes/sectionAnnotations';
 
 /**
  * Renders lesson and cheat sheet Markdown. Raw HTML is never rendered. Heading ids come from rehype-slug
@@ -68,6 +70,23 @@ export function MarkdownView({
 
 const NO_TERMS: LessonTerm[] = [];
 
+/**
+ * A learner's own note (spec 007 §3.2 Preview, §3.6): GitHub Markdown and highlighted code only. No term callouts,
+ * diagrams, look-alikes or section actions, so a note never looks like the lesson. Headings carry no ids, so they
+ * can't clash with the lesson's anchors.
+ */
+export function NoteMarkdown({ markdown }: { markdown: string }) {
+  return (
+    <SectionAnnotationsContext value={null}>
+      <div className="reader-prose note-prose">
+        <Markdown remarkPlugins={[remarkGfm]} components={noteComponents} skipHtml>
+          {markdown}
+        </Markdown>
+      </div>
+    </SectionAnnotationsContext>
+  );
+}
+
 /** Removes a first-child h1 (the title repeated in the body). Runs after rehype-slug, so its id still counts. */
 function rehypeDropLeadingTitle() {
   return (tree: Root) => {
@@ -83,6 +102,7 @@ const CHEAT_SHEET_PLUGINS = [...COMMON_PLUGINS, rehypeRecallSections];
 
 const components: Components = {
   a: ContentLink,
+  h2: ({ node, ...props }) => <SectionHeading {...props} />,
   section: ({ node, children, ...props }) => {
     const recallId = node?.properties.dataRecall;
     if (typeof recallId === 'string') {
@@ -139,6 +159,15 @@ const components: Components = {
         markKind={markKindOf(sideOf(fence.meta))}
       />
     );
+  },
+};
+
+const noteComponents: Components = {
+  a: ContentLink,
+  table: components.table,
+  pre: ({ node }) => {
+    const fence = fenceOf(node);
+    return fence ? <CodeBlock code={fence.code} info={fence.language} /> : null;
   },
 };
 

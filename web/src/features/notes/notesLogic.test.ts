@@ -56,8 +56,8 @@ describe('starters', () => {
   it('fill in the outline and tag, with the cursor after the first prompt', () => {
     const { body, cursor } = applyStarter(STARTERS[1]);
 
-    expect(body).toBe('#interview\n\n**Situation:** \n**Task:** \n**Action:** \n**Result:** \n');
-    expect(body.slice(0, cursor)).toBe('#interview\n\n**Situation:** ');
+    expect(body).toBe('#interview\n\n- **Situation:** \n- **Task:** \n- **Action:** \n- **Result:** \n');
+    expect(body.slice(0, cursor)).toBe('#interview\n\n- **Situation:** ');
     expect(STARTERS.map((s) => s.tag)).toEqual(['work', 'interview', 'gotcha']);
   });
 });

@@ -17,7 +17,7 @@ export const STARTERS: readonly Starter[] = [
 
 /** The starter's text, and where the cursor goes: just after the first prompt. */
 export function applyStarter(starter: Starter): { body: string; cursor: number } {
-  const lines = starter.prompts.map((prompt) => `**${prompt}:**${BLANK}`);
+  const lines = starter.prompts.map((prompt) => `- **${prompt}:**${BLANK}`);
   const body = `#${starter.tag}\n\n${lines.join('\n')}\n`;
   return { body, cursor: body.indexOf(lines[0]) + lines[0].length };
 }

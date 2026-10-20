@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useCheatSheet, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
+import { BookmarkToggle } from '../notes/BookmarkToggle';
+import { YourNotes } from '../notes/YourNotes';
 import { useRevisedTracker } from '../progress/useRevisedTracker';
 import { BackLink } from './BackLink';
 import { LessonIcon } from './LessonIcon';
@@ -76,6 +78,7 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
               Reveal all
             </button>
           )}
+          <BookmarkToggle kind="cheatSheet" lessonId={lessonId} />
           <TextSizeControl />
         </div>
       </header>
@@ -89,6 +92,8 @@ function CheatSheetView({ moduleSlug, lessonSlug }: { moduleSlug: string; lesson
         <MarkdownView markdown={sheet.bodyMarkdown} textSize={textSize} recall />
       </RecallContext>
       <div ref={endRef} aria-hidden="true" className="h-px" />
+      {/* After the end mark on purpose: the learner's notes never count towards "revised" (spec 007 §3.6). */}
+      <YourNotes lessonId={lessonId} lessonPath={`/learn/${sheet.moduleSlug}/${sheet.lessonSlug}`} />
     </article>
   );
 }

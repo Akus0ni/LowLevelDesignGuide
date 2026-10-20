@@ -4,6 +4,8 @@ import { Link } from 'react-router';
 import type { OutlineEntry } from '../../data/types';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
+import { NoteMarks } from '../notes/NoteMarks';
+import type { SectionMarks } from '../notes/useNotes';
 
 const listIcon = ['M8 6h12', 'M8 12h12', 'M8 18h12', 'M4 6h.01', 'M4 12h.01', 'M4 18h.01'];
 
@@ -13,6 +15,8 @@ interface ReadingState {
   current?: string | null;
   /** Sections already read on this device. */
   read?: Set<string>;
+  /** The learner's notes and bookmarks per section (spec 007 §3.2). */
+  marks?: SectionMarks;
 }
 
 const checkIcon = ['m5 12 5 5L20 7'];
@@ -22,6 +26,7 @@ function OutlineList({
   onNavigate,
   current,
   read,
+  marks,
 }: { outline: OutlineEntry[]; onNavigate?: () => void } & ReadingState) {
   return (
     <ol className="flex flex-col">
@@ -42,6 +47,9 @@ function OutlineList({
             )}
           >
             <span className="min-w-0 flex-1 wrap-anywhere">{entry.text}</span>
+            {marks && (
+              <NoteMarks notes={marks.notes.get(entry.anchor) ?? 0} bookmarked={marks.bookmarked.has(entry.anchor)} />
+            )}
             {read?.has(entry.anchor) && (
               <span className="mt-0.5 shrink-0 text-accent" aria-label="read" role="img">
                 <Icon d={checkIcon} size={14} />

@@ -7,10 +7,10 @@
 - [x] T5 App: `NotesService`, `ExportService` (share sheet), bridge methods, adoption after sign-in
 - [x] T6 Web data: `DataSource` notes methods, `BridgeDataSource`, `HttpDataSource` (API / guest localStorage / adopt / batch split / download), fakes; tests
 - [x] T7 Web logic: `tags.ts` (vector), `noteRecords.ts`, `starters.ts`, `notesQuery.ts`, `exportNotes.ts`, `writeBehind.ts` (moved out of `ProgressStore`), `notesStore.ts`, `NotesProvider`, hooks; tests
-- [ ] T8 Reader: `SectionAnnotations` context, `h2` with `NoteMarks` + `SectionActions`, outline marks, lesson header (Notes · n, bookmark), `?note=` deep link
-- [ ] T9 Notes sheet + editor: `NotesSheet`, `NoteEditor` (autosave, Edit / Preview, starters, delete + undo), `NotePreview` ("note" mode)
-- [ ] T10 Revise: cheat sheet bookmark toggle, `YourNotes`
-- [ ] T11 Notes tab: Notes / Bookmarks switch, grouped lists, tag + text filters, removed lessons, empty states, export
+- [x] T8 Reader: `SectionAnnotations` context, `h2` with `NoteMarks` + `SectionActions`, outline marks, lesson header (Notes · n, bookmark), `?note=` deep link
+- [x] T9 Notes sheet + editor: `NotesSheet`, `NoteEditor` (autosave, Edit / Preview, starters, delete + undo), `NotePreview` ("note" mode)
+- [x] T10 Revise: cheat sheet bookmark toggle, `YourNotes`
+- [x] T11 Notes tab: Notes / Bookmarks switch, grouped lists, tag + text filters, removed lessons, empty states, export
 - [ ] T12 Visual: `--tone-note` (candidates → pick), «my note» card, marks, motion, reduced motion
 - [ ] T13 UI pass with the skills: screenshot critique (phone light / dark, desktop) + `break-ui` worst case; fixes
 - [ ] T14 Playwright: notes flows (A1, A3, A4, A5, A8, A9, A10, A15) on phone + desktop
