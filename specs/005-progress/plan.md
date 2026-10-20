@@ -240,6 +240,9 @@ Screenshots: `screenshots/windows-*.png`, `screenshots/android-*.png`, plus the 
 Scrolling straight to the end of a lesson ticks every section (spec 003 rule), so a fast fling to the bottom marks the
 lesson done by itself. Keep, or require time on each section?
 
+**Decided (owner, after spec 006):** require time. A section also needs 2.5 s on screen in all before it ticks (PRD
+R101, `fix/section-dwell-time`).
+
 ### Final numbers
 .NET: domain 54 · application 38 · API 41 · admin 11 · server status 30 · content 252 · progress stores 40 · lesson
 samples 63 · Aspire integration 4. Web: Vitest 205 · Playwright 69 (phone + desktop). 0 build warnings; lint and

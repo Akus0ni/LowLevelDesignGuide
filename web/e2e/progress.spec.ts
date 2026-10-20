@@ -12,8 +12,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 /**
- * Clicks without scrolling. The Done control sits at the end of the lesson, and scrolling to the very end reads every
- * section, which marks the lesson done by itself (spec 005 §3.2) and swaps the button mid-click.
+ * Clicks without scrolling. The Done control sits at the end of the lesson, and scrolling there ticks the sections on
+ * screen after a moment (R101), which can swap the button mid-click.
  */
 async function press(page: Page, name: string) {
   await page.getByRole('button', { name }).evaluate((button: HTMLElement) => button.click());
@@ -43,6 +43,17 @@ test('A1: opening starts a lesson; marking done and back updates every view, and
   await press(page, 'Mark as not done');
   await page.goto('/#/learn/oop-solid');
   await expect((await lessonRow(page, first)).getByRole('img', { name: 'In progress' })).toBeVisible();
+});
+
+test('R101: a fling to the end reads nothing; staying ticks only what is on screen', async ({ page }) => {
+  await page.goto(`/#/learn/oop-solid/${first}`);
+  await page.getByRole('heading', { level: 1 }).waitFor();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(1000);
+  await expect(page.getByText(/^0 of \d+ sections read$/)).toBeVisible();
+
+  await expect(page.getByText(/^[1-9]\d* of \d+ sections read$/)).toBeVisible({ timeout: 5000 });
+  await expect(page.getByRole('button', { name: 'Mark as done' })).toBeVisible();
 });
 
 test('A3: Continue opens the lesson in progress where it was left', async ({ page }) => {
