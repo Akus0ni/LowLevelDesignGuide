@@ -81,6 +81,8 @@
   --category-4: #a3531a;
   /* Spec 007: the learner's own marks (redlines). Only notes use it; AA on --surface. */
   --tone-note: #c2361d;
+  /* Spec 009: search matches, a highlighter swipe under ink text. Only search marks use it. */
+  --tone-match: #fff09a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -101,6 +103,7 @@
     --category-3: #6cc6f0;
     --category-4: #f0a46a;
     --tone-note: #ff8a70;
+    --tone-match: #5b5214;
   }
 }
 
@@ -3479,6 +3482,419 @@
   @media (prefers-reduced-motion: reduce) {
     .note-undo {
       animation: none;
+    }
+  }
+}
+
+/*
+ * Search (spec 009 §3.9): results read like the sheet index of a drawing set. Each hit has its reference
+ * (lesson › section) in the mono label style, and matched words are highlighter marks (--tone-match) under ink text.
+ */
+@layer components {
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 1.25rem;
+  }
+
+  .search-box-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .search-box-input {
+    width: 100%;
+    height: 3.25rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 5rem 0 2.9rem;
+    font-size: 17px;
+    color: var(--fg);
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--rule) 60%, transparent);
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    /* The browser's own clear button duplicates ours. */
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+  }
+
+  .search-box-clear {
+    position: absolute;
+    right: 0.4rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    padding: 0 0.9rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  .search-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+  }
+
+  .search-kinds {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .search-kind {
+    display: inline-flex;
+    min-height: 2.25rem;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 0.8rem;
+    font-size: 14px;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease,
+      border-color 150ms ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &[aria-pressed='true'] {
+      border-color: var(--accent);
+      background: color-mix(in oklab, var(--accent) 10%, var(--surface));
+      color: var(--accent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .search-kind-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+
+    [aria-pressed='true'] > & {
+      color: inherit;
+    }
+  }
+
+  .search-module {
+    min-height: 2.25rem;
+    max-width: 100%;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 0.8rem;
+    font-size: 16px;
+    color: var(--fg);
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .search-status {
+    margin-top: 1.25rem;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .search-also {
+    font-style: italic;
+  }
+
+  .search-clear-filters {
+    min-height: 2.75rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .search-empty {
+    margin-top: 1.5rem;
+    color: var(--muted);
+  }
+
+  /* A hit is one entry of the sheet index: glyph, reference, then the matched lines. */
+  .search-hit {
+    display: flex;
+    gap: 0.75rem;
+    border-radius: 0.6rem;
+    padding: 0.7rem 0.75rem;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease;
+
+    &:hover {
+      background: color-mix(in oklab, var(--surface) 70%, transparent);
+    }
+
+    &:active {
+      transform: scale(0.985);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+  }
+
+  .search-hit-kind {
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    flex: none;
+    place-items: center;
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+    background: var(--surface);
+    color: var(--muted);
+
+    [data-kind='note'] > & {
+      border-color: color-mix(in oklab, var(--tone-note) 40%, var(--rule));
+      color: var(--tone-note);
+    }
+  }
+
+  .search-hit-ref {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+    color: var(--muted);
+  }
+
+  .search-hit-stereotype {
+    color: var(--fg);
+
+    [data-kind='note'] & {
+      color: var(--tone-note);
+    }
+  }
+
+  .search-snippet {
+    display: -webkit-box;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  /* The highlighter: a swipe that sits a little below the cap height, like a real marker stroke. */
+  mark[data-search] {
+    border-radius: 0.2em;
+    background: linear-gradient(to bottom, transparent 18%, var(--tone-match) 18%, var(--tone-match) 92%, transparent 92%);
+    padding: 0 0.08em;
+    color: var(--fg);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .search-hit-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.35rem;
+    font-size: 12px;
+  }
+
+  /* The Best match: the title block of the drawing, drawn like a class box. */
+  .search-best {
+    margin-top: 0.75rem;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 0.9rem 1rem;
+
+    &:hover {
+      border-color: color-mix(in oklab, var(--accent) 45%, var(--rule));
+      background: var(--surface);
+    }
+
+    & .search-hit-kind {
+      width: 2.4rem;
+      height: 2.4rem;
+      color: var(--accent);
+    }
+  }
+
+  .search-best-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .search-best-title {
+    display: block;
+    margin: 0.1rem 0 0.15rem;
+    overflow-wrap: anywhere;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .search-group {
+    margin-top: 1.75rem;
+  }
+
+  .search-group-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    padding: 0 0.75rem 0.4rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .search-group-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+
+  .search-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.25rem;
+  }
+
+  .search-start {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .search-start-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .search-start-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .search-start-clear {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .search-recent {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.25rem;
+  }
+
+  .search-recent-item {
+    display: flex;
+    width: 100%;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.65rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--rule) 60%, transparent);
+    padding: 0 0.25rem;
+    text-align: left;
+    color: var(--fg);
+    transition: transform 120ms var(--ease-out);
+
+    & svg {
+      flex: none;
+      color: var(--muted);
+    }
+
+    &:active {
+      transform: scale(0.985);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  .search-recent-kind {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .search-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+  }
+
+  .search-suggestion {
+    min-height: 2.5rem;
+    border: 1px dashed var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 0.95rem;
+    font-size: 15px;
+    color: var(--fg);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
   }
 }

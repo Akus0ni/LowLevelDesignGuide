@@ -26,7 +26,6 @@ export const SECTIONS: Section[] = [
   {
     path: 'search',
     label: 'Search',
-    comingIn: 'Spec 009',
     summary: 'Search across lessons, cheat sheets and your notes.',
     icon: <Icon d={['M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z', 'm20 20-3.5-3.5']} />,
   },
