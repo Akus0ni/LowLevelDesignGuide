@@ -9,7 +9,8 @@ namespace Lld.Content.Authoring.Parsing;
 /// The plain text search indexes, one entry per <c>##</c> section (spec 009 §3.1): headings, paragraphs, lists, tables
 /// and callouts (folded ones too) as a reader sees them. Code blocks, diagrams, HTML, link URLs and images are left out,
 /// and callout markers such as <c>[!REMEMBER]</c> are dropped. The text before the first <c>##</c> is the intro
-/// (anchor <c>""</c>). Anchors are the outline's, so a hit opens the right heading.
+/// (anchor <c>""</c>); the <c>#</c> title is left out, as search keeps the title apart. Anchors are the outline's, so
+/// a hit opens the right heading.
 /// </summary>
 public static partial class SearchText
 {
@@ -55,7 +56,8 @@ public static partial class SearchText
     {
         switch (block)
         {
-            case YamlFrontMatterBlock or CodeBlock or HtmlBlock:
+            // The h1 is the title, which search already holds in its own (weighted) column.
+            case YamlFrontMatterBlock or CodeBlock or HtmlBlock or HeadingBlock { Level: 1 }:
                 return;
             case LeafBlock leaf:
                 text.Append(DocumentHeadings.PlainText(leaf.Inline)).Append(' ');

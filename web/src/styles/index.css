@@ -3551,23 +3551,32 @@
     }
   }
 
+  /* One row that scrolls sideways on narrow screens, so results start high on the page. */
   .search-filters {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 0.85rem;
+    margin: 0.85rem -1.25rem 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 0.1rem 1.25rem;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .search-kinds {
     display: flex;
-    min-width: 0;
-    flex-wrap: wrap;
+    flex: none;
     gap: 0.35rem;
   }
 
   .search-kind {
     display: inline-flex;
+    flex: none;
+    white-space: nowrap;
     min-height: 2.25rem;
     align-items: center;
     gap: 0.4rem;
@@ -3611,7 +3620,8 @@
 
   .search-module {
     min-height: 2.25rem;
-    max-width: 100%;
+    max-width: 14rem;
+    flex: none;
     border: 1px solid var(--rule);
     border-radius: 999px;
     background: var(--surface);

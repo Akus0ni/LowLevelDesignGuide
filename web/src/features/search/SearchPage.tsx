@@ -83,7 +83,7 @@ export function SearchPage() {
           value={state.query}
           onChange={(event) => update({ query: event.target.value })}
           onKeyDown={onBoxKey}
-          placeholder="Patterns, principles, diagrams, your notes"
+          placeholder="Try “decorator” or “SRP”"
           aria-label="Search lessons, cheat sheets and your notes"
           enterKeyHint="search"
           autoComplete="off"
@@ -218,7 +218,7 @@ function Results({
           </>
         )}
         {results.expansions.length > 0 && (
-          <span className="search-also"> Also searching: {results.expansions.join(', ')}.</span>
+          <span className="search-also"> · also searching {results.expansions.join(', ')}</span>
         )}
       </p>
       {results.total === 0 && filtered && (
@@ -226,7 +226,9 @@ function Results({
           Search everything instead
         </button>
       )}
-      {best && <ResultRow hit={best} query={state.query} onOpen={onOpen} best />}
+      {best && (
+        <ResultRow hit={best} query={state.query} onOpen={onOpen} best moduleTitle={title(best.moduleSlug)} />
+      )}
       {groups.map((group) => (
         <section key={group.moduleSlug} className="search-group" aria-label={title(group.moduleSlug)}>
           <h2 className="search-group-title">

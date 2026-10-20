@@ -22,16 +22,16 @@ public sealed class SearchContentTests
         """;
 
     [Fact]
-    public void Pack_HasEachSectionsPlainTextWithoutCodeOrDiagrams()
+    public void Pack_HasEachSectionsPlainTextWithoutTitleCodeOrDiagrams()
     {
         var pack = Build(new ValidRepo()).Pack!;
 
         var auth = pack.Modules.Single(m => m.Slug == "case-studies").Lessons.Single(l => l.Slug == "auth");
         auth.Search.Should().BeEquivalentTo(
-            [new SearchSection("", "", "Case Study 1: Authentication"), new SearchSection("token-rotation", "Token rotation", "See AccessRequest.cs and the guide.")],
+            [new SearchSection("token-rotation", "Token rotation", "See AccessRequest.cs and the guide.")],
             o => o.WithStrictOrdering());
         auth.CheatSheet.Search.Should().BeEquivalentTo(
-            [new SearchSection("", "", "Auth"), new SearchSection("rules", "Rules", "Rotate refresh tokens.")],
+            [new SearchSection("rules", "Rules", "Rotate refresh tokens.")],
             o => o.WithStrictOrdering());
     }
 
@@ -60,7 +60,6 @@ public sealed class SearchContentTests
         var auth = Build(repo).Pack!.Modules.Single(m => m.Slug == "case-studies").Lessons.Single(l => l.Slug == "auth");
 
         auth.Search!.Select(s => s.Text).Should().Equal(
-            "Case Study 1: Authentication",
             "Rotate every time. Token Lives refresh 14 days",
             "Families A stolen token revokes its family. See AccessRequest.cs and the guide.");
     }

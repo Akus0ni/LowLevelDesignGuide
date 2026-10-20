@@ -30,10 +30,13 @@ interface RowProps {
   onOpen: () => void;
   /** The Best match: the lesson title large, above the reference. */
   best?: boolean;
+  /** Shown in the Best match's reference, where there is no module heading above it. */
+  moduleTitle?: string;
 }
 
 /** One search result (spec §3.4): kind glyph, reference, a two-line snippet; notes carry «my note» and their tags. */
-export function ResultRow({ hit, query, onOpen, best = false }: RowProps) {
+export function ResultRow({ hit, query, onOpen, best = false, moduleTitle }: RowProps) {
+  const bestReference = [hit.heading || KIND_LABEL[hit.kind], moduleTitle].filter(Boolean).join(' · ');
   return (
     <Link
       to={hitLink(hit, query)}
@@ -52,7 +55,7 @@ export function ResultRow({ hit, query, onOpen, best = false }: RowProps) {
           <span className="sr-only">{KIND_LABEL[hit.kind]}: </span>
           {hit.kind === 'note' && <span className="search-hit-stereotype">«my note» </span>}
           {hit.kind === 'cheatSheet' && <span className="search-hit-stereotype">«cheat sheet» </span>}
-          {best && !hit.heading ? KIND_LABEL[hit.kind] : hitReference(hit)}
+          {best ? bestReference : hitReference(hit)}
         </span>
         {hit.snippet.text && <SnippetText hit={hit} />}
         {hit.kind === 'note' && hit.noteId && <NoteTags noteId={hit.noteId} />}

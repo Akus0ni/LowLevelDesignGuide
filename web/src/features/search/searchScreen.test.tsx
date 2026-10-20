@@ -128,7 +128,7 @@ describe('The Search tab (spec 009 §3.4)', () => {
     await settle();
 
     expect(screen.getByText(/No matches for/)).toHaveTextContent('No matches for srp.');
-    expect(screen.getByText(/Also searching: single responsibility/)).toBeInTheDocument();
+    expect(screen.getByText(/also searching single responsibility/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Search everything instead' }));
 
     expect(router.state.location.search).toBe('?q=srp');
