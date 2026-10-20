@@ -18,7 +18,7 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
 | Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
-| Spec 007 Notes & bookmarks | 🔍 PR open for owner review |
+| Spec 007 Notes & bookmarks | 🔍 PR #12 open for owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -31,7 +31,7 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | 004 | OOP & SOLID content | ✅ merged (PR #6) |
 | 005 | Progress | ✅ merged (PR #7) |
 | 006 | GoF + Enterprise patterns content | ✅ merged (PR #8) |
-| 007 | Notes & bookmarks | 🔍 PR open, owner review |
+| 007 | Notes & bookmarks | 🔍 PR #12, owner review |
 | 008 | UML content | planned |
 | 009 | Search | planned |
 | 010 | Offline sync | planned |
@@ -159,7 +159,7 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   share sheet). Details and findings: `specs/007-notes-bookmarks/plan.md` section 5.
 
 ## How to resume (next session)
-1. Spec 007 PR is open: apply review changes on `spec/007-notes-bookmarks`, push, update the PR. Check
+1. Spec 007 PR #12 is open: apply review changes on `spec/007-notes-bookmarks`, push, update the PR. Check
    `gh pr view` first: pushing to a merged spec branch re-creates it.
 2. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
    net10.0-windows10.0.19041.0`), then start `bin/.../Lld.App.exe` with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.
