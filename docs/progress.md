@@ -17,7 +17,7 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | Spec 003 Content engine | ✅ Merged (PR #5) |
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
-| Spec 006 Design patterns | 🔍 PR #8 open for owner review (Android upgrade check paused) |
+| Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -140,18 +140,15 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   look-alike compare route + lesson strip + module list, Overuse stamp, phrase mnemonics.
 - Compiled samples `samples/Lld.Samples.Patterns` (Before / After / Modern for all 28) with 85 new tests.
 - Docs: PRD v0.8 (R93-R100), `docs/plan.md` roadmap, README authoring guide for pattern lessons, plan section 4.
-- Manual run: Windows upgrade 3 to 5 verified; Android upgrade with progress paused (emulator stopped for low
-  memory, see plan section 4). Owner review of batches 2-5 still to come ("review later").
-- Open questions for the owner: dark-mode white text on the light accent (app-wide fix as a separate PR?); spec 005
-  fling-to-end rule (decide later).
+- Manual run: Windows upgrade 3 to 5 and Android upgrade 4 to 5 (SRP Done kept, picker Android Back) verified.
+  Owner review done.
+- Owner decisions after review: fix dark-mode white text on the light accent (app-wide, `fix/` PR); a section needs time
+  on screen before it ticks, so a fling to the end no longer marks a lesson done (`fix/` PR).
 
 ## How to resume (next session)
 1. PR #8 (spec 006) is open: apply review changes on `spec/006-gof-patterns`, push, update the PR.
-2. Android A11 check, when memory allows: boot the AVD, the spec 005 Debug build is already installed with SRP done;
-   run `dotnet build src/Lld.App -f net10.0-android -t:Install` from this branch, relaunch, pull
-   `files/lld-device.db` with `adb exec-out run-as com.akus0ni.lldguide cat files/lld-device.db` and check
-   `pragma user_version` = 5 and the SRP progress row. Remove the `C:/lldwt` worktree afterwards
-   (`git worktree remove --force C:/lldwt`, after deleting its `web/node_modules` junction).
+2. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files
+   (`adb exec-out run-as com.akus0ni.lldguide cat files/<name>`); without the WAL the old schema shows.
 3. Shell notes: write files that contain backslash escapes with the Write / Edit tools, not Python heredocs. Screenshot
    scripts need `MSYS_NO_PATHCONV=1` and hash routes (`/#/learn/...`).
 4. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
