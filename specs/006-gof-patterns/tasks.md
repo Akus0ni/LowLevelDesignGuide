@@ -6,7 +6,7 @@
 - [x] T4 Picker + look-alikes: `PickerTree`, `Lookalikes`, `PickerRule`, `LookalikesRule`; contracts, pack format 3, device step 5, catalogs, web types
 - [x] T5 `content/gof-patterns/module.yml` (template, map, picker, look-alikes), case-studies order 5; batch 1 Creational: Singleton, Factory Method, Abstract Factory, Builder, Prototype (+ samples, tests, Creational mnemonic)
 - [x] T6 Web: Overuse stamp; phrase mnemonic tiles
-- [ ] T7 Web: `PeriodicTable` on the module page
+- [x] T7 Web: `PeriodicTable` on the module page
 - [ ] T8 Web: `PatternPicker` sheet (Escape / Android Back steps back)
 - [ ] T9 Web: `LookalikeCompare` route + lesson look-alike strip; module page "Look-alikes" list
 - [ ] T10 UI pass with the skills: screenshot critique (phone light / dark, desktop), `break-ui` worst case → **owner review: reader features + batch 1**

@@ -13,6 +13,7 @@ import { ContentBoundary } from './ContentBoundary';
 import { LessonIcon } from './LessonIcon';
 import { ModuleMap } from './ModuleMap';
 import { ModuleMnemonics } from './ModuleMnemonics';
+import { PeriodicTable } from './patterns/PeriodicTable';
 import { BackLink } from './BackLink';
 import { chevronRight, formatMinutes, plural, usePreload } from './navigation';
 import { ModuleSkeleton } from './Skeletons';
@@ -37,6 +38,8 @@ function ModuleView({ slug }: { slug: string }) {
   const complete = count.total > 0 && count.done === count.total;
   const fresh = useFirstShow(moduleCelebrationId(module.slug), complete);
   const minutes = module.lessons.reduce((total, lesson) => total + lesson.readingMinutes, 0);
+  // Pattern modules (spec 006 §3.5): every lesson has a symbol, so the map is drawn as a periodic table.
+  const asTable = module.lessons.length > 0 && module.lessons.every((lesson) => lesson.symbol);
 
   return (
     <>
@@ -51,7 +54,10 @@ function ModuleView({ slug }: { slug: string }) {
         {module.mnemonics && module.mnemonics.length > 0 && (
           <ModuleMnemonics mnemonics={module.mnemonics} lessons={module.lessons} />
         )}
-        {module.map && module.lessons.length > 0 && <ModuleMap map={module.map} lessons={module.lessons} />}
+        {module.map && module.lessons.length > 0 && asTable && (
+          <PeriodicTable map={module.map} lessons={module.lessons} lookalikes={module.lookalikes} />
+        )}
+        {module.map && module.lessons.length > 0 && !asTable && <ModuleMap map={module.map} lessons={module.lessons} />}
         {module.lessons.length === 0 ? (
           <p className="rounded-lg border border-dashed border-rule bg-surface px-4 py-8 text-center text-muted">
             Lessons for this module are being written.

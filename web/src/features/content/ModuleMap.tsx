@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useClickOutside } from './useClickOutside';
 import { Link } from 'react-router';
 import type { LessonSummary, ModuleMap as Map } from '../../data/types';
 import { relationsOf, type Relation } from './mapRelations';
@@ -163,19 +164,4 @@ function describe(relation: Relation, titleOf: (slug: string) => string): string
   return relation.direction === 'out'
     ? `${relation.label} ${titleOf(relation.slug)}`
     : `${titleOf(relation.slug)} ${relation.label} this`;
-}
-
-/** Calls `onOutside` when the user presses anywhere outside `element` (only while `active`). */
-function useClickOutside(element: React.RefObject<HTMLElement | null>, active: boolean, onOutside: () => void) {
-  const latest = useRef(onOutside);
-  latest.current = onOutside;
-
-  useEffect(() => {
-    if (!active) return;
-    const onPointerDown = (event: PointerEvent) => {
-      if (element.current && !element.current.contains(event.target as Node)) latest.current();
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [element, active]);
 }
