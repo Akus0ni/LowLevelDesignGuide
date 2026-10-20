@@ -3175,3 +3175,42 @@
     }
   }
 }
+
+/* Undo inside the notes sheet: the sheet is modal, so a toast behind it couldn't be reached (spec 007 §3.4). */
+@layer components {
+  .note-undo {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    border-radius: 0.6rem;
+    background: color-mix(in oklab, var(--fg) 7%, transparent);
+    padding: 0 0.4rem 0 0.9rem;
+    font-size: 15px;
+    animation: appear 150ms var(--ease-out) both;
+
+    & button {
+      min-height: 2.5rem;
+      border-radius: 999px;
+      padding: 0 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      transition: transform 120ms var(--ease-out);
+    }
+
+    & button:active {
+      transform: scale(0.97);
+    }
+
+    & button:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .note-undo {
+      animation: none;
+    }
+  }
+}

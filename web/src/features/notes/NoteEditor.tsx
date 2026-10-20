@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NoteMarkdown } from '../content/markdown/MarkdownView';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
-import { deleteNote, editNote, isBlank, isLive, newNote, NOTE_LIMITS, restoreNote, type Place } from './noteRecords';
+import type { Note } from '../../data/types';
+import { deleteNote, editNote, isBlank, isLive, newNote, NOTE_LIMITS, type Place } from './noteRecords';
 import { backIcon, trashIcon } from './noteIcons';
 import { applyStarter, STARTERS } from './starters';
-import { undoToast } from './undoToast';
 import { useNotesStore } from './useNotes';
 
 /** Typing pauses this long before the note is saved (spec 007 §3.2). */
@@ -23,12 +23,15 @@ export function NoteEditor({
   placeLabel,
   noteId,
   onDone,
+  onDeleted,
 }: {
   place: Place;
   placeLabel: string;
   /** The note to edit; a new note when it isn't in the store yet. */
   noteId: string;
   onDone: () => void;
+  /** The note was deleted: the sheet offers Undo where the learner is (a toast would sit behind the modal sheet). */
+  onDeleted: (deleted: Note) => void;
 }) {
   const store = useNotesStore();
   const stored = store.getSnapshot().byId.get(noteId);
@@ -37,6 +40,8 @@ export function NoteEditor({
   const [status, setStatus] = useState<Status>('idle');
   const field = useRef<HTMLTextAreaElement>(null);
   const pending = useRef<string | null>(null);
+  /** What the box holds now, saved or not: decides whether closing deletes an emptied note. */
+  const latest = useRef(body);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const { lessonId, anchor } = place;
@@ -66,7 +71,8 @@ export function NoteEditor({
   const change = (text: string) => {
     setBody(text);
     pending.current = text;
-    setStatus('saving');
+    latest.current = text;
+    setStatus(isBlank(text) ? 'idle' : 'saving');
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       if (flush()) setStatus('saved');
@@ -81,7 +87,7 @@ export function NoteEditor({
     document.addEventListener('visibilitychange', saveWhenHidden);
     return () => {
       document.removeEventListener('visibilitychange', saveWhenHidden);
-      const emptied = pending.current !== null && isBlank(pending.current);
+      const emptied = isBlank(latest.current);
       flush();
       const existing = store.getSnapshot().byId.get(noteId);
       if (emptied && existing && isLive(existing)) store.putNote(deleteNote(existing, store.stamp()));
@@ -106,7 +112,7 @@ export function NoteEditor({
     if (existing && isLive(existing)) {
       const deleted = deleteNote(existing, store.stamp());
       store.putNote(deleted);
-      undoToast('Note deleted', () => store.putNote(restoreNote(deleted, store.stamp())));
+      onDeleted(deleted);
     }
     onDone();
   };

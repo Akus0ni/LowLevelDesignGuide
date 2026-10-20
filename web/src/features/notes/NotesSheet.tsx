@@ -1,5 +1,5 @@
 import { Drawer } from '@base-ui/react/drawer';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Note } from '../../data/types';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
@@ -7,11 +7,13 @@ import { DESKTOP, useMediaQuery } from '../../ui/useMediaQuery';
 import { timeAgo } from '../progress/progressMath';
 import { NoteEditor } from './NoteEditor';
 import { plusIcon } from './noteIcons';
+import { restoreNote } from './noteRecords';
 import { readableAnchor, sectionsOf, type LessonInfo } from './notesQuery';
 import type { NotesFocus } from './sectionAnnotations';
 import { excerpt } from './excerpt';
 import { parseTags } from './tags';
-import { useLessonNotes } from './useNotes';
+import { UNDO_MS } from './undoToast';
+import { useLessonNotes, useNotesStore } from './useNotes';
 
 export interface SheetSection {
   anchor: string;
@@ -94,7 +96,20 @@ function SheetBody({
   focus?: NotesFocus;
 }) {
   const [view, setView] = useState<View>(() => viewFor(focus));
+  const [deleted, setDeleted] = useState<Note | null>(null);
+  const store = useNotesStore();
   const notes = useLessonNotes(lessonId);
+
+  // Undo stays as long as the toast elsewhere would (spec §3.4), then goes.
+  useEffect(() => {
+    if (!deleted) return;
+    const timer = setTimeout(() => setDeleted(null), UNDO_MS);
+    return () => clearTimeout(timer);
+  }, [deleted]);
+  const undo = () => {
+    if (deleted) store.putNote(restoreNote(deleted, store.stamp()));
+    setDeleted(null);
+  };
   const titles = useMemo(() => new Map(sections.map((section) => [section.anchor, section.title])), [sections]);
   const placeLabel = (anchor: string) => (anchor ? (titles.get(anchor) ?? readableAnchor(anchor)) : WHOLE_LESSON);
 
@@ -107,6 +122,7 @@ function SheetBody({
           placeLabel={placeLabel(view.anchor)}
           noteId={view.noteId}
           onDone={() => setView({ kind: 'list' })}
+          onDeleted={setDeleted}
         />
       </div>
     );
@@ -114,6 +130,16 @@ function SheetBody({
 
   return (
     <div className="notes-sheet-body">
+      <div className="note-undo-slot" aria-live="polite">
+        {deleted && (
+          <p className="note-undo">
+            Note deleted
+            <button type="button" onClick={undo}>
+              Undo
+            </button>
+          </p>
+        )}
+      </div>
       <NewNote
         currentAnchor={focus?.anchor ?? currentAnchor}
         currentTitle={titles.get(focus?.anchor ?? currentAnchor)}
