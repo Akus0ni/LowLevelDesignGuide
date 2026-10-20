@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Status** | Draft, awaiting owner review |
+| **Status** | Approved by owner (2026-10-21), all §8 recommendations taken |
 | **Branch** | `spec/009-search` |
-| **Covers** | R19 (PRD §13); PRD F6, §10 (`LessonSearch`), §11 (offline, performance) |
+| **Covers** | R19, R117–R124 (PRD §13); PRD F6, §10 (`LessonSearch`), §11 (offline, performance) |
 | **Depends on** | Spec 003 (content pack, reader, heading anchors, device loader), spec 007 (notes, owner = user or device guest, `NotesStore`), spec 005 (store pattern) |
 | **Case study** | None planned. Optional later, only if the owner asks (`lld-case-study`). |
 
@@ -51,8 +51,9 @@ device** for the current content (55 lessons, about 700 KB of Markdown).
 - **Deleted notes** are never indexed.
 
 ### 3.2 Matching
-- **Prefix as you type:** the last word typed matches as a prefix (`decor` → Decorator, `obs` → Observer). Earlier
-  words match whole words, after stemming.
+- **Prefix as you type:** the last word typed matches as a prefix (`decor` → Decorator, `obs` → Observer), both of
+  the stemmed and of the unstemmed word, so a half-typed word (`decorat`) keeps its results. Earlier words match whole
+  words, after stemming.
 - **Word forms:** English stemming (FTS5 `porter` over `unicode61`, diacritics removed), so `inherits` matches
   *inheritance* and *inherit*, `patterns` matches *pattern*.
 - **All words must match** (AND) within one unit. `"quoted phrase"` matches the words next to each other. Case and
@@ -212,11 +213,11 @@ Replaces the "Coming soon" page.
 | Matching | Prefix as you type, word forms (stemming), acronyms and synonyms. No typo tolerance |
 | UI | Highlight in the lesson, filters, recent searches and suggestions, quick search shortcut |
 | Open details | Asked in the spec review (§8), not delegated |
+| Q1–Q10 | All recommendations in §8 accepted ("Approved", 2026-10-21) |
 
-## 8. Open questions (for the spec review)
-Each has a recommendation; answer "OK" to take it, or pick another option.
+## 8. Questions from the spec review (answered: every recommendation taken)
 
-| # | Question | Recommendation | Other options |
+| # | Question | Decision (the recommendation) | Options not taken |
 |---|---|---|---|
 | Q1 | Ranking weights | Title ×10, section heading ×5, text ×1; a lesson-title match always sorts first | Plain BM25, no weights |
 | Q2 | Order of groups and rows | A **Best match** row on top, then module groups ordered by their best hit, rows by rank; notes mixed into their lesson's module | Modules in course order; or a separate **Your notes** group first |

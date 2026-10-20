@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | v0.10 |
+| **Status** | v0.11 |
 | **Owner** | Akus0ni |
 | **Last updated** | 2026-10-21 |
 | **Platforms** | Android · iOS · Windows · macOS |
@@ -340,6 +340,14 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R114 | Activity diagrams are flowcharts flagged `steps` (start `(( ))`, end `((( )))`, decisions `{ }`, forks / joins `:::fork` / `:::join`, CD-007) and can be walked node by node, choosing at decisions; plain flowcharts stay static | F2 | 008 |
 | R115 | The picker shows on any module that has one, with an optional `title` (UML: "Which diagram?", CD-005); every lesson must be reachable only in `pattern` modules (CD-003) | F2 | 008 |
 | R116 | Callout `[!MISTAKES]` ("common mistakes"), drawn as the Overuse stamp; required once in every `diagram` lesson | F2 | 008 |
+| R117 | Search runs on the device over SQLite FTS5 (lesson sections, cheat sheet sections, the owner's notes; not code or diagrams), offline and with no server calls; browser dev mode uses a Development-only `/api/search` with the same `Lld.Search` code | F6 | 009 |
+| R118 | Matching: all words (AND), quoted phrases, English stemming, the last word as a prefix while typing (a stemmed and an unstemmed index), synonyms / acronyms from `content/search.yml`; user input never reaches FTS5 as raw syntax; 2 to 100 characters | F6 | 009 |
+| R119 | Ranking: title ×10, section heading ×5, text ×1, a lesson-title match first; results show a Best match, then module groups by their best hit, notes mixed into their module; snippets of about 2 lines with up to 3 marks | F6 | 009 |
+| R120 | `content/search.yml` (synonyms, suggestions) is validated at build time: single-word keys, no duplicates, every alternative appears in the content, every suggestion has a result | F6, §7 | 009 |
+| R121 | Opening a result marks the matched words in the lesson (or cheat sheet), opens the fold that holds them, and a match bar steps through and clears them (Esc, Android Back); with recall mode on only the matched cheat sheet section is revealed | F6 | 009 |
+| R122 | Recent searches: the last 8, saved when a result is opened, per owner, on the device only, never synced; 6 authored suggestions when the box is empty | F6 | 009 |
+| R123 | Quick search: `Ctrl+K` / `⌘K` or `/` opens a search dialog on wide screens with a keyboard; phones use the Search tab | F6 | 009 |
+| R124 | Search performance: p95 query → results under 200 ms over the bridge on the Android emulator (30-query set) | F6, §11 | 009 |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.
