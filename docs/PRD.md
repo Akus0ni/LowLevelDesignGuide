@@ -322,6 +322,7 @@ Every requirement and decision gathered so far, so none is skipped. "Covered by"
 | R98 | Callout `[!OVERUSE]` ("when it hurts"), drawn as a stamp in the warning tone (extends R79) | F2 | 006 |
 | R99 | Mnemonics may be phrases ("Smart Builders Always Follow Plans"): one tile per word; C# and the web split words from one shared test vector | F3 | 006 |
 | R100 | Pattern samples compile in `samples/Lld.Samples.Patterns` (Before / After / Modern per pattern) and are tested in `Lld.Samples.Tests`; "In this app" only where the app really uses the pattern | §7 | 006 |
+| R101 | A section counts as read once its end has passed the middle of the screen (or the page is at its end) **and** it has been on screen for 2.5 s in all; a fling to the end reads nothing, so it cannot mark a lesson done (owner decision on the spec 005 open question) | F4 | 005 fix |
 
 ## 14. Success metrics (personal)
 - All 4 MVP content modules have lessons **and** cheat sheets.

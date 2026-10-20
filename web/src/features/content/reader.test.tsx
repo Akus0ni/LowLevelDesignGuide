@@ -6,6 +6,7 @@ import { AppError, type DataSource, type LessonDetail, type LessonProgress, type
 import { fakeDataSource } from '../../test/fakeDataSource';
 import { atNaturalSize } from './markdown/mermaid';
 import { resetReaderStoreForTests } from './reader/readerStore';
+import { DWELL_MS } from './reader/useReadingTracker';
 import { AppProviders } from '../../test/AppProviders';
 
 // Mermaid needs a real layout engine; the reader's handling of its output is what's tested here.
@@ -346,7 +347,9 @@ describe('Lesson progress (spec 005)', () => {
     expect(screen.getByText('Done', { selector: '.done-badge' })).not.toHaveAttribute('data-fresh');
   });
 
-  it('reading the last section marks the lesson done by itself', async () => {
+  /** Opens the lesson with the first two sections read and scrolls to its end, where the last section is on screen. */
+  async function scrollToTheLastSection(clock: { now: number }) {
+    vi.spyOn(Date, 'now').mockImplementation(() => clock.now);
     const source = readerSource({
       getProgress: vi.fn().mockResolvedValue({ lessons: [read(['problem-statement', 'the-login-use-case'])], activityDays: [] }),
     });
@@ -355,13 +358,31 @@ describe('Lesson progress (spec 005)', () => {
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
       return { top: { 'problem-statement': -1800, 'the-login-use-case': -900, 'token-rotation': 0 }[this.id] ?? 0 } as DOMRect;
     });
-
     await act(async () => {
       window.dispatchEvent(new Event('scroll'));
       await new Promise((resolve) => requestAnimationFrame(resolve));
     });
+  }
 
-    expect(screen.getByText('Done', { selector: '.done-badge' })).toHaveAttribute('data-fresh');
+  it('reading the last section marks the lesson done by itself, once it has been on screen long enough', async () => {
+    const clock = { now: 1_000_000 };
+    await scrollToTheLastSection(clock);
+    expect(screen.getByRole('button', { name: 'Mark as done' })).toBeInTheDocument();
+
+    clock.now += DWELL_MS;
+
+    await vi.waitFor(() => expect(screen.getByText('Done', { selector: '.done-badge' })).toHaveAttribute('data-fresh'));
+  });
+
+  it('a fling to the end reads nothing until the reader stays', async () => {
+    const clock = { now: 1_000_000 };
+    await scrollToTheLastSection(clock);
+    clock.now += DWELL_MS - 100;
+
+    await act(() => new Promise((resolve) => setTimeout(resolve, 700)));
+
+    expect(screen.getByRole('button', { name: 'Mark as done' })).toBeInTheDocument();
+    expect(screen.getByText('2 of 3 sections read')).toBeInTheDocument();
   });
 });
 
