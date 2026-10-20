@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft for owner review (2026-10-20) |
+| **Status** | Approved by owner (2026-10-20) |
 | **Branch** | `spec/007-notes-bookmarks` |
 | **Covers** | R18 (PRD §13); PRD F5, §10 (`Note`, `Bookmark`), §11 (offline) |
 | **Depends on** | Spec 003 (reader, outline, heading anchors), spec 005 (owner = user or device guest, adoption, store pattern), spec 001 (users) |
