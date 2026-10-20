@@ -7,8 +7,8 @@ using Lld.Content.Authoring.Files;
 
 namespace Lld.Api.Content;
 
-/// <summary>Either a catalog to serve or the reasons the content can't be packed.</summary>
-internal sealed record DevContentState(IContentCatalog? Catalog, IReadOnlyList<ContentIssue> Issues);
+/// <summary>Either a catalog to serve (and the pack it came from) or the reasons the content can't be packed.</summary>
+internal sealed record DevContentState(IContentCatalog? Catalog, IReadOnlyList<ContentIssue> Issues, ContentPack? Pack = null);
 
 /// <summary>
 /// Browser dev mode's content (spec 003): <c>content/</c> read straight from the repository with the same pipeline the
@@ -35,7 +35,7 @@ internal sealed class DevContentCatalog(string repositoryRoot, ContentOptions op
             if (_state is null || fingerprint != _fingerprint)
             {
                 var result = new ContentPipeline(new PhysicalContentFiles(repositoryRoot), options).Build();
-                _state = new DevContentState(result.Pack is { } pack ? new InMemoryContentCatalog(pack) : null, result.Issues);
+                _state = new DevContentState(result.Pack is { } pack ? new InMemoryContentCatalog(pack) : null, result.Issues, result.Pack);
                 _dependencies = result.Dependencies;
                 // Taken again: the snippet files a lesson quotes are only known after this build.
                 _fingerprint = Fingerprint();

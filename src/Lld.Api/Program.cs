@@ -48,6 +48,7 @@ if (app.Environment.IsDevelopment())
 {
     // Browser dev mode only (spec 003): devices read their bundled copy; the hosted API serves no content.
     api.MapContentEndpoints();
+    api.MapSearchEndpoints();
 }
 
 app.MapDefaultEndpoints();
