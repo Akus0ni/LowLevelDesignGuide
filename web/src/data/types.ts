@@ -62,6 +62,8 @@ export interface LessonSummary {
   hook?: string | null;
   /** Outline entries: the sections a reader ticks off (spec 005, "3 of 5 sections"). */
   sectionCount: number;
+  /** Two letters for the periodic table of a pattern module, e.g. `St` (spec 006 §3.5). */
+  symbol?: string | null;
 }
 
 /** Mirrors Lld.Contracts.ModuleDetail. */
@@ -74,6 +76,37 @@ export interface ModuleDetail {
   map?: ModuleMap | null;
   /** Memory hooks such as SOLID (spec 004 §3.8); empty when none. */
   mnemonics?: Mnemonic[] | null;
+  /** The "Which pattern?" decision tree (spec 006 §3.6); null when the module has none. */
+  picker?: ModulePicker | null;
+  /** Groups of lessons that are easy to confuse (spec 006 §3.7); empty when none. */
+  lookalikes?: Lookalike[] | null;
+}
+
+/** Mirrors Lld.Contracts.ModulePicker: start at `start`, answer questions until an answer picks lessons. */
+export interface ModulePicker {
+  start: string;
+  questions: PickerQuestion[];
+}
+
+export interface PickerQuestion {
+  id: string;
+  ask: string;
+  answers: PickerAnswer[];
+}
+
+/** Leads to another question (`next`) or picks 1–2 lessons (slugs) with a one-line `why`. */
+export interface PickerAnswer {
+  label: string;
+  next?: string | null;
+  picks: string[];
+  why?: string | null;
+}
+
+/** Mirrors Lld.Contracts.Lookalike: 2–3 lesson slugs, the one difference and the question that tells them apart. */
+export interface Lookalike {
+  lessons: string[];
+  difference: string;
+  ask: string;
 }
 
 /** Mirrors Lld.Contracts.Mnemonic: a word whose letters start the titles of `lessons` (slugs), in order. */

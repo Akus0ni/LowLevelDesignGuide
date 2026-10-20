@@ -1,0 +1,25 @@
+title: "Enterprise & .NET patterns"
+order: 3
+summary: Five patterns every .NET back end uses that are not in the GoF book, with when to use them and when EF Core or DI already do the job.
+template: pattern
+# A phrase spells with the first letter of each word; each letter starts the title of its lesson.
+mnemonics: ["Don't Run Untested SQL Nightly: di-vs-service-locator, repository, unit-of-work, specification, null-object"]
+# One block of the periodic table; links read "<from> <label> <to>".
+map: |
+  flowchart TD
+    subgraph enterprise["Enterprise: data, rules and wiring"]
+      repository["Repository"]
+      unit-of-work["Unit of Work"]
+      specification["Specification"]
+      null-object["Null Object"]
+      di-vs-service-locator["DI vs Service Locator"]
+    end
+    repository -->|"saves through a"| unit-of-work
+    specification -->|"is passed to a"| repository
+    di-vs-service-locator -->|"gives each request one"| unit-of-work
+    null-object -->|"is a safe default to inject with"| di-vs-service-locator
+# Look-alikes (spec 006 §3.7). DI vs Service Locator is a comparison in itself.
+lookalikes:
+  - patterns: [repository, unit-of-work]
+    difference: "A repository finds and adds objects of one kind; a unit of work tracks every change in a request and saves them together."
+    ask: "Getting objects, or saving a batch of changes at once?"

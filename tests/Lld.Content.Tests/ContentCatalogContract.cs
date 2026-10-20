@@ -72,6 +72,21 @@ public abstract class ContentCatalogContract
     }
 
     [Fact]
+    public async Task PatternAids_ReachTheModule()
+    {
+        var catalog = await SampleAsync();
+
+        var module = await catalog.GetModuleAsync("oop-solid", Ct);
+        var plain = await catalog.GetModuleAsync("case-studies", Ct);
+
+        module!.Picker.Should().BeEquivalentTo(TestPacks.SamplePicker, o => o.WithStrictOrdering());
+        module.Lookalikes.Should().BeEquivalentTo(TestPacks.SampleLookalikes, o => o.WithStrictOrdering());
+        module.Lessons.Select(l => l.Symbol).Should().Equal("Sr", null);
+        plain!.Picker.Should().BeNull();
+        plain.Lookalikes.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Module_Unknown_IsNull()
     {
         var catalog = await SampleAsync();

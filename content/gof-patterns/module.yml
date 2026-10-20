@@ -1,0 +1,171 @@
+title: GoF Design Patterns
+order: 2
+summary: The 23 named designs from the Gang of Four book, each with its shape, its modern C# form and when it hurts.
+template: pattern
+# A phrase spells with the first letter of each word; each letter starts the title of its lesson.
+mnemonics:
+  - "Smart Builders Always Follow Plans: singleton, builder, abstract-factory, factory-method, prototype"
+  - "Architects Build Cities Designed For Future People: adapter, bridge, composite, decorator, facade, flyweight, proxy"
+  - "Cats Can Ignore Instructions; Mice Mostly Obey Strict Schedules, Then Vanish: chain-of-responsibility, command, interpreter, iterator, mediator, memento, observer, state, strategy, template-method, visitor"
+# Node ids are lesson folder names; each subgraph is a category (a block of the periodic table). Links read
+# "<from> <label> <to>": patterns that travel together. Put spaces around arrows.
+map: |
+  flowchart TD
+    subgraph creational["Creational: making objects"]
+      singleton["Singleton"]
+      factory-method["Factory Method"]
+      abstract-factory["Abstract Factory"]
+      builder["Builder"]
+      prototype["Prototype"]
+    end
+    subgraph structural["Structural: fitting objects together"]
+      adapter["Adapter"]
+      facade["Facade"]
+      decorator["Decorator"]
+      proxy["Proxy"]
+      composite["Composite"]
+      bridge["Bridge"]
+      flyweight["Flyweight"]
+    end
+    subgraph behavioral["Behavioral: how objects behave and talk"]
+      strategy["Strategy"]
+      template-method["Template Method"]
+      observer["Observer"]
+      command["Command"]
+      iterator["Iterator"]
+      state["State"]
+      chain-of-responsibility["Chain of Responsibility"]
+      mediator["Mediator"]
+      memento["Memento"]
+      visitor["Visitor"]
+      interpreter["Interpreter"]
+    end
+    abstract-factory -->|"is often built from"| factory-method
+    abstract-factory -->|"is usually one"| singleton
+    abstract-factory -->|"can clone its products with"| prototype
+    builder -->|"can get its parts from"| abstract-factory
+    facade -->|"is usually one"| singleton
+    facade -->|"can create its parts with"| abstract-factory
+    adapter -->|"often sits under a"| facade
+    composite -->|"is often built with a"| builder
+    decorator -->|"is often used inside a"| composite
+    flyweight -->|"shares the leaves of a"| composite
+    bridge -->|"can get its implementor from"| abstract-factory
+    factory-method -->|"can hand out a"| proxy
+    template-method -->|"often calls a"| factory-method
+    strategy -->|"is often picked by a"| factory-method
+    observer -->|"often reports to a shared"| singleton
+    command -->|"can be grouped into a"| composite
+    iterator -->|"walks a"| composite
+    state -->|"can share its states as"| flyweight
+    chain-of-responsibility -->|"often runs up a"| composite
+    mediator -->|"often hears its colleagues through"| observer
+    memento -->|"saves the state to undo a"| command
+    visitor -->|"walks the nodes of a"| composite
+    interpreter -->|"builds its sentences as a"| composite
+    interpreter -->|"is often run by a"| visitor
+# "Which pattern?" (spec 006 §3.6): every lesson must be reachable; each path asks at most 4 questions.
+picker:
+  start: what
+  questions:
+    what:
+      ask: "What is your problem about?"
+      answers:
+        - { label: "Creating objects", next: create }
+        - { label: "Fitting objects together", next: structure }
+        - { label: "How objects behave and talk", next: behave }
+    create:
+      ask: "What is hard about creating the object?"
+      answers:
+        - { label: "There must be exactly one, shared by everyone", pick: [singleton], why: "One instance, one way to reach it." }
+        - { label: "The caller shouldn't know the concrete class", next: family }
+        - { label: "It has many optional parts", pick: [builder], why: "Set the parts step by step, check the whole once at the end." }
+        - { label: "Copying a ready-made one is easier", pick: [prototype], why: "Clone a configured object instead of building it again." }
+    family:
+      ask: "One kind of product, or a family of products that must match?"
+      answers:
+        - { label: "One kind of product", pick: [factory-method], why: "A subclass (or a delegate) decides which class to make." }
+        - { label: "A family that must match", pick: [abstract-factory], why: "One factory makes every product of one family, so they never mix." }
+    structure:
+      ask: "What do you need?"
+      answers:
+        - { label: "Make a class with the wrong interface fit", pick: [adapter], why: "Wrap it and translate each call; neither side changes." }
+        - { label: "One simple door to a messy subsystem", pick: [facade], why: "One class knows the steps; clients make one call." }
+        - { label: "Add to an object, or guard it, without changing its class", next: wrap }
+        - { label: "Treat one item and a group the same (a tree)", pick: [composite], why: "Leaves and groups share one interface; groups ask their children." }
+        - { label: "Something else: too many classes, or too much memory", next: scale }
+    wrap:
+      ask: "Adding behaviour, or controlling access?"
+      answers:
+        - { label: "Adding behaviour, in layers", pick: [decorator], why: "Same interface, wraps one object, adds one thing; stack as needed." }
+        - { label: "Controlling access: lazy, cached, remote or checked", pick: [proxy], why: "A stand-in with the same interface decides when to reach the real one." }
+    scale:
+      ask: "Which one hurts?"
+      answers:
+        - { label: "Classes multiply because two things vary together", pick: [bridge], why: "Split the two directions into two hierarchies joined by a reference." }
+        - { label: "Huge numbers of similar objects use too much memory", pick: [flyweight], why: "Share the heavy, unchanging part; keep only what differs." }
+    behave:
+      ask: "What do you need?"
+      answers:
+        - { label: "Change how a job is done", next: swap }
+        - { label: "Objects must tell or coordinate each other", next: talk }
+        - { label: "Requests, history and undo", next: requests }
+        - { label: "Walk a collection without seeing its insides", pick: [iterator], why: "An iterator gives you the next item; the storage stays hidden." }
+        - { label: "New operations on fixed classes, or a little language", next: language }
+    talk:
+      ask: "One announces, or many coordinate?"
+      answers:
+        - { label: "One object announces; many listen", pick: [observer], why: "Observers subscribe; the subject notifies them without knowing who they are." }
+        - { label: "Many objects coordinate through one hub", pick: [mediator], why: "Colleagues only talk to the mediator, which holds the rules between them." }
+    requests:
+      ask: "What do you need to do with requests?"
+      answers:
+        - { label: "Queue, log or undo actions", pick: [command], why: "A command holds what to do, so it can be stored, retried or undone." }
+        - { label: "Save and restore an object's state", pick: [memento], why: "The object makes a sealed snapshot of itself; others only keep it." }
+        - { label: "Pass a request along until someone handles it", pick: [chain-of-responsibility], why: "Each handler deals with it or hands it to the next." }
+    language:
+      ask: "Which one?"
+      answers:
+        - { label: "Add operations to a stable set of classes", pick: [visitor], why: "Each operation is a visitor with one method per class." }
+        - { label: "Evaluate sentences of a small rule language", pick: [interpreter], why: "Each grammar rule is a class; a sentence is a tree that evaluates itself." }
+    swap:
+      ask: "Who decides how it is done?"
+      answers:
+        - { label: "The caller picks the algorithm", pick: [strategy], why: "Each way is a class behind one interface; pass in the one you want." }
+        - { label: "The object, as its own state changes", pick: [state], why: "Each state is a class; the object swaps its state as things happen." }
+        - { label: "Fixed steps; subclasses fill in some of them", pick: [template-method], why: "A base class runs the steps; subclasses override only what differs." }
+# Look-alikes (spec 006 §3.7): the one difference, and the question that tells them apart.
+lookalikes:
+  - patterns: [factory-method, abstract-factory, builder]
+    difference: "Factory Method makes one product; Abstract Factory makes a matching family; Builder assembles one product step by step."
+    ask: "One thing, a matching set, or one thing with many parts?"
+  - patterns: [decorator, proxy, adapter]
+    difference: "All three wrap one object: Decorator adds behaviour, Proxy controls access, Adapter changes the interface."
+    ask: "Same interface with extras, same interface guarded, or a different interface?"
+  - patterns: [composite, decorator]
+    difference: "Both are recursive wrappers: Composite holds many children and combines them; Decorator wraps one object and adds to it."
+    ask: "Many children, or one wrapped object?"
+  - patterns: [bridge, adapter]
+    difference: "Bridge is planned up front so two sides can vary; Adapter is added later to make an existing class fit."
+    ask: "Designing for change, or fixing a mismatch after the fact?"
+  - patterns: [strategy, state]
+    difference: "Strategy is chosen by the caller and rarely changes; State switches itself as the object's situation changes."
+    ask: "Who swaps the behaviour: the client, or the object itself?"
+  - patterns: [strategy, template-method]
+    difference: "Strategy swaps the whole algorithm by passing an object; Template Method fixes the steps and lets subclasses fill some in."
+    ask: "Composition at runtime, or inheritance with fixed steps?"
+  - patterns: [strategy, command]
+    difference: "A strategy says how to do a job the context always does; a command says what to do and is often stored to run later or undo."
+    ask: "Choosing how, or packaging what (to queue or undo)?"
+  - patterns: [facade, mediator]
+    difference: "A facade is a one-way front door the subsystem doesn't know; a mediator sits among colleagues that talk through it."
+    ask: "Simplifying for outsiders, or coordinating insiders?"
+  - patterns: [observer, mediator]
+    difference: "Observer broadcasts one subject's news to any listeners; Mediator coordinates many objects and owns the rules between them."
+    ask: "One speaker and listeners, or many talkers and a referee?"
+  - patterns: [chain-of-responsibility, decorator]
+    difference: "Both pass a call to the next object; a decorator always passes it on and adds something, a chain link may handle it and stop."
+    ask: "Must every link run, or can one link answer and stop?"
+  - patterns: [command, memento]
+    difference: "Both power undo: a command reverses its own action; a memento restores a saved snapshot of state."
+    ask: "Undo by doing the opposite, or by going back to a saved copy?"

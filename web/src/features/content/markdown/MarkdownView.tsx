@@ -12,7 +12,15 @@ import { CodeBlock } from './CodeBlock';
 import { CodeCompare } from './CodeCompare';
 import { fenceOf, markKindOf, sideOf } from './fence';
 import { TermsContext } from './terms';
-import { rehypeCallouts, rehypeCompare, rehypeGoDeeper, rehypeInterview, type CalloutType } from './rehypeContent';
+import {
+  rehypeCallouts,
+  rehypeCompare,
+  rehypeGoDeeper,
+  rehypeInterview,
+  rehypeLookalikeSlot,
+  type CalloutType,
+} from './rehypeContent';
+import { LookalikeStrip } from '../patterns/LookalikeStrip';
 import { rehypeRecallSections } from '../reader/recall';
 import { RecallSection } from '../reader/RecallSection';
 import { GoDeeper } from '../reader/GoDeeper';
@@ -70,7 +78,7 @@ function rehypeDropLeadingTitle() {
 }
 
 const COMMON_PLUGINS = [rehypeSlug, rehypeDropLeadingTitle, rehypeCompare, rehypeCallouts];
-const LESSON_PLUGINS = [...COMMON_PLUGINS, rehypeInterview, rehypeGoDeeper];
+const LESSON_PLUGINS = [...COMMON_PLUGINS, rehypeLookalikeSlot, rehypeInterview, rehypeGoDeeper];
 const CHEAT_SHEET_PLUGINS = [...COMMON_PLUGINS, rehypeRecallSections];
 
 const components: Components = {
@@ -88,6 +96,7 @@ const components: Components = {
   div: ({ node, children, ...props }) => {
     const properties = node?.properties ?? {};
     if (properties.dataCompare !== undefined) return <Compare node={node} />;
+    if (properties.dataLookalikes !== undefined) return <LookalikeStrip />;
     if (typeof properties.dataGoDeeper === 'string') {
       return <GoDeeper topics={properties.dataGoDeeper.split('\n').filter(Boolean)}>{children}</GoDeeper>;
     }

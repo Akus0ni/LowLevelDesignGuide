@@ -42,7 +42,9 @@ public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource sni
         return new PackedModule(
             module.Slug, Text(manifest, FrontMatterKeys.Title), Text(manifest, FrontMatterKeys.Summary), Order(manifest), lessons,
             manifest[FrontMatterKeys.Map]?.Scalar is { } map ? FlowchartMap.Parse(map).ToContract() : null,
-            [.. (manifest[FrontMatterKeys.Mnemonics]?.Items ?? []).Select(Mnemonics.Parse).Select(m => new Mnemonic(m.Word, m.Lessons))]);
+            [.. (manifest[FrontMatterKeys.Mnemonics]?.Items ?? []).Select(Mnemonics.Parse).Select(m => new Mnemonic(m.Word, m.Lessons))],
+            manifest[FrontMatterKeys.Picker]?.Nested is { } picker ? PickerTree.Parse(picker).ToContract() : null,
+            manifest[FrontMatterKeys.Lookalikes]?.Nested is { } lookalikes ? [.. Lookalikes.Parse(lookalikes).Entries.Select(l => l.ToContract())] : []);
     }
 
     private PackedLesson PackLesson(SourceLesson lesson)
@@ -66,7 +68,8 @@ public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource sni
             new PackedCheatSheet(Text(sheetFront, FrontMatterKeys.Title), Body(sheet)),
             EntityTerms.Of(body, headings),
             front[FrontMatterKeys.Icon]?.Scalar?.Trim(),
-            front[FrontMatterKeys.Hook]?.Scalar?.Trim());
+            front[FrontMatterKeys.Hook]?.Scalar?.Trim(),
+            front[FrontMatterKeys.Symbol]?.Scalar?.Trim());
     }
 
     private string Body(SourceDocument document) =>

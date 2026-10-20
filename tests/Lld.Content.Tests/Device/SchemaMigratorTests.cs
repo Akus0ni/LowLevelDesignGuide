@@ -74,11 +74,32 @@ public sealed class SchemaMigratorTests : IDisposable
     {
         await new SchemaMigrator(_device.Database, [new V1ContentTables(), new V2LessonTerms(), new V3ModuleMap()]).MigrateAsync(Ct);
 
-        (await _device.MigrateAsync(Ct)).Should().Be(1);
+        (await _device.MigrateAsync(Ct)).Should().Be(SchemaMigrator.All.Count - 3);
 
         await using var connection = await _device.Database.OpenAsync(Ct);
         (await Scalar(connection, "SELECT count(*) FROM LessonProgress;")).Should().Be("0");
         (await Scalar(connection, "SELECT count(*) FROM ActivityDays;")).Should().Be("0");
+    }
+
+    [Fact]
+    public async Task V5_AddsPatternColumns_AndKeepsProgress()
+    {
+        await new SchemaMigrator(_device.Database, [new V1ContentTables(), new V2LessonTerms(), new V3ModuleMap(), new V4Progress()]).MigrateAsync(Ct);
+        await using (var connection = await _device.Database.OpenAsync(Ct))
+        {
+            await using var insert = connection.CreateCommand();
+            insert.CommandText = """
+                INSERT INTO Modules (Slug, Title, Summary, SortOrder) VALUES ('m', 'M', 'S', 0);
+                INSERT INTO LessonProgress (Owner, LessonId, Status, UpdatedAt, DeviceId) VALUES ('guest', 'l', 1, '2026-10-20T00:00:00Z', 'd');
+                """;
+            await insert.ExecuteNonQueryAsync(Ct);
+        }
+
+        (await _device.MigrateAsync(Ct)).Should().Be(1);
+
+        await using var check = await _device.Database.OpenAsync(Ct);
+        (await Scalar(check, "SELECT coalesce(PickerJson, 'none') || ' ' || LookalikesJson FROM Modules WHERE Slug = 'm';")).Should().Be("none []");
+        (await Scalar(check, "SELECT count(*) FROM LessonProgress;")).Should().Be("1");
     }
 
     [Fact]

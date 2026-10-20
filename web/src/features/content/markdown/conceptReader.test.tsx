@@ -130,6 +130,14 @@ describe('memory aids', () => {
     expect(stamp).toHaveTextContent("Don't touch my data. Ask me to do it.");
   });
 
+  it('draws OVERUSE as a warning stamp that keeps its list', async () => {
+    await show('> [!OVERUSE]\n> - Hidden dependencies.\n> - Shared state in tests.');
+
+    const stamp = screen.getByRole('complementary', { name: 'when it hurts' });
+    expect(stamp).toHaveAttribute('data-callout', 'overuse');
+    expect(within(stamp).getAllByRole('listitem')).toHaveLength(2);
+  });
+
   it('folds Go deeper behind a button that lists its topics', async () => {
     await show('# E\n\n## The rule\n\nShort.\n\n## Go deeper\n\n### A second example\n\nLong text.\n\n### C# traps\n\nMore.');
 

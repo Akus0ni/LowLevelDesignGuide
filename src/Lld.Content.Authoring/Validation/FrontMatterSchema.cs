@@ -16,6 +16,9 @@ public enum FieldKind
 
     /// <summary>One of <see cref="FieldSpec.Choices"/>.</summary>
     Choice,
+
+    /// <summary>A nested map or list of maps; the key's own parser and rule check its shape (spec 006 picker, look-alikes).</summary>
+    Structured,
 }
 
 public sealed record FieldSpec(string Name, FieldKind Kind, bool Required, IReadOnlyList<string>? Choices = null);
@@ -63,6 +66,7 @@ public sealed class FrontMatterSchema(params FieldSpec[] fields)
         FieldKind.List when entry.Kind != YamlValueKind.List => "must be a list, e.g. [a, b]",
         FieldKind.Choice when entry.Kind != YamlValueKind.Scalar || field.Choices?.Contains(entry.Scalar) != true =>
             $"must be one of: {string.Join(", ", field.Choices ?? [])}",
+        FieldKind.Structured when entry.Kind != YamlValueKind.Other => "must be a nested map or a list of maps (see the authoring guide)",
         _ => null,
     };
 }

@@ -161,7 +161,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | **003** | Feature | Content engine (reader) | `Lld.Content` parser, content packaged into the app + loaded into local SQLite, read-only content API for browser dev, reader (C# highlighting, Mermaid), cheat-sheet "Revise" view | Fresh install in airplane mode shows lessons; a new `.md` file appears after rebuild |
 | **004** | Content | OOP & SOLID | Lessons + cheat sheets | Module complete and readable in the app |
 | **005** | Feature | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
-| **006** | Content | GoF design patterns | 23 patterns, C# samples, cheat sheets | Module complete; samples compile |
+| **006** | Content | GoF + Enterprise patterns | 23 GoF + 5 Enterprise patterns, compiled samples, cheat sheets; periodic table, "Which pattern?" picker, look-alike compare (PRD R93–R100) | Modules complete; samples compile and are tested |
 | **007** | Feature | Notes & bookmarks | Per-lesson notes, bookmarks, list view | CRUD works offline on device |
 | **008** | Content | UML | Class / sequence / state / activity with Mermaid | Module complete |
 | **009** | Feature | Search | FTS5 on device (API copy for browser dev), highlighted results | Query → results under 200 ms on device |

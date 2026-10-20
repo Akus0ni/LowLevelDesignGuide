@@ -19,6 +19,7 @@
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Lld.Samples.OopSolid/Lld.Samples.OopSolid.csproj" />
+    <Project Path="samples/Lld.Samples.Patterns/Lld.Samples.Patterns.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Lld.Admin.Tests/Lld.Admin.Tests.csproj" />

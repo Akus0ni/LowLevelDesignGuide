@@ -59,4 +59,24 @@ public static class IssueCodes
     public const string MnemonicFormat = "mnemonic.format";
     public const string MnemonicUnknownLesson = "mnemonic.unknown_lesson";
     public const string MnemonicLetterMismatch = "mnemonic.letter_mismatch";
+
+    public const string PatternSectionMissing = "pattern.section_missing";
+    public const string PatternSectionOrder = "pattern.section_order";
+    public const string PatternStructureNoClassDiagram = "pattern.structure_no_class_diagram";
+    public const string PatternSeeItNoCompare = "pattern.see_it_no_compare";
+    public const string OveruseMissing = "overuse.missing";
+    public const string OveruseDuplicate = "overuse.duplicate";
+    public const string SymbolMissing = "symbol.missing";
+    public const string SymbolFormat = "symbol.format";
+    public const string SymbolDuplicate = "symbol.duplicate";
+
+    public const string PickerShape = "picker.shape";
+    public const string PickerUnknownNext = "picker.unknown_next";
+    public const string PickerCycle = "picker.cycle";
+    public const string PickerTooDeep = "picker.too_deep";
+    public const string PickerUnknownLesson = "picker.unknown_lesson";
+    public const string PickerUnreachable = "picker.unreachable";
+    public const string LookalikeShape = "lookalike.shape";
+    public const string LookalikeUnknownLesson = "lookalike.unknown_lesson";
+    public const string LookalikeDuplicate = "lookalike.duplicate";
 }

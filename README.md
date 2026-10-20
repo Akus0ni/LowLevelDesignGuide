@@ -229,9 +229,37 @@ flowchart TD                         (the everyday picture: top to bottom, at mo
 | **Compiled C#** | ```` ```csharp snippet="samples/Lld.Samples.OopSolid/Srp/After/Invoice.cs#Invoice,InvoiceHtml" ```` with an empty body. Selectors: `Type`, `Outer.Inner`, `Type.Member` (all overloads; `Type.Type` = constructors), `Box<T>`; none = whole file. Paths may point into `samples/`, `src/` or `tests/`. Concept modules may not contain inline C#. |
 | **Before / After** | A ```` ```csharp before title="…" snippet="…" ```` fence directly followed by an ```` ```csharp after … ```` fence. Changed lines are marked when content is packed. |
 | **Mark lines** | ```` ```csharp mark="3-5,9" ```` on any other fence. |
-| **Callouts** | `> [!TYPE]` on the first line of a blockquote: `REMEMBER`, `NOTE`, `TIP`, `INTERVIEW`, `SMELL`, `PITFALL`, `APP` (in this app), `WORK` (from my work). |
+| **Callouts** | `> [!TYPE]` on the first line of a blockquote: `REMEMBER`, `NOTE`, `TIP`, `INTERVIEW`, `SMELL`, `PITFALL`, `APP` (in this app), `WORK` (from my work), `OVERUSE` (when it hurts). |
 | **Module map** | `map:` in `module.yml`: a Mermaid flowchart whose node ids are lesson slugs; `subgraph id["Title"]` = a package; `a -->|"label"| b` = a link. Spaces around arrows; every lesson must appear. |
-| **Mnemonics** | `mnemonics: ["SOLID: srp, ocp, lsp, isp, dip"]`: one lesson per letter, each letter = the first letter of that lesson's title. |
+| **Mnemonics** | `mnemonics: ["SOLID: srp, ocp, lsp, isp, dip"]`: one lesson per letter, each letter = the first letter of that lesson's title. A phrase spells with each word's first letter: `"Smart Builders Always Follow Plans: singleton, builder, ..."`. |
+
+### Pattern lessons (spec 006)
+A module with `template: pattern` (`gof-patterns`, `enterprise-patterns`) keeps every concept rule and adds:
+
+````markdown
+---
+...
+symbol: St                            # required: two letters, upper then lower, unique in the module
+---
+# Strategy
+> [!REMEMBER] ...                     then the everyday picture
+## The idea                           (intent in 2–3 lines + "Use it when" bullets)
+## Structure                          (a ```mermaid classDiagram```, one line per participant)
+## See it                             (a before / after pair from samples/Lld.Samples.Patterns)
+## Modern C#                          (one snippet from …/Modern/ and the trade-off)
+## Seen in .NET                       (2–3 real BCL / ASP.NET Core types)
+## Travels with                       (2–3 linked patterns, then exactly one > [!OVERUSE] stamp)
+## In this app                        (optional: only where the app really uses it)
+## Interview questions · ## Go deeper
+````
+
+| `module.yml` key | What it does |
+|---|---|
+| `map:` | Subgraphs are the periodic table's categories (the stereotype before `:` picks the colour: creational, structural, behavioral, enterprise); links are "travels with". |
+| `picker:` | `start: id` and `questions: { id: { ask, answers: [ { label, next: id } \| { label, pick: [slug], why } ] } }`; 2–5 answers, at most 4 questions deep, every lesson reachable. |
+| `lookalikes:` | `- patterns: [a, b]` (2–3 slugs), `difference:` and `ask:` (≤ 160 characters each). The compare page is `/learn/<module>/compare/a-vs-b`. |
+
+Samples live in `samples/Lld.Samples.Patterns/<Category>/<Pattern>/{Before,After,Modern}`.
 
 Samples live in `samples/Lld.Samples.OopSolid/<Lesson>/{Before,After,Language}` with tests in `tests/Lld.Samples.Tests`
 proving what each design claims. In browser dev mode, editing a quoted `.cs` file shows up on reload too.

@@ -30,7 +30,8 @@ public sealed class InMemoryContentCatalog : IContentCatalog
 
     public Task<ModuleDetail?> GetModuleAsync(string slug, CancellationToken cancellationToken) =>
         Task.FromResult(_modulesBySlug.TryGetValue(slug, out var module)
-            ? new ModuleDetail(module.Slug, module.Title, module.Summary, [.. module.Lessons.Select(l => ToSummary(module, l))], module.Map, module.Mnemonics ?? [])
+            ? new ModuleDetail(module.Slug, module.Title, module.Summary, [.. module.Lessons.Select(l => ToSummary(module, l))], module.Map, module.Mnemonics ?? [],
+                module.Picker, module.Lookalikes ?? [])
             : null);
 
     public Task<LessonDetail?> GetLessonAsync(string id, CancellationToken cancellationToken)
@@ -82,7 +83,7 @@ public sealed class InMemoryContentCatalog : IContentCatalog
 
     private static LessonSummary ToSummary(PackedModule module, PackedLesson lesson) =>
         new(lesson.Id, module.Slug, lesson.Slug, lesson.Title, lesson.Summary, lesson.Order, lesson.ReadingMinutes, lesson.Tags, lesson.Icon, lesson.Hook,
-            lesson.Outline.Count);
+            lesson.Outline.Count, lesson.Symbol);
 
     private static LessonLink ToLink(PackedModule module, PackedLesson lesson) =>
         new(lesson.Id, module.Slug, lesson.Slug, lesson.Title);

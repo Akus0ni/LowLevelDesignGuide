@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router';
-import type { LessonSummary } from '../../data/types';
+import type { LessonSummary, ModuleDetail } from '../../data/types';
 import { content, useModule } from '../../data/useContent';
 import { cn } from '../../ui/cn';
 import { Icon } from '../../ui/Icon';
@@ -13,6 +13,9 @@ import { ContentBoundary } from './ContentBoundary';
 import { LessonIcon } from './LessonIcon';
 import { ModuleMap } from './ModuleMap';
 import { ModuleMnemonics } from './ModuleMnemonics';
+import { LookalikeList } from './patterns/LookalikeStrip';
+import { PatternPicker } from './patterns/PatternPicker';
+import { PeriodicTable } from './patterns/PeriodicTable';
 import { BackLink } from './BackLink';
 import { chevronRight, formatMinutes, plural, usePreload } from './navigation';
 import { ModuleSkeleton } from './Skeletons';
@@ -37,6 +40,8 @@ function ModuleView({ slug }: { slug: string }) {
   const complete = count.total > 0 && count.done === count.total;
   const fresh = useFirstShow(moduleCelebrationId(module.slug), complete);
   const minutes = module.lessons.reduce((total, lesson) => total + lesson.readingMinutes, 0);
+  // Pattern modules (spec 006 §3.5): every lesson has a symbol, so the map is drawn as a periodic table.
+  const asTable = module.lessons.length > 0 && module.lessons.every((lesson) => lesson.symbol);
 
   return (
     <>
@@ -48,10 +53,7 @@ function ModuleView({ slug }: { slug: string }) {
       </div>
       <p className="mt-2 max-w-prose text-muted">{module.summary}</p>
       <div className="-mx-5 mt-8 bg-drafting px-5 py-6 md:-mx-8 md:rounded-3xl md:px-8 md:py-8">
-        {module.mnemonics && module.mnemonics.length > 0 && (
-          <ModuleMnemonics mnemonics={module.mnemonics} lessons={module.lessons} />
-        )}
-        {module.map && module.lessons.length > 0 && <ModuleMap map={module.map} lessons={module.lessons} />}
+        {asTable ? <PatternAids module={module} /> : <ConceptAids module={module} />}
         {module.lessons.length === 0 ? (
           <p className="rounded-lg border border-dashed border-rule bg-surface px-4 py-8 text-center text-muted">
             Lessons for this module are being written.
@@ -80,6 +82,43 @@ function ModuleView({ slug }: { slug: string }) {
           </section>
         )}
       </div>
+    </>
+  );
+}
+
+/** Concept modules (spec 004): the mnemonics first, then the «package» map. */
+function ConceptAids({ module }: { module: ModuleDetail }) {
+  return (
+    <>
+      {module.mnemonics && module.mnemonics.length > 0 && (
+        <ModuleMnemonics mnemonics={module.mnemonics} lessons={module.lessons} />
+      )}
+      {module.map && module.lessons.length > 0 && <ModuleMap map={module.map} lessons={module.lessons} />}
+    </>
+  );
+}
+
+/**
+ * Pattern modules (spec 006): the periodic table and the picker come first, because they are how you find a pattern;
+ * the mnemonics (23 rows for GoF) and the look-alikes follow, so the table is never two screens down on a phone.
+ */
+function PatternAids({ module }: { module: ModuleDetail }) {
+  return (
+    <>
+      {module.map && <PeriodicTable map={module.map} lessons={module.lessons} lookalikes={module.lookalikes} />}
+      {module.picker && (
+        <div className="mb-7">
+          <PatternPicker picker={module.picker} lessons={module.lessons} />
+        </div>
+      )}
+      {module.mnemonics && module.mnemonics.length > 0 && (
+        <ModuleMnemonics mnemonics={module.mnemonics} lessons={module.lessons} />
+      )}
+      {(module.lookalikes?.length ?? 0) > 0 && (
+        <div className="mb-7">
+          <LookalikeList module={module} />
+        </div>
+      )}
     </>
   );
 }

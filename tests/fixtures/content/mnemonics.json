@@ -1,0 +1,12 @@
+{
+  "comment": "Spec 006 §3.4: how a mnemonic spells its letters. Read by MnemonicsTests (C#) and mnemonicTiles.test.ts (web).",
+  "cases": [
+    { "name": "single word", "word": "SOLID", "letters": ["S", "O", "L", "I", "D"] },
+    { "name": "decoration is skipped", "word": "A-PIE", "letters": ["A", "P", "I", "E"] },
+    { "name": "phrase uses first letters", "word": "Smart Builders Always Follow Plans", "letters": ["S", "B", "A", "F", "P"] },
+    { "name": "punctuation in a phrase", "word": "Cats Can Ignore Instructions; Mice Mostly Obey Strict Schedules, Then Vanish", "letters": ["C", "C", "I", "I", "M", "M", "O", "S", "S", "T", "V"] },
+    { "name": "apostrophe and capitals inside a word", "word": "Don't Run Untested SQL Nightly", "letters": ["D", "R", "U", "S", "N"] },
+    { "name": "extra spaces", "word": "  Fly   Far  ", "letters": ["F", "F"] },
+    { "name": "a word with no letters is skipped", "word": "A & B", "letters": ["A", "B"] }
+  ]
+}

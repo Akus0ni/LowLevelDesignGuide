@@ -29,10 +29,11 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
     public async Task<ModuleDetail?> GetModuleAsync(string slug, CancellationToken cancellationToken)
     {
         var module = (await QueryAsync(
-            "SELECT Slug, Title, Summary, MapJson, MnemonicsJson FROM Modules WHERE Slug = $slug;",
+            "SELECT Slug, Title, Summary, MapJson, MnemonicsJson, PickerJson, LookalikesJson FROM Modules WHERE Slug = $slug;",
             [("$slug", slug)],
             r => (Slug: r.GetString(0), Title: r.GetString(1), Summary: r.GetString(2),
-                Map: r.IsDBNull(3) ? null : DeviceJson.Map(r.GetString(3)), Mnemonics: DeviceJson.Mnemonics(r.GetString(4))),
+                Map: r.IsDBNull(3) ? null : DeviceJson.Map(r.GetString(3)), Mnemonics: DeviceJson.Mnemonics(r.GetString(4)),
+                Picker: r.IsDBNull(5) ? null : DeviceJson.Picker(r.GetString(5)), Lookalikes: DeviceJson.Lookalikes(r.GetString(6))),
             cancellationToken).ConfigureAwait(false)).SingleOrDefault();
         if (module.Slug is null)
         {
@@ -42,16 +43,16 @@ public sealed class SqliteContentCatalog(DeviceDatabase database) : IContentCata
         var lessons = await QueryAsync(
             $"""
             SELECT l.Id, l.ModuleSlug, l.Slug, l.Title, l.Summary, l.SortOrder, l.ReadingMinutes, l.TagsJson, l.Icon, l.Hook,
-                   json_array_length(l.OutlineJson)
+                   json_array_length(l.OutlineJson), l.Symbol
             FROM Lessons l WHERE l.ModuleSlug = $slug
             ORDER BY {LessonOrder};
             """,
             [("$slug", slug)],
             r => new LessonSummary(
                 r.GetString(0), r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4),
-                r.GetInt32(5), r.GetInt32(6), DeviceJson.Tags(r.GetString(7)), Optional(r, 8), Optional(r, 9), r.GetInt32(10)),
+                r.GetInt32(5), r.GetInt32(6), DeviceJson.Tags(r.GetString(7)), Optional(r, 8), Optional(r, 9), r.GetInt32(10), Optional(r, 11)),
             cancellationToken).ConfigureAwait(false);
-        return new ModuleDetail(module.Slug, module.Title, module.Summary, lessons, module.Map, module.Mnemonics);
+        return new ModuleDetail(module.Slug, module.Title, module.Summary, lessons, module.Map, module.Mnemonics, module.Picker, module.Lookalikes);
     }
 
     public async Task<LessonDetail?> GetLessonAsync(string id, CancellationToken cancellationToken) =>

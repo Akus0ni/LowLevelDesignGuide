@@ -53,7 +53,7 @@ public static class YamlMapParser
             YamlScalarNode scalar => new(name, line, YamlValueKind.Scalar, scalar.Value ?? string.Empty, []),
             YamlSequenceNode list when list.Children.All(item => item is YamlScalarNode) =>
                 new(name, line, YamlValueKind.List, null, [.. list.Children.Cast<YamlScalarNode>().Select(item => item.Value ?? string.Empty)]),
-            _ => new(name, line, YamlValueKind.Other, null, []),
+            _ => new(name, line, YamlValueKind.Other, null, [], new YamlNested(value, firstLine - 1)),
         };
     }
 }

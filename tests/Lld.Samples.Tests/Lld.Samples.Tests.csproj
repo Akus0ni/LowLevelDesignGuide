@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit.runner.visualstudio" />
@@ -16,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\samples\Lld.Samples.OopSolid\Lld.Samples.OopSolid.csproj" />
+    <ProjectReference Include="..\..\samples\Lld.Samples.Patterns\Lld.Samples.Patterns.csproj" />
   </ItemGroup>
 
   <ItemGroup>

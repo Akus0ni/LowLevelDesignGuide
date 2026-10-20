@@ -31,6 +31,13 @@ public sealed class ContentValidator(IEnumerable<IContentRule> rules)
         new RememberStampRule(),
         new ConceptIdentityRule(),
         new MnemonicRule(),
+        new PatternSectionsRule(),
+        new PatternStructureRule(),
+        new PatternCompareRule(),
+        new OveruseStampRule(),
+        new SymbolRule(),
+        new PickerRule(),
+        new LookalikesRule(),
     ];
 
     public ContentValidator()
