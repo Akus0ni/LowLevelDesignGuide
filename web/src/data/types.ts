@@ -86,6 +86,8 @@ export interface ModuleDetail {
 export interface ModulePicker {
   start: string;
   questions: PickerQuestion[];
+  /** The button and sheet title (spec 008), e.g. "Which diagram?"; absent means "Which pattern?". */
+  title?: string | null;
 }
 
 export interface PickerQuestion {

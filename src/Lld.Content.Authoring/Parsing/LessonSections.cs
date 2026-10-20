@@ -22,6 +22,17 @@ public static class LessonSections
     public const string TravelsWith = "Travels with";
     public const string InThisApp = "In this app";
 
+    // Diagram lessons (spec 008 §3.2).
+    public const string Notation = "Notation";
+    public const string ReadIt = "Read it";
+    public const string CodeUml = "Code ↔ UML";
+    public const string FromRequirements = "From requirements";
+    public const string InAnInterview = "In an interview";
+
+    // The interview lesson of a diagram module replaces Notation and Read it with these two.
+    public const string WhichDiagram = "Which diagram for which question";
+    public const string WorkedExample = "Worked example";
+
     private const int SectionLevel = 2;
 
     /// <summary>Sections every pattern lesson has.</summary>

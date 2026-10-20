@@ -7,6 +7,8 @@ import type { Element, ElementContent } from 'hast';
 export interface FenceMeta {
   flags: string[];
   title?: string;
+  /** A Code ↔ UML diagram's link map, written by the packer (spec 008 §3.4). */
+  links?: string;
   /** 1-based lines to mark: removed (before), added (after) or "look here" (any other fence). */
   marks: ReadonlySet<number>;
 }
@@ -29,7 +31,12 @@ export function parseFenceMeta(meta: string | null | undefined): FenceMeta {
     if (value === undefined) flags.push(name);
     else attributes.set(name, value);
   }
-  return { flags, title: attributes.get('title'), marks: parseLineRanges(attributes.get('mark') ?? '') };
+  return {
+    flags,
+    title: attributes.get('title'),
+    links: attributes.get('links'),
+    marks: parseLineRanges(attributes.get('mark') ?? ''),
+  };
 }
 
 /** `3-5,9` → 3, 4, 5, 9. Anything unreadable is skipped (the packer already validated it). */

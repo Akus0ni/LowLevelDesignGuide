@@ -45,10 +45,47 @@ export function rehypeCompare() {
     });
 }
 
+/**
+ * A `mermaid pair` diagram directly followed by its `csharp paired` code (the packer writes them together, spec 008
+ * §3.4) → `<div data-pair>` holding both `<pre>`s.
+ */
+export function rehypePair() {
+  return (tree: Root) =>
+    forEachParent(tree, (parent) => {
+      if (parent.type === 'element' && parent.properties.dataPair !== undefined) return;
+      const children = parent.children as ElementContent[];
+      for (let i = 0; i < children.length; i++) {
+        const diagram = children[i];
+        if (!isElement(diagram, 'pre') || !fenceOf(diagram)?.meta.flags.includes('pair')) continue;
+        let j = i + 1;
+        while (j < children.length && isBlank(children[j])) j++;
+        const code = children[j];
+        if (!isElement(code, 'pre') || !fenceOf(code)?.meta.flags.includes('paired')) continue;
+        children.splice(i, j - i + 1, {
+          type: 'element',
+          tagName: 'div',
+          properties: { dataPair: '' },
+          children: [diagram, code],
+        });
+      }
+    });
+}
+
 const EMPTY = { flags: [], marks: new Set<number>() };
 
 /** The callout types the packer accepts (spec 004 §3.5); mirrors `Callouts.Types` in Lld.Content.Authoring. */
-export const CALLOUT_TYPES = ['remember', 'note', 'tip', 'interview', 'smell', 'pitfall', 'app', 'work', 'overuse'] as const;
+export const CALLOUT_TYPES = [
+  'remember',
+  'note',
+  'tip',
+  'interview',
+  'smell',
+  'pitfall',
+  'app',
+  'work',
+  'overuse',
+  'mistakes',
+] as const;
 export type CalloutType = (typeof CALLOUT_TYPES)[number];
 
 const MARKER = /^\[!([A-Za-z-]+)\][ \t]*(?:\r?\n|$)/;

@@ -19,7 +19,7 @@ async function expectNoSidewaysScroll(page: Page) {
 
 test('A1: GoF has 23 lessons and Enterprise 5, in reading order, before UML and case studies', async ({ page }) => {
   const modules = allModules();
-  expect(modules.map((m) => m.slug)).toEqual(['start', 'oop-solid', 'gof-patterns', 'enterprise-patterns', 'case-studies']);
+  expect(modules.map((m) => m.slug)).toEqual(['start', 'oop-solid', 'gof-patterns', 'enterprise-patterns', 'uml', 'case-studies']);
   expect(lessonSlugsOf('gof-patterns')).toHaveLength(23);
   expect(lessonSlugsOf('gof-patterns').slice(0, 3)).toEqual(['singleton', 'factory-method', 'abstract-factory']);
   expect(lessonSlugsOf('enterprise-patterns')).toEqual([

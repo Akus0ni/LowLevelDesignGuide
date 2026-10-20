@@ -16,15 +16,20 @@ public sealed record ParsedQuestion(string Id, int Line, string Ask, IReadOnlyLi
 /// <summary>A picker as written, with lines for the rule (<see cref="PickerTree"/>) and a contract for the pack.</summary>
 public sealed record ParsedPicker(string Start, int StartLine, IReadOnlyList<ParsedQuestion> Questions, IReadOnlyList<LineProblem> Problems)
 {
+    /// <summary>Optional button and sheet title (spec 008, CD-005).</summary>
+    public string? Title { get; init; }
+
     public ModulePicker ToContract() => new(
         Start,
-        [.. Questions.Select(q => new PickerQuestion(q.Id, q.Ask, [.. q.Answers.Select(a => new PickerAnswer(a.Label, a.Next, a.Picks, a.Why))]))]);
+        [.. Questions.Select(q => new PickerQuestion(q.Id, q.Ask, [.. q.Answers.Select(a => new PickerAnswer(a.Label, a.Next, a.Picks, a.Why))]))],
+        Title);
 }
 
 /// <summary>
-/// Reads the "Which pattern?" decision tree (spec 006 §3.6) from <c>module.yml</c>:
+/// Reads the "Which pattern?" decision tree (spec 006 §3.6) from <c>module.yml</c>; <c>title</c> is optional (spec 008):
 /// <code>
 /// picker:
+///   title: "Which diagram?"
 ///   start: what
 ///   questions:
 ///     what:
@@ -40,8 +45,10 @@ public static class PickerTree
     public const int MinAnswers = 2;
     public const int MaxAnswers = 5;
     public const int MaxPicks = 2;
+    public const int MaxTitleLength = 40;
 
     private const string StartKey = "start";
+    private const string TitleKey = "title";
     private const string QuestionsKey = "questions";
     private const string AskKey = "ask";
     private const string AnswersKey = "answers";
@@ -78,8 +85,15 @@ public static class PickerTree
             questions.AddRange(questionMap.Children.Select(pair => Question(nested, pair.Key, pair.Value, problems)));
         }
 
+        var title = YamlNodes.Scalar(root, TitleKey);
+        if (title is not null && (string.IsNullOrWhiteSpace(title) || title.Length > MaxTitleLength))
+        {
+            var titleLine = YamlNodes.Child(root, TitleKey) is { } titleNode ? nested.LineOf(titleNode) : nested.LineOf(root);
+            problems.Add(new(titleLine, $"'title' is the picker button's text: 1–{MaxTitleLength} characters, e.g. \"Which diagram?\"."));
+        }
+
         var startLine = YamlNodes.Child(root, StartKey) is { } startNode ? nested.LineOf(startNode) : nested.LineOf(root);
-        return new ParsedPicker(start ?? string.Empty, startLine, questions, problems);
+        return new ParsedPicker(start ?? string.Empty, startLine, questions, problems) { Title = title };
     }
 
     private static ParsedQuestion Question(YamlNested nested, YamlNode key, YamlNode value, List<LineProblem> problems)

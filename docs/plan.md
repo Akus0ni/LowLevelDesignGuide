@@ -163,7 +163,7 @@ and every feature is tested with real lessons. Spec numbers follow build order.
 | **005** | Feature | Progress | Mark done, % per module, resume | Progress persists and is visible per user |
 | **006** | Content | GoF + Enterprise patterns | 23 GoF + 5 Enterprise patterns, compiled samples, cheat sheets; periodic table, "Which pattern?" picker, look-alike compare (PRD R93–R100) | Modules complete; samples compile and are tested |
 | **007** | Feature | Notes & bookmarks | Lesson and section notes, bookmarks (lesson / section / cheat sheet), Notes tab, tags, starters, notes in Revise, export (PRD R102–R108) | CRUD works offline on device |
-| **008** | Content | UML | Class / sequence / state / activity with Mermaid | Module complete |
+| **008** | Content | UML | 10 lessons (class ×3, object, component / deployment, use case, sequence, state, activity, interview); template `diagram`; Code ↔ UML pairs checked against compiled C#; arrow legend, state Run, activity step-through, "Which diagram?" (PRD R109–R116) | Module complete; pairs match their code |
 | **009** | Feature | Search | FTS5 on device (API copy for browser dev), highlighted results | Query → results under 200 ms on device |
 | **010** | Feature | Offline sync | One combined `/sync` call, LWW conflict rule, sync triggers, **Sync button disabled while server offline**, auto-sync when status → online | Airplane-mode scenario passes; offline → online auto-sync passes; monthly request estimate under budget |
 | **011+** | Content | Case studies | One spec per case study; **each starts by asking the owner** (`lld-case-study` skill) | Lesson + cheat sheet + compiling code |

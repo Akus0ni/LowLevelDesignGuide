@@ -3,11 +3,18 @@ using Lld.Content.Authoring.Snippets;
 
 namespace Lld.Content.Authoring.Validation.Rules;
 
-/// <summary>A code fence's info string uses only known flags and attributes, with a valid <c>mark</c>.</summary>
+/// <summary>
+/// A code fence's info string uses only known flags and attributes, with a valid <c>mark</c>; the diagram keys
+/// (<c>code</c>, <c>steps</c>, spec 008) sit on <c>mermaid</c> fences only, and <c>steps</c> on flowcharts only.
+/// </summary>
 public sealed class FenceInfoRule : IContentRule
 {
-    private static readonly HashSet<string> Flags = [FenceInfo.BeforeFlag, FenceInfo.AfterFlag];
-    private static readonly HashSet<string> Attributes = [FenceInfo.SnippetAttribute, FenceInfo.TitleAttribute, FenceInfo.MarkAttribute];
+    private const string Mermaid = "mermaid";
+    private static readonly string[] FlowchartStarts = ["flowchart", "graph"];
+
+    private static readonly HashSet<string> Flags = [FenceInfo.BeforeFlag, FenceInfo.AfterFlag, FenceInfo.StepsFlag];
+    private static readonly HashSet<string> Attributes =
+        [FenceInfo.SnippetAttribute, FenceInfo.TitleAttribute, FenceInfo.MarkAttribute, FenceInfo.CodeAttribute];
 
     public IEnumerable<ContentIssue> Check(ContentContext context) =>
         from document in context.Documents
@@ -33,6 +40,11 @@ public sealed class FenceInfoRule : IContentRule
             yield return (IssueCodes.FenceUnknownAttribute, $"Unknown attribute '{attribute.Name}'. Allowed: {string.Join(", ", Attributes)}.");
         }
 
+        foreach (var problem in DiagramKeyProblems(fence))
+        {
+            yield return problem;
+        }
+
         if (info[FenceInfo.MarkAttribute] is not { } mark)
         {
             yield break;
@@ -45,6 +57,27 @@ public sealed class FenceInfoRule : IContentRule
         else if (LineRanges.Parse(mark) is null)
         {
             yield return (IssueCodes.FenceBadMark, $"mark=\"{mark}\" must be line numbers or ranges, e.g. mark=\"3-5,9\".");
+        }
+    }
+
+    private static IEnumerable<(string Code, string Message)> DiagramKeyProblems(CodeFence fence)
+    {
+        var info = fence.Info;
+        var isMermaid = string.Equals(info.Language, Mermaid, StringComparison.OrdinalIgnoreCase);
+        if (!isMermaid && info[FenceInfo.CodeAttribute] is not null)
+        {
+            yield return (IssueCodes.FenceDiagramKeyNotMermaid, "'code' names the C# a diagram draws: use it on a ```mermaid fence.");
+        }
+
+        if (!info.HasFlag(FenceInfo.StepsFlag))
+        {
+            yield break;
+        }
+
+        var first = fence.Code.TrimStart().Split((char[]?)null, 2, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        if (!isMermaid || !FlowchartStarts.Contains(first, StringComparer.Ordinal))
+        {
+            yield return (IssueCodes.FenceStepsNotFlowchart, "'steps' walks an activity diagram: use it on a ```mermaid fence that starts with 'flowchart'.");
         }
     }
 }

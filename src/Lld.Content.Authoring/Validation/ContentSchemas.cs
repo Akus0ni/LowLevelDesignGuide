@@ -37,7 +37,13 @@ public static class ContentSchemas
     /// </summary>
     public const string PatternTemplate = "pattern";
 
-    public static readonly IReadOnlyList<string> Templates = [ConceptTemplate, PatternTemplate];
+    /// <summary>
+    /// A UML diagram lesson (spec 008 §3.2): everything a concept lesson needs, plus fixed sections (Notation, Read it,
+    /// Code ↔ UML or From requirements, In an interview) and a Mistakes stamp.
+    /// </summary>
+    public const string DiagramTemplate = "diagram";
+
+    public static readonly IReadOnlyList<string> Templates = [ConceptTemplate, PatternTemplate, DiagramTemplate];
 
     public static FrontMatterSchema Module { get; } = new(
         new FieldSpec(FrontMatterKeys.Title, FieldKind.Text, Required: true),

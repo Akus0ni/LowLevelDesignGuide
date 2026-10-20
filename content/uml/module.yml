@@ -1,0 +1,59 @@
+title: UML
+# After OOP & SOLID (1), GoF patterns (2) and Enterprise & .NET patterns (3); before Case studies (5).
+order: 4
+summary: The diagrams an LLD interview asks for, read and sketched fast, each one checked against real C#.
+template: diagram
+# A phrase spells with the first letter of each word; each letter starts the title of its lesson.
+mnemonics:
+  - "Clever Robots Make Objects Carefully: class-basics, class-relationships, multiplicity, object-diagram, component-deployment"
+  - "Users Always Send Signals: use-case-diagram, activity-diagram, sequence-diagram, state-diagram"
+# Node ids are lesson folder names; the app draws each subgraph as a «package». Put spaces around arrows.
+map: |
+  flowchart TD
+    subgraph structure["Structure: what the system is made of"]
+      class-basics["Classes and members"]
+      class-relationships["Relationships"]
+      multiplicity["Multiplicity"]
+      object-diagram["Object diagram"]
+      component-deployment["Component and deployment"]
+    end
+    subgraph behaviour["Behaviour: what it does over time"]
+      use-case-diagram["Use case"]
+      sequence-diagram["Sequence"]
+      state-diagram["State"]
+      activity-diagram["Activity"]
+    end
+    subgraph practice["Practice"]
+      uml-in-interviews["UML in an LLD interview"]
+    end
+    class-basics -->|"boxes are joined by"| class-relationships
+    class-relationships -->|"get numbers from"| multiplicity
+    class-basics -->|"at run time become"| object-diagram
+    class-basics -->|"group into"| component-deployment
+    use-case-diagram -->|"each use case is one"| sequence-diagram
+    sequence-diagram -->|"messages change an object's"| state-diagram
+    use-case-diagram -->|"a use case's steps are an"| activity-diagram
+    uml-in-interviews -->|"starts from"| use-case-diagram
+# "Which diagram?" (spec 008 §3.8): not every lesson is an answer, so only diagram lessons are picked (CD-003).
+picker:
+  title: "Which diagram?"
+  start: what
+  questions:
+    what:
+      ask: "What does the interviewer want to see?"
+      answers:
+        - { label: "What the system does, for whom", pick: [use-case-diagram], why: "Actors and their goals, before any class exists." }
+        - { label: "The parts and how they connect", next: parts }
+        - { label: "What happens over time", next: time }
+    parts:
+      ask: "Which parts?"
+      answers:
+        - { label: "Classes and their links", pick: [class-basics, class-relationships], why: "The class diagram: boxes, members and the six arrows." }
+        - { label: "Real objects at one moment", pick: [object-diagram], why: "A snapshot with values, to check a class diagram." }
+        - { label: "Big pieces and where they run", pick: [component-deployment], why: "Modules, their interfaces, and the machines they live on." }
+    time:
+      ask: "Over time, how?"
+      answers:
+        - { label: "Messages between objects in one call", pick: [sequence-diagram], why: "Lifelines top to bottom, one arrow per call." }
+        - { label: "One object's life, event by event", pick: [state-diagram], why: "States and the events that move between them." }
+        - { label: "A workflow with branches", pick: [activity-diagram], why: "Steps, decisions and parallel work, like a flowchart." }

@@ -111,7 +111,8 @@ public sealed record Mnemonic(string Word, IReadOnlyList<string> Lessons);
 /// picks lessons.
 /// </summary>
 /// <param name="Start">Id of the first question.</param>
-public sealed record ModulePicker(string Start, IReadOnlyList<PickerQuestion> Questions);
+/// <param name="Title">The button and sheet title, e.g. "Which diagram?" (spec 008); <c>null</c> means "Which pattern?".</param>
+public sealed record ModulePicker(string Start, IReadOnlyList<PickerQuestion> Questions, string? Title = null);
 
 public sealed record PickerQuestion(string Id, string Ask, IReadOnlyList<PickerAnswer> Answers);
 

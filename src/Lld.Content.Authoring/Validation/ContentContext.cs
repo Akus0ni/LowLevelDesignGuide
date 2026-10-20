@@ -24,8 +24,9 @@ public sealed class ContentContext
         Lessons = [.. set.Modules.SelectMany(m => m.Lessons)];
         PatternModules = [.. set.Modules.Where(m => TemplateOf(m) == ContentSchemas.PatternTemplate)];
         PatternLessons = [.. PatternModules.SelectMany(m => m.Lessons)];
+        DiagramLessons = [.. set.Modules.Where(m => TemplateOf(m) == ContentSchemas.DiagramTemplate).SelectMany(m => m.Lessons)];
         ConceptLessons = [.. set.Modules
-            .Where(m => TemplateOf(m) is ContentSchemas.ConceptTemplate or ContentSchemas.PatternTemplate)
+            .Where(m => TemplateOf(m) is ContentSchemas.ConceptTemplate or ContentSchemas.PatternTemplate or ContentSchemas.DiagramTemplate)
             .SelectMany(m => m.Lessons)];
         Documents = [.. Lessons.SelectMany(l => new[] { l.Lesson, l.CheatSheet }).OfType<SourceDocument>()];
         _documentsByPath = Documents.ToDictionary(d => d.Path, StringComparer.Ordinal);
@@ -46,8 +47,8 @@ public sealed class ContentContext
     public IReadOnlyList<SourceLesson> Lessons { get; }
 
     /// <summary>
-    /// Lessons of modules with <c>template: concept</c> (spec 004 §3.2) or <c>template: pattern</c> (spec 006 §3.2),
-    /// which keeps every concept rule.
+    /// Lessons of modules with <c>template: concept</c> (spec 004 §3.2), <c>template: pattern</c> (spec 006 §3.2) or
+    /// <c>template: diagram</c> (spec 008 §3.2), which keeps every concept rule.
     /// </summary>
     public IReadOnlyList<SourceLesson> ConceptLessons { get; }
 
@@ -56,6 +57,9 @@ public sealed class ContentContext
 
     /// <summary>Lessons of <see cref="PatternModules"/>; they are also in <see cref="ConceptLessons"/>.</summary>
     public IReadOnlyList<SourceLesson> PatternLessons { get; }
+
+    /// <summary>Lessons of modules with <c>template: diagram</c> (spec 008); they are also in <see cref="ConceptLessons"/>.</summary>
+    public IReadOnlyList<SourceLesson> DiagramLessons { get; }
 
     /// <summary>Every lesson and cheat sheet that exists.</summary>
     public IReadOnlyList<SourceDocument> Documents { get; }

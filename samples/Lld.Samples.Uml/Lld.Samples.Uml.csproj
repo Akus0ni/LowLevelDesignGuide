@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Compiled C# for the UML lessons (spec 008). One folder per lesson; a lesson diagram names these types with
+       code="...", the packer checks that the diagram matches them, and Lld.Samples.Tests proves what each one claims. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

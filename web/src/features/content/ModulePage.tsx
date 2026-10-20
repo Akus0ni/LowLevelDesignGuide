@@ -86,12 +86,17 @@ function ModuleView({ slug }: { slug: string }) {
   );
 }
 
-/** Concept modules (spec 004): the mnemonics first, then the «package» map. */
+/** Concept and diagram modules (spec 004, 008): the mnemonics first, then the picker if any, then the «package» map. */
 function ConceptAids({ module }: { module: ModuleDetail }) {
   return (
     <>
       {module.mnemonics && module.mnemonics.length > 0 && (
         <ModuleMnemonics mnemonics={module.mnemonics} lessons={module.lessons} />
+      )}
+      {module.picker && (
+        <div className="mb-7">
+          <PatternPicker picker={module.picker} lessons={module.lessons} />
+        </div>
       )}
       {module.map && module.lessons.length > 0 && <ModuleMap map={module.map} lessons={module.lessons} />}
     </>

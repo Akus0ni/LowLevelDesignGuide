@@ -8,6 +8,8 @@ built spec by spec. The app's own code is lesson material. See `docs/PRD.md` and
 - **Start every session by reading `docs/progress.md`** (status + how to resume); update it at the end of each spec or session.
 - **Ask when in doubt. Do not assume.** Any ambiguity in requirements, naming,
   scope or design → ask the user before acting.
+- **Delegated decisions:** when the owner says "you decide", decide and log it in `docs/claude-decisions.md`
+  (ID, why, alternative, review status); the owner reviews that log later.
 - **Spec first.** No feature code without an approved `specs/NNN-name/spec.md`.
   Flow: spec.md → user review → plan.md + tasks.md → implement → tests green →
   commit. Never start the next spec without the user's OK.

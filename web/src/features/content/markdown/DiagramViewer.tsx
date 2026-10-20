@@ -11,7 +11,17 @@ const closeIcon = ['M18 6 6 18', 'm6 6 12 12'];
  * A diagram fits the reading column so its whole shape is visible; "Expand" opens it full screen at natural size,
  * scrollable both ways (and pinch-zoomable: the app never disables zoom). Base UI's Dialog handles focus and Esc.
  */
-export function DiagramViewer({ svg, label }: { svg: string; label: string }) {
+export function DiagramViewer({
+  svg,
+  source,
+  steps,
+  label,
+}: {
+  svg: string;
+  source: string;
+  steps?: boolean;
+  label: string;
+}) {
   return (
     <Dialog.Root>
       <Dialog.Trigger
@@ -45,6 +55,8 @@ export function DiagramViewer({ svg, label }: { svg: string; label: string }) {
           </div>
           <InteractiveDiagram
             svg={atNaturalSize(svg)}
+            source={source}
+            steps={steps}
             label={label}
             showLabel={false}
             className="flex min-h-0 flex-1 flex-col"

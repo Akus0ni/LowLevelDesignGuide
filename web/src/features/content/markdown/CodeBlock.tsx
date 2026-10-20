@@ -49,12 +49,15 @@ export function CodeLines({
   marks = NO_MARKS,
   markKind = 'mark',
   label,
+  linkable = NO_MARKS,
 }: {
   code: string;
   info?: string;
   marks?: ReadonlySet<number>;
   markKind?: MarkKind;
   label?: string;
+  /** Lines that stand for a part of a paired diagram (spec 008 §3.4): they take taps. */
+  linkable?: ReadonlySet<number>;
 }) {
   const language = languageOf(info);
   const terms = use(TermsContext);
@@ -79,7 +82,11 @@ export function CodeLines({
       <code>
         {lines.map((line, index) => (
           <Fragment key={index}>
-            <span className="code-line" data-mark={marks.has(index + 1) ? markKind : undefined}>
+            <span
+              className="code-line"
+              data-mark={marks.has(index + 1) ? markKind : undefined}
+              data-linkable={linkable.has(index + 1) || undefined}
+            >
               {typeof line === 'string' ? (
                 <WithTerms text={line} terms={terms} />
               ) : (

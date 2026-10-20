@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\samples\Lld.Samples.OopSolid\Lld.Samples.OopSolid.csproj" />
     <ProjectReference Include="..\..\samples\Lld.Samples.Patterns\Lld.Samples.Patterns.csproj" />
+    <ProjectReference Include="..\..\samples\Lld.Samples.Uml\Lld.Samples.Uml.csproj" />
   </ItemGroup>
 
   <ItemGroup>

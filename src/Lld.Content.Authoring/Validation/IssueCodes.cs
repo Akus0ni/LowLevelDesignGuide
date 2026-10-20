@@ -30,6 +30,8 @@ public static class IssueCodes
     public const string FenceUnknownAttribute = "fence.unknown_attribute";
     public const string FenceBadMark = "fence.bad_mark";
     public const string FenceMarkOnCompare = "fence.mark_on_compare";
+    public const string FenceDiagramKeyNotMermaid = "fence.diagram_key_not_mermaid";
+    public const string FenceStepsNotFlowchart = "fence.steps_not_flowchart";
 
     public const string SnippetHasCode = "snippet.has_code";
     public const string SnippetNotCSharp = "snippet.not_csharp";
@@ -66,6 +68,14 @@ public static class IssueCodes
     public const string PatternSeeItNoCompare = "pattern.see_it_no_compare";
     public const string OveruseMissing = "overuse.missing";
     public const string OveruseDuplicate = "overuse.duplicate";
+    public const string DiagramSectionMissing = "diagram.section_missing";
+    public const string DiagramSectionNoDiagram = "diagram.section_no_diagram";
+    public const string MistakesMissing = "mistakes.missing";
+    public const string MistakesDuplicate = "mistakes.duplicate";
+    public const string CodePairUnresolved = "code_pair.unresolved";
+    public const string CodePairNotSupported = "code_pair.not_supported";
+    public const string CodePairNoTypes = "code_pair.no_types";
+    public const string CodePairMismatch = "code_pair.mismatch";
     public const string SymbolMissing = "symbol.missing";
     public const string SymbolFormat = "symbol.format";
     public const string SymbolDuplicate = "symbol.duplicate";

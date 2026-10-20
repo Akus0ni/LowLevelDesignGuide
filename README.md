@@ -229,7 +229,7 @@ flowchart TD                         (the everyday picture: top to bottom, at mo
 | **Compiled C#** | ```` ```csharp snippet="samples/Lld.Samples.OopSolid/Srp/After/Invoice.cs#Invoice,InvoiceHtml" ```` with an empty body. Selectors: `Type`, `Outer.Inner`, `Type.Member` (all overloads; `Type.Type` = constructors), `Box<T>`; none = whole file. Paths may point into `samples/`, `src/` or `tests/`. Concept modules may not contain inline C#. |
 | **Before / After** | A ```` ```csharp before title="…" snippet="…" ```` fence directly followed by an ```` ```csharp after … ```` fence. Changed lines are marked when content is packed. |
 | **Mark lines** | ```` ```csharp mark="3-5,9" ```` on any other fence. |
-| **Callouts** | `> [!TYPE]` on the first line of a blockquote: `REMEMBER`, `NOTE`, `TIP`, `INTERVIEW`, `SMELL`, `PITFALL`, `APP` (in this app), `WORK` (from my work), `OVERUSE` (when it hurts). |
+| **Callouts** | `> [!TYPE]` on the first line of a blockquote: `REMEMBER`, `NOTE`, `TIP`, `INTERVIEW`, `SMELL`, `PITFALL`, `APP` (in this app), `WORK` (from my work), `OVERUSE` (when it hurts), `MISTAKES` (common mistakes). |
 | **Module map** | `map:` in `module.yml`: a Mermaid flowchart whose node ids are lesson slugs; `subgraph id["Title"]` = a package; `a -->|"label"| b` = a link. Spaces around arrows; every lesson must appear. |
 | **Mnemonics** | `mnemonics: ["SOLID: srp, ocp, lsp, isp, dip"]`: one lesson per letter, each letter = the first letter of that lesson's title. A phrase spells with each word's first letter: `"Smart Builders Always Follow Plans: singleton, builder, ..."`. |
 
@@ -256,10 +256,34 @@ symbol: St                            # required: two letters, upper then lower,
 | `module.yml` key | What it does |
 |---|---|
 | `map:` | Subgraphs are the periodic table's categories (the stereotype before `:` picks the colour: creational, structural, behavioral, enterprise); links are "travels with". |
-| `picker:` | `start: id` and `questions: { id: { ask, answers: [ { label, next: id } \| { label, pick: [slug], why } ] } }`; 2–5 answers, at most 4 questions deep, every lesson reachable. |
+| `picker:` | `start: id` and `questions: { id: { ask, answers: [ { label, next: id } \| { label, pick: [slug], why } ] } }`; 2–5 answers, at most 4 questions deep; every lesson reachable in `pattern` modules. Optional `title:` names the button ("Which diagram?"). |
 | `lookalikes:` | `- patterns: [a, b]` (2–3 slugs), `difference:` and `ask:` (≤ 160 characters each). The compare page is `/learn/<module>/compare/a-vs-b`. |
 
 Samples live in `samples/Lld.Samples.Patterns/<Category>/<Pattern>/{Before,After,Modern}`.
+
+### Diagram lessons (spec 008)
+A module with `template: diagram` (`uml`) keeps every concept rule and adds:
+
+````markdown
+## The idea                           (what it shows + "Draw it when" bullets)
+## Notation                           (a ```mermaid diagram of the symbols, one line per symbol)
+## Read it                            (one real diagram, from this app where real)
+## Code ↔ UML                         (a ```mermaid code="path#Types" pair) — or ## From requirements (a list + a diagram)
+## In an interview                    (then exactly one > [!MISTAKES] stamp)
+## Interview questions · ## Go deeper
+````
+
+The interview lesson replaces Notation and Read it with `## Which diagram for which question` and `## Worked example`.
+
+| Feature | How to write it |
+|---|---|
+| **Code ↔ UML** | ```` ```mermaid code="samples/Lld.Samples.Uml/Relationships/Shop.cs#Order,OrderLine" ```` on a class, state or sequence diagram. The build fails if a class / participant / state isn't a type (or enum member) in that code, if `A <\|-- B` isn't in B's base list, if `A --> B` has no member of type B, or if `A ..> B` never uses B. People in a sequence diagram are `actor`s and aren't checked. Quote types, not lone members. |
+| **Activity step-through** | ```` ```mermaid steps ```` on a `flowchart`: start `start((" "))`, end `stop(((" ")))`, decisions `{"…"}` with labelled ways out, forks / joins `fork1[" "]:::fork`, `join1[" "]:::join`. |
+| **Arrow legend** | An empty ```` ```uml-arrows ```` fence draws it inline. |
+| **State diagrams** | Any `stateDiagram-v2` gets tap-to-trace and Run; start with `[*] --> First` and label transitions with the event (`A --> B : ship`). |
+
+Samples live in `samples/Lld.Samples.Uml/<Lesson>/`. Check that every diagram draws with the real Mermaid:
+`node web/scripts/check-mermaid.mjs [content/uml]`.
 
 Samples live in `samples/Lld.Samples.OopSolid/<Lesson>/{Before,After,Language}` with tests in `tests/Lld.Samples.Tests`
 proving what each design claims. In browser dev mode, editing a quoted `.cs` file shows up on reload too.

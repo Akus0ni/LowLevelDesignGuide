@@ -631,6 +631,273 @@
   }
 }
 
+/*
+ * UML diagrams (spec 008 §3.4–3.6). Same rules as above: opacity and fill move (200ms, strong ease-out), stroke colour
+ * changes are instant. A run dims what hasn't happened yet; the current state or step wears the accent.
+ */
+@layer components {
+  .diagram-canvas svg,
+  .viewer-canvas svg {
+    /* Code ↔ UML: an arrow's wide, invisible twin takes the tap. */
+    & .edge-hit {
+      fill: none !important;
+      stroke: transparent !important;
+      stroke-width: 16px !important;
+      cursor: pointer;
+      outline: none;
+      pointer-events: stroke;
+    }
+
+    & .edge-hit:focus-visible {
+      stroke: color-mix(in oklab, var(--accent) 25%, transparent) !important;
+    }
+
+    & path[data-et='edge'][data-selected] {
+      stroke: var(--accent) !important;
+      stroke-width: 2.5px !important;
+    }
+
+    /* Runs (state machine) and walks (activity): visited stays, the rest waits. */
+    & g.node :is(rect, circle, polygon, path) {
+      transition: fill 200ms var(--ease-out);
+    }
+
+    &[data-running] :is(g.node, path[data-et='edge'], .edgeLabel):not([data-visited], [data-current], [data-related]) {
+      opacity: 0.25;
+    }
+
+    &[data-running] path[data-et='edge'][data-related] {
+      stroke: var(--accent) !important;
+      stroke-width: 2.5px !important;
+    }
+
+    & g.node[data-current] :is(rect, circle, polygon, path:not([fill='none'])) {
+      stroke: var(--accent) !important;
+      stroke-width: 2.5px !important;
+      fill: color-mix(in oklab, var(--accent) 16%, var(--surface)) !important;
+    }
+
+    /* Activity notation (CD-007): a filled dot starts, a ringed dot ends, forks and joins are bars. */
+    & g.node[data-kind='start'] :is(circle, path) {
+      fill: var(--fg) !important;
+      stroke: var(--fg) !important;
+    }
+
+    & g.node[data-kind='end'] :is(circle, path):last-of-type {
+      fill: var(--fg) !important;
+    }
+
+    & g.node:is([data-kind='fork'], [data-kind='join']) :is(rect, path, polygon) {
+      fill: var(--fg) !important;
+      stroke: var(--fg) !important;
+      transform: scale(2.4, 0.22);
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    & g.node:is([data-kind='fork'], [data-kind='join'])[data-current] :is(rect, path, polygon) {
+      fill: var(--accent) !important;
+      stroke: var(--accent) !important;
+    }
+  }
+
+  /* While stepping, focus may rest on the diagram figure itself (so ← → keep working): ring for keyboards only. */
+  .diagram:focus {
+    outline: none;
+  }
+
+  .diagram:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Under a running diagram: the events (or branches) you can fire next, as big plain buttons. */
+  .diagram-run-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    border-top: 1px dashed var(--rule);
+    padding: 0.6rem 0.75rem 0.75rem;
+  }
+
+  .diagram-run-note {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .diagram-run-button {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid color-mix(in oklab, var(--accent) 40%, var(--rule));
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--accent) 8%, var(--surface));
+    padding-inline: 1rem;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--fg);
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: color-mix(in oklab, var(--accent) 14%, var(--surface));
+      }
+    }
+  }
+
+  /* Code ↔ UML pair: the diagram sits in its pane without a second frame; tappable code lines say so. */
+  .uml-pair-diagram .diagram {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .uml-pair-code .code-line[data-linkable] {
+    cursor: pointer;
+  }
+
+  /* The code is usually much longer than the diagram: it scrolls inside a pane as tall as the diagram, so the box
+     never grows a screen of empty grid under the drawing (and a tapped arrow scrolls its lines into view). */
+  .uml-pair .uml-pair-code {
+    max-height: max(var(--pair-diagram-height, 24rem), 16rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* The arrow legend (spec 008 §3.5). */
+  .legend-popover {
+    width: min(26rem, calc(100vw - 2rem));
+    max-height: min(32rem, 80dvh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--rule);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    padding: 0.75rem 1rem 1rem;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.14);
+    transform-origin: var(--transform-origin);
+    transition:
+      transform 150ms var(--ease-out),
+      opacity 150ms var(--ease-out);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: scale(0.97);
+      opacity: 0;
+    }
+  }
+
+  .legend-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .arrow-legend {
+    margin: 0.5rem 0 0;
+  }
+
+  /* Inline in a lesson it is a figure like a diagram: framed, with its own tighter type. */
+  .reader-prose .arrow-legend {
+    margin: 1.25em 0;
+    border: 1px solid var(--rule);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    padding: 0.75rem 1rem 0.5rem;
+    line-height: 1.35;
+  }
+
+  .arrow-legend-hint,
+  .reader-prose .arrow-legend .arrow-legend-hint {
+    margin: 0 0 0.5rem;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+
+  .arrow-legend-list {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .arrow-legend-row {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    border-top: 1px dashed var(--rule);
+    padding-block: 0.5rem;
+    margin: 0;
+
+    &:first-child {
+      border-top: 0;
+    }
+  }
+
+  .arrow-legend-drawing svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 3.5rem;
+  }
+
+  .arrow-legend-name,
+  .reader-prose .arrow-legend .arrow-legend-name {
+    margin: 0;
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .arrow-legend-meaning {
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  /* Beats the reading column's inline-code chip: here the code is a caption, not a word in a sentence. */
+  .arrow-legend code.arrow-legend-code,
+  .reader-prose .arrow-legend code.arrow-legend-code {
+    display: block;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    margin-top: 0.15rem;
+    overflow-wrap: anywhere;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--fg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .diagram-canvas svg g.node :is(rect, circle, polygon, path),
+    .viewer-canvas svg g.node :is(rect, circle, polygon, path),
+    .legend-popover {
+      transition: none;
+    }
+  }
+}
+
 /* Code callouts (spec 003 §3.8): a dotted underline says "tap me"; the card scales from the word (popover rule). */
 @layer components {
   .term-callout {
@@ -1908,8 +2175,9 @@
     }
   }
 
-  /* OVERUSE (spec 006 §3.8): REMEMBER's stamp in the warning tone; its body is a short list, so normal text size. */
-  .reader-prose .callout[data-callout='overuse'] {
+  /* OVERUSE (spec 006 §3.8): REMEMBER's stamp in the warning tone; its body is a short list, so normal text size.
+     MISTAKES (spec 008 §3.7) is the same stamp: a warning about drawing the diagram. */
+  .reader-prose .callout:is([data-callout='overuse'], [data-callout='mistakes']) {
     --tone: var(--tone-rose);
     clip-path: none;
     border: 2px solid var(--tone-rose);
