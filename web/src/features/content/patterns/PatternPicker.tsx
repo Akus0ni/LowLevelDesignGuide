@@ -1,5 +1,5 @@
 import { Drawer } from '@base-ui/react/drawer';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import type { LessonSummary, ModulePicker } from '../../../data/types';
 import { cn } from '../../../ui/cn';
@@ -21,17 +21,12 @@ export function PatternPicker({ picker, lessons }: { picker: ModulePicker; lesso
   const { step, path } = walkPicker(picker, chosen);
   const bySlug = new Map(lessons.map((lesson) => [lesson.slug, lesson]));
   const back = () => setChosen((current) => current.slice(0, -1));
+  useEscapeStepsBack(open && chosen.length > 0, back);
 
   return (
     <Drawer.Root
       open={open}
-      onOpenChange={(next, details) => {
-        // Esc (and so Android Back) walks back through the answers before it closes the sheet.
-        if (!next && details.reason === 'escape-key' && chosen.length > 0) {
-          details.cancel();
-          back();
-          return;
-        }
+      onOpenChange={(next) => {
         setOpen(next);
         if (next) setChosen([]);
       }}
@@ -123,4 +118,26 @@ export function PatternPicker({ picker, lessons }: { picker: ModulePicker; lesso
       </Drawer.Portal>
     </Drawer.Root>
   );
+}
+
+/**
+ * Esc (and so Android Back, which sends Esc to the open sheet) walks back one question instead of closing. The sheet's
+ * own dismiss listener sits on the document, so this one listens on the window in the capture phase, which runs first,
+ * and swallows the key. At the first question it stays out of the way and Esc closes the sheet.
+ */
+function useEscapeStepsBack(active: boolean, back: () => void) {
+  const latest = useRef(back);
+  latest.current = back;
+
+  useEffect(() => {
+    if (!active) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      latest.current();
+    };
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, [active]);
 }
