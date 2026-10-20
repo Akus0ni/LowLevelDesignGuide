@@ -3,7 +3,7 @@
 - [x] T1 Spike: FTS5 + `porter` + JSON + external content in `e_sqlite3` (desktop: SQLite 3.53.3, all present). The Android check runs with V7 in T6; the bridge timing of a 30-query set moves to T15
 - [x] T2 `Lld.Search` pure code: `QueryParser`, `SynonymExpander`, `MatchExpressionBuilder`, `SnippetMarks` + shared vector `tests/fixtures/search/queries.json`; hostile-input tests (A2, A3)
 - [x] T3 `Lld.Search` SQL: `SearchSchema` (units, two FTS5 tables, triggers, notes triggers), `SqliteSearchIndex` (union query, ranking, snippets, words, counts); `ISearchIndex` contract suite in `tests/Lld.Search.Tests` (A1, A2, A7)
-- [ ] T4 Content: `SearchText` (per-`h2` plain text), `search.yml` reader + 4 rules with one fixture each, pack format 4 (`Search` on lessons and cheat sheets, `Vocabulary`); packer tests (A1, A4)
+- [x] T4 Content: `SearchText` (per-`h2` plain text), `search.yml` reader + 4 rules with one fixture each, pack format 4 (`Search` on lessons and cheat sheets, `Vocabulary`); packer tests (A1, A4)
 - [ ] T5 Content: author `content/search.yml` (≈ 40 synonyms limited to covered terms, 6 suggestions); repository test runs every suggestion through the real index
 - [ ] T6 Device: `V7Search`, `ContentPackLoader` fills content units and re-indexes notes in its transaction; `DeviceSearch`; tests: V6 → V7 upgrade, format-4 reload, notes edit/delete/adopt show at once (A7, A12)
 - [ ] T7 API dev: `DevSearchIndex`, `GET /api/search` (Development only); integration tests (content hits, signed-in notes, isolation, not mapped outside Development)

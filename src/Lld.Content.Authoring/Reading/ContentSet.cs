@@ -4,7 +4,12 @@ namespace Lld.Content.Authoring.Reading;
 
 /// <summary>Everything found under <c>content/</c>, parsed but not yet validated.</summary>
 /// <param name="Issues">Problems found while reading (unreadable YAML); validation rules add the rest.</param>
-public sealed record ContentSet(IReadOnlyList<SourceModule> Modules, IReadOnlyList<ContentIssue> Issues);
+/// <param name="Search"><c>content/search.yml</c> (spec 009 §3.3), or <c>null</c> when there is none.</param>
+public sealed record ContentSet(IReadOnlyList<SourceModule> Modules, IReadOnlyList<ContentIssue> Issues, SourceSearchFile? Search = null);
+
+/// <param name="Path">Repository-relative path, <c>content/search.yml</c>.</param>
+/// <param name="Map">The file's keys, or <c>null</c> when it could not be read.</param>
+public sealed record SourceSearchFile(string Path, YamlMap? Map);
 
 /// <param name="Slug">Folder name, e.g. <c>case-studies</c>.</param>
 /// <param name="Path">Repository-relative folder path, e.g. <c>content/case-studies</c>.</param>

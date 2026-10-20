@@ -11,7 +11,7 @@ namespace Lld.Content.Authoring.Packing;
 
 /// <summary>
 /// Turns validated content into a <see cref="ContentPack"/>: ordered, links rewritten, outlines and reading times
-/// computed. The version is a hash of everything else, so the same content always gets the same version and the
+/// computed, search text extracted per section (spec 009). The version is a hash of everything else, so the same content always gets the same version and the
 /// device reloads only when something really changed. Call it only after validation passed.
 /// </summary>
 public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource snippets)
@@ -27,7 +27,8 @@ public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource sni
             .OrderBy(m => m.Order)
             .ThenBy(m => m.Slug, StringComparer.Ordinal)
             .ToList();
-        var unversioned = new ContentPack(ContentPack.CurrentFormat, string.Empty, modules);
+        var vocabulary = set.Search?.Map is { } map ? SearchVocabularyFile.Parse(map).ToPack() : SearchVocabulary.Empty;
+        var unversioned = new ContentPack(ContentPack.CurrentFormat, string.Empty, modules, vocabulary);
         return unversioned with { Version = VersionOf(unversioned) };
     }
 
@@ -65,11 +66,12 @@ public sealed class ContentPacker(ContentOptions options, ICodeSnippetSource sni
             ReadingTime.Minutes(body.Document, options.WordsPerMinute),
             Body(body),
             DocumentHeadings.Outline(headings),
-            new PackedCheatSheet(Text(sheetFront, FrontMatterKeys.Title), Body(sheet)),
+            new PackedCheatSheet(Text(sheetFront, FrontMatterKeys.Title), Body(sheet), SearchText.Sections(sheet)),
             EntityTerms.Of(body, headings),
             front[FrontMatterKeys.Icon]?.Scalar?.Trim(),
             front[FrontMatterKeys.Hook]?.Scalar?.Trim(),
-            front[FrontMatterKeys.Symbol]?.Scalar?.Trim());
+            front[FrontMatterKeys.Symbol]?.Scalar?.Trim(),
+            SearchText.Sections(body));
     }
 
     private string Body(SourceDocument document) =>

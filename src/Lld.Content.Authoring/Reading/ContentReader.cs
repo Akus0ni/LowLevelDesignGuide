@@ -4,7 +4,8 @@ using Lld.Content.Authoring.Parsing;
 namespace Lld.Content.Authoring.Reading;
 
 /// <summary>
-/// Reads <c>content/&lt;module&gt;/module.yml</c> and <c>content/&lt;module&gt;/&lt;lesson&gt;/{lesson,cheatsheet}.md</c>.
+/// Reads <c>content/&lt;module&gt;/module.yml</c>, <c>content/&lt;module&gt;/&lt;lesson&gt;/{lesson,cheatsheet}.md</c> and
+/// <c>content/search.yml</c>.
 /// Missing files are recorded as <c>null</c> for the validation rules to report; it never throws on bad content.
 /// Line endings are normalised to LF, so a Windows (CRLF) and a Linux (LF) checkout pack identically.
 /// </summary>
@@ -13,6 +14,7 @@ public sealed class ContentReader(IContentFiles files, ContentOptions options)
     public const string ModuleFileName = "module.yml";
     public const string LessonFileName = "lesson.md";
     public const string CheatSheetFileName = "cheatsheet.md";
+    public const string SearchFileName = "search.yml";
     public const string ContentMissingCode = "content.missing";
 
     private const int FirstLine = 1;
@@ -31,7 +33,20 @@ public sealed class ContentReader(IContentFiles files, ContentOptions options)
             .Where(IsContentFolder)
             .Select(slug => ReadModule(root, slug, issues))
             .ToList();
-        return new ContentSet(modules, issues);
+        return new ContentSet(modules, issues, ReadSearchFile(root, issues));
+    }
+
+    private SourceSearchFile? ReadSearchFile(string root, List<ContentIssue> issues)
+    {
+        var path = $"{root}/{SearchFileName}";
+        if (!files.FileExists(path))
+        {
+            return null;
+        }
+
+        var (map, issue) = YamlMapParser.Parse(ReadNormalized(path), path, FirstLine);
+        AddIfAny(issues, issue);
+        return new SourceSearchFile(path, map);
     }
 
     private SourceModule ReadModule(string root, string slug, List<ContentIssue> issues)
