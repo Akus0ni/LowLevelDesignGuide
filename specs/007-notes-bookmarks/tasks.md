@@ -5,7 +5,7 @@
 - [x] T3 Device: `V6Notes`, `SqliteNotesStore`, `DeviceNotes` (adopt); contract + V5 → V6 upgrade + "content reload keeps notes" tests
 - [x] T4 API: rows, migration `AddNotes`, `EfNotesStore` (contract tests), use cases, contracts, `NotesWire`, endpoints; integration tests (auth, isolation, adopt, limits)
 - [x] T5 App: `NotesService`, `ExportService` (share sheet), bridge methods, adoption after sign-in
-- [ ] T6 Web data: `DataSource` notes methods, `BridgeDataSource`, `HttpDataSource` (API / guest localStorage / adopt / batch split / download), fakes; tests
+- [x] T6 Web data: `DataSource` notes methods, `BridgeDataSource`, `HttpDataSource` (API / guest localStorage / adopt / batch split / download), fakes; tests
 - [ ] T7 Web logic: `tags.ts` (vector), `noteRecords.ts`, `starters.ts`, `notesQuery.ts`, `exportNotes.ts`, `writeBehind.ts` (moved out of `ProgressStore`), `notesStore.ts`, `NotesProvider`, hooks; tests
 - [ ] T8 Reader: `SectionAnnotations` context, `h2` with `NoteMarks` + `SectionActions`, outline marks, lesson header (Notes · n, bookmark), `?note=` deep link
 - [ ] T9 Notes sheet + editor: `NotesSheet`, `NoteEditor` (autosave, Edit / Preview, starters, delete + undo), `NotePreview` ("note" mode)

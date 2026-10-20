@@ -40,6 +40,10 @@ export function fakeDataSource(overrides: Partial<DataSource> = {}): DataSource 
     getProgress: vi.fn().mockResolvedValue({ lessons: [], activityDays: [] }),
     saveLessonProgress: vi.fn().mockResolvedValue(undefined),
     recordActivity: vi.fn().mockResolvedValue(undefined),
+    getNotes: vi.fn().mockResolvedValue({ notes: [], bookmarks: [] }),
+    saveNotes: vi.fn().mockResolvedValue(undefined),
+    saveBookmarks: vi.fn().mockResolvedValue(undefined),
+    exportNotes: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }

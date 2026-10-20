@@ -10,7 +10,10 @@ import {
   type HybridWebViewBridge,
   type LessonDetail,
   type ModuleDetail,
+  type Bookmark,
   type LessonProgress,
+  type Note,
+  type NotesSnapshot,
   type ModuleSummary,
   type ProgressSnapshot,
   type ServerStatus,
@@ -156,6 +159,24 @@ export class BridgeDataSource implements DataSource {
 
   async recordActivity(day: string): Promise<void> {
     await this.call('RecordActivity', [day]);
+  }
+
+  // Notes and bookmarks: on the device for the same owner as progress (spec 007).
+
+  async getNotes(): Promise<NotesSnapshot> {
+    return toCamelCaseDeep(await this.call('GetNotes')) as NotesSnapshot;
+  }
+
+  async saveNotes(notes: Note[]): Promise<void> {
+    await this.call('SaveNotes', [JSON.stringify(notes)]);
+  }
+
+  async saveBookmarks(bookmarks: Bookmark[]): Promise<void> {
+    await this.call('SaveBookmarks', [JSON.stringify(bookmarks)]);
+  }
+
+  async exportNotes(fileName: string, markdown: string): Promise<void> {
+    await this.call('ShareNotes', [fileName, markdown]);
   }
 
   /** Content records are nested (outline, previous / next), so convert every key at once instead of picking. */

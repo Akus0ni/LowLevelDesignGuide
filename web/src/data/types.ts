@@ -244,6 +244,43 @@ export interface ProgressSnapshot {
   activityDays: string[];
 }
 
+// ---- Notes and bookmarks (spec 007). Mirrors Lld.Contracts.NoteDto / BookmarkDto / NotesSnapshotDto. ---------------
+
+/** A learner's Markdown note on a whole lesson (`anchor` '') or one section (its heading id). Tags live in the body. */
+export interface Note {
+  /** A UUID made when the note is first written. */
+  id: string;
+  lessonId: string;
+  anchor: string;
+  body: string;
+  createdAt: string;
+  /** When this record last changed: the later edit wins. */
+  updatedAt: string;
+  /** Set when deleted; the record stays so a later sync can carry the delete, and Undo clears it. */
+  deletedAt: string | null;
+  /** Filled in by the data source. */
+  deviceId: string;
+}
+
+export type BookmarkKind = 'lesson' | 'section' | 'cheatSheet';
+
+/** One per (kind, lesson, anchor); `anchor` is '' except for a section. Removing it sets `deletedAt`. */
+export interface Bookmark {
+  kind: BookmarkKind;
+  lessonId: string;
+  anchor: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  deviceId: string;
+}
+
+/** Everything one learner has written or bookmarked, deleted records included, oldest first. */
+export interface NotesSnapshot {
+  notes: Note[];
+  bookmarks: Bookmark[];
+}
+
 /**
  * The only way UI code reads or writes data. Two strategies implement it:
  * HttpDataSource (browser, talks to the API) and BridgeDataSource (inside the MAUI app).
@@ -285,6 +322,13 @@ export interface DataSource {
   saveLessonProgress(records: LessonProgress[]): Promise<void>;
   /** Remembers a local day (yyyy-MM-dd) with reading or revising. */
   recordActivity(day: string): Promise<void>;
+
+  // Notes and bookmarks (spec 007): the same owner as progress. Writes are batches; per record the later edit wins.
+  getNotes(): Promise<NotesSnapshot>;
+  saveNotes(notes: Note[]): Promise<void>;
+  saveBookmarks(bookmarks: Bookmark[]): Promise<void>;
+  /** Hands the exported Markdown to the learner: a download in the browser, the share sheet in the app. */
+  exportNotes(fileName: string, markdown: string): Promise<void>;
 }
 
 /** Shape of window.HybridWebView, injected by _framework/hybridwebview.js inside the MAUI app. */
