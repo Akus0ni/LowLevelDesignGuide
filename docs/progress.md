@@ -17,7 +17,7 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | Spec 003 Content engine | ✅ Merged (PR #5) |
 | Spec 004 OOP & SOLID | ✅ Merged (PR #6) |
 | Spec 005 Progress | ✅ Merged (PR #7) |
-| Spec 006 Design patterns | 🔍 PR open for owner review (Android upgrade check paused) |
+| Spec 006 Design patterns | 🔍 PR #8 open for owner review (Android upgrade check paused) |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
 ## Spec roadmap status
@@ -29,7 +29,7 @@ _Last updated: 2026-10-20 (spec 006 PR ready for review)_
 | 003 | Content engine (reader) | ✅ merged (PR #5) |
 | 004 | OOP & SOLID content | ✅ merged (PR #6) |
 | 005 | Progress | ✅ merged (PR #7) |
-| 006 | GoF + Enterprise patterns content | 🔍 PR, owner review |
+| 006 | GoF + Enterprise patterns content | 🔍 PR #8, owner review |
 | 007 | Notes & bookmarks | planned |
 | 008 | UML content | planned |
 | 009 | Search | planned |
@@ -146,7 +146,7 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   fling-to-end rule (decide later).
 
 ## How to resume (next session)
-1. If PR for spec 006 is open: apply review changes on `spec/006-gof-patterns`, push, update the PR.
+1. PR #8 (spec 006) is open: apply review changes on `spec/006-gof-patterns`, push, update the PR.
 2. Android A11 check, when memory allows: boot the AVD, the spec 005 Debug build is already installed with SRP done;
    run `dotnet build src/Lld.App -f net10.0-android -t:Install` from this branch, relaunch, pull
    `files/lld-device.db` with `adb exec-out run-as com.akus0ni.lldguide cat files/lld-device.db` and check

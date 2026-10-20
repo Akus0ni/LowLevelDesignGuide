@@ -17,4 +17,4 @@
 - [x] T15 Playwright `e2e/patterns.spec.ts` (A1, A5–A10, both modules)
 - [~] T16 Manual run: Windows ✅ (A1, A11 upgrade 3 → 5, screenshots); Android upgrade with progress ⏸️ paused (emulator stopped for low memory)
 - [x] T17 Docs: PRD v0.8 (new R rows: pattern modules, template, periodic table, picker, compare, Overuse, phrase mnemonics), `docs/plan.md` roadmap, plan §4 outcomes, README authoring guide, progress log
-- [ ] T18 PR with the acceptance-criteria table
+- [x] T18 PR with the acceptance-criteria table (PR #8)
