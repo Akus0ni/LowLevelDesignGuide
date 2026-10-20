@@ -1,7 +1,7 @@
 # Spec 009: Tasks
 
-- [ ] T1 Spike: FTS5 + `porter` + JSON1 + external content in `e_sqlite3` on the Android emulator and Windows; time a 30-query set over the bridge with a pack-sized index; record numbers in plan §5
-- [ ] T2 `Lld.Search` pure code: `QueryParser`, `SynonymExpander`, `MatchExpressionBuilder`, `SnippetMarks` + shared vector `tests/fixtures/search/queries.json`; hostile-input tests (A2, A3)
+- [x] T1 Spike: FTS5 + `porter` + JSON1 + external content in `e_sqlite3` on the Android emulator and Windows; time a 30-query set over the bridge with a pack-sized index; record numbers in plan §5
+- [x] T2 `Lld.Search` pure code: `QueryParser`, `SynonymExpander`, `MatchExpressionBuilder`, `SnippetMarks` + shared vector `tests/fixtures/search/queries.json`; hostile-input tests (A2, A3)
 - [ ] T3 `Lld.Search` SQL: `SearchSchema` (units, two FTS5 tables, triggers, notes triggers), `SqliteSearchIndex` (union query, ranking, snippets, words, counts); `ISearchIndex` contract suite in `tests/Lld.Search.Tests` (A1, A2, A7)
 - [ ] T4 Content: `SearchText` (per-`h2` plain text), `search.yml` reader + 4 rules with one fixture each, pack format 4 (`Search` on lessons and cheat sheets, `Vocabulary`); packer tests (A1, A4)
 - [ ] T5 Content: author `content/search.yml` (≈ 40 synonyms limited to covered terms, 6 suggestions); repository test runs every suggestion through the real index

@@ -1,0 +1,27 @@
+{
+  "synonyms": { "SRP": ["single responsibility"], "di": ["dependency injection", "DI container"] },
+  "cases": [
+    { "name": "one word still being typed", "input": "decor", "query": "decor*", "stem": "\"decor\"", "rest": "", "prefix": "\"decor\"*" },
+    { "name": "a finished word", "input": "decorator ", "query": "decorator", "stem": "\"decorator\"", "rest": "", "prefix": "" },
+    { "name": "two words, last one typed", "input": "Observer pat", "query": "observer pat*", "stem": "\"observer\" AND \"pat\"", "rest": "\"observer\"", "prefix": "\"pat\"*" },
+    { "name": "phrase", "input": "\"open closed\" principle", "query": "\"open closed\" principle*", "stem": "\"open closed\" AND \"principle\"", "rest": "\"open closed\"", "prefix": "\"principle\"*" },
+    { "name": "phrase last is never a prefix", "input": "\"open closed\"", "query": "\"open closed\"", "stem": "\"open closed\"", "rest": "", "prefix": "" },
+    { "name": "unclosed quote runs to the end", "input": "\"single resp", "query": "\"single resp\"", "stem": "\"single resp\"", "rest": "", "prefix": "" },
+    { "name": "one-word phrase is a word", "input": "\"observer\"", "query": "observer", "stem": "\"observer\"", "rest": "", "prefix": "" },
+    { "name": "synonym on a finished word", "input": "SRP ", "query": "srp", "stem": "(\"srp\" OR \"single responsibility\")", "rest": "", "prefix": "", "expansions": ["single responsibility"] },
+    { "name": "synonym on the word being typed", "input": "srp", "query": "srp*", "stem": "(\"srp\" OR \"single responsibility\")", "rest": "", "prefix": "(\"srp\"* OR \"single responsibility\")", "expansions": ["single responsibility"] },
+    { "name": "two alternatives", "input": "use DI", "query": "use di*", "stem": "\"use\" AND (\"di\" OR \"dependency injection\" OR \"di container\")", "rest": "\"use\"", "prefix": "(\"di\"* OR \"dependency injection\" OR \"di container\")", "expansions": ["dependency injection", "di container"] },
+    { "name": "no expansion inside a phrase", "input": "\"srp rule\"", "query": "\"srp rule\"", "stem": "\"srp rule\"", "rest": "", "prefix": "" },
+    { "name": "FTS operators are words", "input": "observer AND (", "query": "observer and", "stem": "\"observer\" AND \"and\"", "rest": "\"observer\"", "prefix": "" },
+    { "name": "NEAR and column filters are words", "input": "Title: NEAR(a b)", "query": "title near a b", "stem": "\"title\" AND \"near\" AND \"a\" AND \"b\"", "rest": "\"title\" AND \"near\" AND \"a\"", "prefix": "" },
+    { "name": "stars, carets, minus", "input": "*^-obs*", "query": "obs", "stem": "\"obs\"", "rest": "", "prefix": "" },
+    { "name": "C# keeps its letter", "input": "C# records", "query": "c records*", "stem": "\"c\" AND \"records\"", "rest": "\"c\"", "prefix": "\"records\"*" },
+    { "name": "tag", "input": "#weak", "query": "weak*", "stem": "\"weak\"", "rest": "", "prefix": "\"weak\"*" },
+    { "name": "hyphenated word", "input": "ask-in-interview", "query": "ask in interview*", "stem": "\"ask\" AND \"in\" AND \"interview\"", "rest": "\"ask\" AND \"in\"", "prefix": "\"interview\"*" },
+    { "name": "diacritics and case", "input": "Café", "query": "café*", "stem": "\"café\"", "rest": "", "prefix": "\"café\"*" },
+    { "name": "emoji is a separator", "input": "🙂 state", "query": "state*", "stem": "\"state\"", "rest": "", "prefix": "\"state\"*" },
+    { "name": "only punctuation", "input": "\"()*", "query": "", "stem": "", "rest": "", "prefix": "", "empty": true },
+    { "name": "one letter is too short", "input": "a", "query": "a*", "stem": "", "rest": "", "prefix": "", "empty": true },
+    { "name": "more than eight terms: the rest is ignored, no prefix", "input": "a b c d e f g h i j", "query": "a b c d e f g h", "stem": "\"a\" AND \"b\" AND \"c\" AND \"d\" AND \"e\" AND \"f\" AND \"g\" AND \"h\"", "rest": "\"a\" AND \"b\" AND \"c\" AND \"d\" AND \"e\" AND \"f\" AND \"g\"", "prefix": "" }
+  ]
+}
