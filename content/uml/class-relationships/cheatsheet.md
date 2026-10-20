@@ -8,10 +8,6 @@ title: "Cheat sheet: Relationships: the six arrows"
 > **Solid** line: it holds one. **Dashed**: it uses or implements one. **Triangle**: is a. **Diamond**: owns (filled =
 > the parts die with it).
 
-## Draw it when
-
-Ownership, lifetimes or an interface between classes matter.
-
 ## The symbols
 
 ```uml-arrows
@@ -24,7 +20,7 @@ A field → `-->`; a list it fills itself → `*--`; a list handed in → `o--`;
 
 ## Mistakes
 
-Inheritance arrow pointing at the child; composition for shared parts; a two-way line by default.
+Inheritance pointing at the child; composition for shared parts; two-way lines by default.
 
 ## Interview one-liners
 

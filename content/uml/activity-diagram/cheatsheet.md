@@ -16,16 +16,15 @@ A workflow with branches, loops or parallel work.
 
 ```mermaid steps
 flowchart TD
-    start((" ")) --> step["Step"]
-    step --> decide{"Condition?"}
-    decide -->|"yes"| fork1[" "]:::fork
-    decide -->|"no"| stop(((" ")))
+    start((" ")) --> fork1[" "]:::fork
     fork1 --> a["Work A"]
     fork1 --> b["Work B"]
     a --> join1[" "]:::join
     b --> join1
-    join1 --> stop
+    join1 --> stop(((" ")))
 ```
+
+Dot = start · ringed dot = end · diamond = decision with `[guards]` · bars = fork / join.
 
 ## From C#
 
