@@ -180,6 +180,50 @@ public sealed class DiagramContentTests
         IssuesOf(repo).Should().Equal((ValidRepo.Auth, repo.LineOf(ValidRepo.Auth, "  Order --> Ghost"), IssueCodes.CodePairMismatch));
     }
 
+    [Fact]
+    public void Pack_TurnsACodePairIntoDiagramWithLinks_ThenItsCode()
+    {
+        var result = Build(Diagrams());
+
+        result.Issues.Should().BeEmpty();
+        var lesson = result.Pack!.Modules.Single(m => m.Slug == "uml").Lessons.Single(l => l.Slug == "class-basics");
+        lesson.BodyMarkdown.Should().Contain("""
+            ```mermaid pair links="Order=1-8;OrderLine=10;Customer=12;Order*--OrderLine=3;Order-->Customer=5"
+            classDiagram
+              Order *-- OrderLine
+              Order --> Customer
+            ```
+            ```csharp paired
+            public sealed class Order(Customer customer)
+            {
+                private readonly List<OrderLine> _lines = [];
+
+                public Customer Customer { get; } = customer;
+
+                public void Add(OrderLine line) => _lines.Add(line);
+            }
+
+            public sealed class OrderLine;
+
+            public sealed class Customer;
+            ```
+            """.ReplaceLineEndings("\n"));
+        lesson.BodyMarkdown.Should().NotContain("code=");
+    }
+
+    [Fact]
+    public void Pack_KeepsAPairInsideAList()
+    {
+        var repo = Diagrams().Replace(ValidRepo.ClassBasics,
+            "```mermaid code=\"samples/Uml.cs#Order,OrderLine,Customer\"\nclassDiagram\n  Order *-- OrderLine\n  Order --> Customer\n```",
+            "- The pair:\n\n  ```mermaid code=\"samples/Uml.cs#OrderLine\"\n  classDiagram\n    class OrderLine\n  ```");
+
+        var lesson = Build(repo).Pack!.Modules.Single(m => m.Slug == "uml").Lessons.Single(l => l.Slug == "class-basics");
+
+        lesson.BodyMarkdown.Should().Contain(
+            "  ```mermaid pair links=\"OrderLine=1\"\n  classDiagram\n    class OrderLine\n  ```\n  ```csharp paired\n  public sealed class OrderLine;\n  ```");
+    }
+
     private static ValidRepo Diagrams() => new ValidRepo().WithDiagramModule();
 
     private static ContentBuildResult Build(ValidRepo repo) => new ContentPipeline(repo.Files(), new ContentOptions()).Build();

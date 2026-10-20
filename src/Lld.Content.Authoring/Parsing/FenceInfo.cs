@@ -61,6 +61,9 @@ public sealed class FenceInfo
 
     public bool HasFlag(string flag) => Flags.Contains(flag, StringComparer.Ordinal);
 
+    public FenceInfo WithFlag(string flag) =>
+        HasFlag(flag) ? this : new(Language, [.. Flags, flag], Attributes, Problems);
+
     public FenceInfo Without(string attribute) =>
         new(Language, Flags, [.. Attributes.Where(a => a.Name != attribute)], Problems);
 
