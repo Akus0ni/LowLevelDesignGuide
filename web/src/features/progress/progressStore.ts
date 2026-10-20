@@ -1,10 +1,10 @@
 import type { DataSource, LessonProgress } from '../../data/types';
 import { Celebrations } from './celebrations';
 import { takeLegacyReading, type LegacyReading } from './legacyImport';
+import { WriteBehind } from '../shared/writeBehind';
 import { localDay, type ProgressById } from './progressMath';
 
-/** Quiet time before queued changes are written: scrolling saves a position many times a minute. */
-export const FLUSH_DELAY_MS = 1000;
+export { FLUSH_DELAY_MS } from '../shared/writeBehind';
 
 export interface ProgressState {
   byId: ProgressById;
@@ -38,9 +38,7 @@ export class ProgressStore {
   private readonly queuedDays = new Set<string>();
   private readonly source: DataSource;
   private readonly now: () => Date;
-  private readonly events?: EventTarget;
-  private timer: ReturnType<typeof setTimeout> | undefined;
-  private flushing: Promise<void> = Promise.resolve();
+  private readonly writer: WriteBehind;
   /** Changes asked for before the owner's progress loaded; applied on top of it, in order, once it has. */
   private early: (() => void)[] | null = [];
 
@@ -48,10 +46,11 @@ export class ProgressStore {
     this.source = source;
     this.celebrations = options.celebrations ?? new Celebrations(options.owner ?? 'guest');
     this.now = options.now ?? (() => new Date());
-    this.events = options.events ?? (typeof window === 'undefined' ? undefined : window);
+    this.writer = new WriteBehind(
+      () => this.writeQueued(),
+      options.events ?? (typeof window === 'undefined' ? undefined : window),
+    );
     this.ready = this.load(options.legacy ?? takeLegacyReading);
-    this.events?.addEventListener('visibilitychange', this.flushWhenHidden);
-    this.events?.addEventListener('pagehide', this.flushNow);
   }
 
   readonly subscribe = (listener: () => void): (() => void) => {
@@ -101,16 +100,12 @@ export class ProgressStore {
 
   /** Writes everything queued. Safe to call any time; calls run one after another. */
   flush(): Promise<void> {
-    this.flushing = this.flushing.then(() => this.writeQueued());
-    return this.flushing;
+    return this.writer.flush();
   }
 
   /** Before the owner changes: stop listening and write what is left. */
   dispose(): Promise<void> {
-    clearTimeout(this.timer);
-    this.events?.removeEventListener('visibilitychange', this.flushWhenHidden);
-    this.events?.removeEventListener('pagehide', this.flushNow);
-    return this.flush();
+    return this.writer.dispose();
   }
 
   private async load(takeLegacy: () => Map<string, LegacyReading>): Promise<void> {
@@ -184,8 +179,7 @@ export class ProgressStore {
 
   private notifyAndSchedule(): void {
     this.notify();
-    clearTimeout(this.timer);
-    this.timer = setTimeout(this.flushNow, FLUSH_DELAY_MS);
+    this.writer.schedule();
   }
 
   private notify(): void {
@@ -212,12 +206,6 @@ export class ProgressStore {
       }
     }
   }
-
-  private readonly flushNow = () => void this.flush();
-
-  private readonly flushWhenHidden = () => {
-    if (document.visibilityState === 'hidden') void this.flush();
-  };
 }
 
 /** Some sections ticked, or a reading position below the top of the lesson. */
