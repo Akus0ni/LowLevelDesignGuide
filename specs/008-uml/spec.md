@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, for owner review |
+| **Status** | Approved by owner (2026-10-20); open questions delegated to Claude (§8) |
 | **Branch** | `spec/008-uml` |
 | **Covers** | R15 (UML part), R20, R24 (PRD §13); PRD F2, F3, §7 ("C# samples must compile") |
 | **Depends on** | Spec 003 (Mermaid, interactive class / sequence diagrams, Step through), spec 004 (concept card, snippets, callouts, «package» map, mnemonics), spec 006 (picker, phrase mnemonics, stamps) |
@@ -165,7 +165,7 @@ Required once in every `diagram` lesson; allowed in any lesson.
   interviewer want to see?"* → *What the system does for whom* (use case) · *The parts and how they connect* (class /
   object / component) · *What happens over time* → *Messages between objects* (sequence) · *One object's life*
   (state) · *A workflow with branches* (activity). The picker currently shows only on pattern modules; it moves so it
-  shows on any module that has one. Reachability: see open question 3.
+  shows on any module that has one. Reachability is required for `pattern` modules only (CD-003).
 - **Mnemonics** (phrase form, spec 006 §3.4), two phrases, one per kind:
 
   | Kind | Phrase | Lessons, in letter order |
@@ -234,13 +234,12 @@ is built and critiqued with `frontend-design`, `emil-design-eng`, `apple-design`
 | Picker | Final lesson "UML in an LLD interview" + "Which diagram?" picker |
 | App examples | Draw this app, checked against `src/` |
 | Review flow | Everything in one go: one review on the PR |
+| Open questions | Delegated to Claude; logged in `docs/claude-decisions.md` for later review (§8) |
 
-## 8. Open questions (for this review)
-1. **Slugs, titles and order** in §3.1 (permanent once published). Structure first, then behaviour, interview last.
-   OK, or put *Use case* first (the order you would draw them in an interview)?
-2. **Mnemonics** in §3.8: "Clever Robots Make Objects Carefully" and "Users Always Send Signals". Keep or change?
-3. **Picker reachability:** spec 006 requires every lesson of the module to be reachable from the picker. For UML
-   the interview lesson and *Multiplicity* are not answers to "which diagram?". Relax the rule for non-pattern
-   modules (every `pick` valid, reachability not required), or keep it and let class answers pick two lessons?
-4. **State Run on existing diagrams:** turn it on for every `stateDiagram-v2` in the app (GoF State, Auth case
-   study), as written, or only in the UML module?
+## 8. Decisions made by Claude (delegated by the owner, 2026-10-20; review later in `docs/claude-decisions.md`)
+| ID | Question | Decision |
+|---|---|---|
+| CD-001 | Slugs, titles, order | As §3.1: structure first, behaviour next, interview last; the interview lesson teaches the drawing order |
+| CD-002 | Mnemonics | Keep "Clever Robots Make Objects Carefully" and "Users Always Send Signals" (§3.8) |
+| CD-003 | Picker reachability | "Every lesson reachable" applies to `pattern` modules only; other modules need valid picks only |
+| CD-004 | State Run scope | Every `stateDiagram-v2` in the app (GoF State, Auth case study, UML) |
