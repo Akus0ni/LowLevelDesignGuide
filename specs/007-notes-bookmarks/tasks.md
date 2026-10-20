@@ -14,6 +14,6 @@
 - [x] T12 Visual: `--tone-note` (candidates → pick), «my note» card, marks, motion, reduced motion
 - [x] T13 UI pass with the skills: screenshot critique (phone light / dark, desktop) + `break-ui` worst case; fixes
 - [x] T14 Playwright: notes flows (A1, A3, A4, A5, A8, A9, A10, A15) on phone + desktop
-- [ ] T15 Manual run: Windows + Android (A1, A2, A10, A11, A14: restart, airplane mode, share sheet, guest adoption, V5 → V6 upgrade); screenshots
+- [x] T15 Manual run: Windows + Android (A1, A2, A10, A11, A14: restart, airplane mode, share sheet, guest adoption, V5 → V6 upgrade); screenshots
 - [ ] T16 Docs: PRD (R18, R102–R108, §10 `Note` / `Bookmark`, version), `docs/plan.md`, README if needed, plan §5 outcomes, progress log
 - [ ] T17 PR with the acceptance-criteria table

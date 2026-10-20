@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Bookmark, Note } from '../../data/types';
+import { excerpt } from './excerpt';
 import { buildExport, exportFileName } from './exportNotes';
 import { deleteNote, editNote, newNote, restoreNote, setBookmark } from './noteRecords';
 import { groupBookmarks, groupNotes, readableAnchor, sectionsOf, tagCounts, type NotesIndex } from './notesQuery';
@@ -169,5 +170,13 @@ describe('export', () => {
       ].join('\n\n') + '\n',
     );
     expect(exportFileName(new Date(2026, 9, 5))).toBe('lld-notes-2026-10-05.md');
+  });
+});
+
+describe('excerpt', () => {
+  it('shows a note as plain words: no marks, list markers or tags, cut at the limit', () => {
+    expect(excerpt('#work\n\n- **Where:** billing\n1. `Invoice` _split_', 100)).toBe('Where: billing Invoice split');
+    expect(excerpt('auth-token flow', 100)).toBe('auth-token flow');
+    expect(excerpt('abcdef', 3)).toBe('abc…');
   });
 });
