@@ -29,6 +29,24 @@ public static class MatchExpressionBuilder
         return query.LastIsPrefix && query.Terms.Count > 0 ? Term(query.Terms[^1], prefix: true) : string.Empty;
     }
 
+    /// <summary>
+    /// Any one term (OR), for finding which columns matched and for snippets; with <paramref name="prefixLast"/> the last
+    /// term is a prefix when the learner is still typing it (unstemmed index).
+    /// </summary>
+    public static string Any(ExpandedQuery query, bool prefixLast)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        return string.Join(" OR ", query.Terms.Select((term, i) =>
+            Term(term, prefix: prefixLast && query.LastIsPrefix && i == query.Terms.Count - 1)));
+    }
+
+    /// <summary>Limits <paramref name="expression"/> to some columns (<c>{Title} : (…)</c>); empty stays empty.</summary>
+    public static string InColumns(string expression, params string[] columns)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+        return expression.Length == 0 ? string.Empty : $"{{{string.Join(' ', columns)}}} : ({expression})";
+    }
+
     private static string And(IEnumerable<string> parts) => string.Join(" AND ", parts);
 
     private static string Term(ExpandedTerm term, bool prefix)

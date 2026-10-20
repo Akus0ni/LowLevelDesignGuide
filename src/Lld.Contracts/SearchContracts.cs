@@ -41,10 +41,12 @@ public sealed record SearchHitDto(
 /// <param name="Total">Hits that pass every filter, before the limit.</param>
 /// <param name="CountsByKind">Hits per kind for the filter chips: the module filter applies, the kind filter doesn't.</param>
 /// <param name="Words">The matched words as written in the text, for marking them in the reader.</param>
+/// <param name="Suggestions">Searches to offer, filled only when the query is too short to search (spec §3.4).</param>
 public sealed record SearchResultsDto(
     string Query,
     IReadOnlyList<string> Expansions,
     int Total,
     IReadOnlyDictionary<string, int> CountsByKind,
     IReadOnlyList<SearchHitDto> Hits,
-    IReadOnlyList<string> Words);
+    IReadOnlyList<string> Words,
+    IReadOnlyList<string> Suggestions);

@@ -8,10 +8,14 @@ namespace Lld.Content;
 /// </summary>
 /// <param name="Format">Shape of this file; readers reject formats they don't know.</param>
 /// <param name="Version">Hash of the content: the same content always has the same version.</param>
-public sealed record ContentPack(int Format, string Version, IReadOnlyList<PackedModule> Modules)
+/// <param name="Vocabulary">Synonyms and suggestions from <c>content/search.yml</c> (spec 009 §3.3).</param>
+public sealed record ContentPack(int Format, string Version, IReadOnlyList<PackedModule> Modules, SearchVocabulary? Vocabulary = null)
 {
-    /// <summary>3: lessons carry a symbol, modules a picker and look-alikes (spec 006). 2: modules carry a map (spec 004).</summary>
-    public const int CurrentFormat = 3;
+    /// <summary>
+    /// 4: lessons and cheat sheets carry their search text, the pack a search vocabulary (spec 009). 3: lessons carry a
+    /// symbol, modules a picker and look-alikes (spec 006). 2: modules carry a map (spec 004).
+    /// </summary>
+    public const int CurrentFormat = 4;
 }
 
 /// <param name="Slug">The module's folder name, e.g. <c>case-studies</c>.</param>
@@ -47,6 +51,23 @@ public sealed record PackedLesson(
     IReadOnlyList<LessonTerm> Terms,
     string? Icon = null,
     string? Hook = null,
-    string? Symbol = null);
+    string? Symbol = null,
+    IReadOnlyList<SearchSection>? Search = null);
 
-public sealed record PackedCheatSheet(string Title, string BodyMarkdown);
+/// <param name="Search">The cheat sheet's search text, one entry per <c>##</c> section (spec 009 §3.1).</param>
+public sealed record PackedCheatSheet(string Title, string BodyMarkdown, IReadOnlyList<SearchSection>? Search = null);
+
+/// <summary>
+/// The plain text of one <c>##</c> section, as search indexes it (spec 009 §3.1): Markdown stripped, code and diagrams
+/// left out, folded content kept.
+/// </summary>
+/// <param name="Anchor">The heading's id, as in the outline; empty for the text before the first <c>##</c>.</param>
+/// <param name="Heading">The heading as shown; empty for the intro.</param>
+public sealed record SearchSection(string Anchor, string Heading, string Text);
+
+/// <param name="Synonyms">Lower-case word → the alternatives it also finds (one-way).</param>
+/// <param name="Suggestions">Searches offered while the box is empty.</param>
+public sealed record SearchVocabulary(IReadOnlyDictionary<string, IReadOnlyList<string>> Synonyms, IReadOnlyList<string> Suggestions)
+{
+    public static SearchVocabulary Empty { get; } = new(new Dictionary<string, IReadOnlyList<string>>(), []);
+}
