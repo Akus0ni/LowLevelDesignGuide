@@ -122,7 +122,8 @@ into a delegate.
 ### Interpreter and Specification
 
 Business rules like "active customers in India with orders over ₹10,000" are often written as specifications: small
-rule objects combined with `And` / `Or`. That's an interpreter for a business vocabulary (see the Enterprise module).
+rule objects combined with `And` / `Or`. That's an interpreter for a business vocabulary (see
+[Specification](../../enterprise-patterns/specification/lesson.md)).
 
 ### Making it fast
 

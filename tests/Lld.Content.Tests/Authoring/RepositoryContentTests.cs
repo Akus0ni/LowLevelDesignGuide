@@ -26,6 +26,7 @@ public sealed class RepositoryContentTests
     [Theory]
     [InlineData("oop-solid")]
     [InlineData("gof-patterns")]
+    [InlineData("enterprise-patterns")]
     public void ConceptLessons_AreShortCards_WithAGoDeeperSection(string module)
     {
         const int MaximumCardMinutes = 8;
