@@ -19,4 +19,4 @@
 - [x] T17 Playwright `e2e/uml.spec.ts` (A1, A5–A11)
 - [x] T18 Manual run: Windows ✅ (owner DB, content upgrade, 17 progress rows kept; test rows removed) and Android ✅ (airplane mode, Run, legend + Android Back, steps; SRP Done, note and bookmark kept)
 - [x] T19 Docs: PRD v0.10 (R109–R116), `docs/plan.md` roadmap, plan §5 outcomes, README authoring guide (`diagram` template, `code=`, `steps`, `uml-arrows`), progress log, decisions log
-- [ ] T20 PR with the acceptance-criteria table
+- [x] T20 PR with the acceptance-criteria table (PR #13)
