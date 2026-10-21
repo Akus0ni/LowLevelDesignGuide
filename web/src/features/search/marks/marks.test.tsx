@@ -132,6 +132,15 @@ describe('Search marks in the reader (spec 009 §3.6)', () => {
     await waitFor(() => expect(screen.getByText(/The order of wrappers matters/)).toBeVisible());
   });
 
+  it('opened at the top, counts the marks without choosing one; the first step goes to the first mark', async () => {
+    await renderAt('/learn/gof-patterns/decorator?q=wrap', source(['wrapper', 'wraps', 'Wrap', 'wrappers']));
+
+    const bar = await screen.findByRole('group', { name: 'Search matches' });
+    expect(bar).toHaveTextContent('4 matches');
+    fireEvent.click(screen.getByRole('button', { name: 'Next match' }));
+    expect(bar).toHaveTextContent('1 of 4');
+  });
+
   it('clears the marks and drops q from the URL with the button, Escape or Android Back', async () => {
     const router = await renderAt('/learn/gof-patterns/decorator?at=the-idea&q=wrap', source(['wraps']));
     await screen.findByRole('group', { name: 'Search matches' });

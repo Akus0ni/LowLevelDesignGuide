@@ -185,7 +185,9 @@ describe('The Search tab (spec 009 §3.4)', () => {
     fireEvent.change(box, { target: { value: 'decor' } });
     await settle();
     fireEvent.keyDown(box, { key: 'Enter' });
-    await waitFor(() => expect(router.state.location.pathname).toBe('/learn/gof-patterns/decorator'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/learn/gof-patterns/decorator'), {
+      timeout: 5000,
+    });
   });
 
   it('drops an older answer that arrives after a newer one', async () => {

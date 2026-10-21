@@ -15,7 +15,7 @@ export interface SearchMarks {
   /** The query the page was opened with (`?q=`), or '' when there are no marks. */
   query: string;
   count: number;
-  /** Index of the current mark; -1 when there are none. */
+  /** Index of the current mark; -1 when there are none, or none chosen yet (a page opened at its top). */
   current: number;
   next(): void;
   previous(): void;
@@ -96,10 +96,14 @@ export function useSearchMarks(
       setCurrent((index) => Math.min(Math.max(index, 0), ranges.length - 1));
       return;
     }
+    // Opened at the top (a lesson's own entry): no mark is current until the learner steps, so the bar never points at
+    // a mark that is out of sight.
+    if (!anchor) {
+      setCurrent(-1);
+      return;
+    }
     // Inside the marked text: the same heading id can also appear elsewhere on the page (outline, sheets).
-    const heading = anchor
-      ? ([...(root.current?.querySelectorAll('[id]') ?? [])].find((e) => e.id === anchor) ?? null)
-      : null;
+    const heading = [...(root.current?.querySelectorAll('[id]') ?? [])].find((e) => e.id === anchor) ?? null;
     const start = firstFrom(ranges, heading);
     setCurrent(start);
     if (insideFold(ranges[start])) show(ranges[start]);
@@ -119,7 +123,8 @@ export function useSearchMarks(
   const go = useCallback(
     (step: 1 | -1) => {
       if (ranges.length === 0) return;
-      const index = (current + step + ranges.length) % ranges.length;
+      const index =
+        current < 0 ? (step === 1 ? 0 : ranges.length - 1) : (current + step + ranges.length) % ranges.length;
       moved.current = key;
       setCurrent(index);
       show(ranges[index]);

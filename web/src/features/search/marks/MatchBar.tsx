@@ -41,7 +41,16 @@ export function MatchBar({ marks }: { marks: SearchMarks }) {
     <div className="match-bar" data-match-bar="" role="group" aria-label="Search matches">
       <span className="match-bar-query">“{query.trim()}”</span>
       <span className="match-bar-count" aria-live="polite">
-        <span className="tabular-nums">{current + 1}</span> of <span className="tabular-nums">{count}</span>
+        {current < 0 ? (
+          <>
+            <span className="tabular-nums">{count}</span> {count === 1 ? 'match' : 'matches'}
+          </>
+        ) : (
+          <>
+            <span className="tabular-nums">{current + 1}</span> of{' '}
+            <span className="tabular-nums">{count}</span>
+          </>
+        )}
       </span>
       <button type="button" className="match-bar-button" onClick={previous} aria-label="Previous match">
         <Icon d={upIcon} size={18} />

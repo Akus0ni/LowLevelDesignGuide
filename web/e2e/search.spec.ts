@@ -32,10 +32,11 @@ test('search, open the Best match, step through the marks and clear them (A5, A6
 
   await expect(page).toHaveURL(/#\/learn\/gof-patterns\/decorator\?q=decor$/);
   const bar = matchBar(page);
-  await expect(bar).toContainText(/1 of \d+/);
+  // Opened at the top: the marks are counted, none is current until the learner steps.
+  await expect(bar).toContainText(/\d+ matches/);
   await expect.poll(() => markCount(page)).toBeGreaterThan(1);
   await bar.getByRole('button', { name: 'Next match' }).click();
-  await expect(bar).toContainText(/2 of \d+/);
+  await expect(bar).toContainText(/1 of \d+/);
 
   await bar.getByRole('button', { name: 'Clear search marks' }).click();
   await expect(bar).toBeHidden();

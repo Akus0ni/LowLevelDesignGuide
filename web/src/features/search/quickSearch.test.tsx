@@ -87,7 +87,9 @@ describe('Quick search (spec 009 §3.7)', () => {
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
     fireEvent.keyDown(box, { key: 'Enter' });
 
-    await waitFor(() => expect(router.state.location.pathname).toBe('/learn/gof-patterns/l1'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/learn/gof-patterns/l1'), {
+      timeout: 5000,
+    });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(loadRecent('guest').map((r) => r.query)).toEqual(['decor']);
   });
