@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-21 (spec 009 done, PR ready for owner review)_
+_Last updated: 2026-10-21 (spec 009 merged; spec 010 spec, plan and tasks drafted, awaiting owner review)_
 
 ## Where we are
 | Item | Status |
@@ -20,7 +20,8 @@ _Last updated: 2026-10-21 (spec 009 done, PR ready for owner review)_
 | Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
 | Spec 007 Notes & bookmarks | ✅ Merged (PR #12) |
 | Spec 008 UML | ✅ Merged (PR #13) |
-| Spec 009 Search | 🔍 PR #14 open for owner review |
+| Spec 009 Search | ✅ Merged (PR #14) |
+| Spec 010 Offline sync | 📝 spec + plan + tasks drafted on `spec/010-offline-sync`; owner review of §8 Q1–Q9, then "start" before any code |
 | Decisions by Claude | `docs/claude-decisions.md`: CD-001..CD-008, ⏳ awaiting owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
@@ -36,8 +37,8 @@ _Last updated: 2026-10-21 (spec 009 done, PR ready for owner review)_
 | 006 | GoF + Enterprise patterns content | ✅ merged (PR #8) |
 | 007 | Notes & bookmarks | ✅ merged (PR #12) |
 | 008 | UML content | ✅ merged (PR #13) |
-| 009 | Search | 🔍 PR #14, owner review |
-| 010 | Offline sync | planned |
+| 009 | Search | ✅ merged (PR #14) |
+| 010 | Offline sync | 📝 spec drafted, awaiting review |
 | 011+ | Case studies (ask owner first each time) | planned |
 | P2 | Admin UI, **Apple builds** (`docs/plan.md` §8), optional cloud | deferred |
 
@@ -188,8 +189,9 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
   spec 008 build keeps progress, the note and bookmark; the note is searchable; bridge p95 120 ms). Details: plan §5.
 
 ## How to resume (next session)
-1. Spec 009 PR #14 is open: apply review changes on `spec/009-search`, push, update the PR (check `gh pr view` first).
-   Next spec after the merge: 010 Offline sync (needs the owner's OK).
+1. Spec 010 Offline sync: `specs/010-offline-sync/{spec,plan,tasks}.md` on `spec/010-offline-sync`. Owner decisions so far:
+   progress merges ticks, note conflicts keep a copy, sign-out keeps data, case study after the code. Waiting for the
+   owner's answers to spec §8 Q1–Q9 and an explicit "start coding"; then T1 onwards. Update plan/tasks if a Q changes.
 2. Android Debug builds use fast deployment: install with `dotnet build src/Lld.App -f net10.0-android -t:Install`
    (an `adb install` of the APK keeps the old assemblies). Memory is tight with the emulator up: run
    `dotnet build-server shutdown` and build with `-m:1 -nodeReuse:false`.
