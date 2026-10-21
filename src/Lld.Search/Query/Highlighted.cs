@@ -9,15 +9,22 @@ namespace Lld.Search.Query;
 /// </summary>
 public static class Highlighted
 {
-    public const string Open = "";
-    public const string Close = "";
+    public const string Open = "\uE000";
+    public const string Close = "\uE001";
 
     /// <summary>A snippet shows at most this many marks (spec Q3).</summary>
     public const int MaxSnippetMarks = 3;
 
+    /// <summary>
+    /// Markdown emphasis and code markers a note body may hold (content text is already plain). They are dropped before
+    /// the ranges are read, so the marks still line up with the text shown.
+    /// </summary>
+    private static readonly string[] MarkdownMarkers = ["**", "__", "`"];
+
     public static SearchSnippetDto Snippet(string marked)
     {
         ArgumentNullException.ThrowIfNull(marked);
+        marked = MarkdownMarkers.Aggregate(marked, (text, marker) => text.Replace(marker, string.Empty, StringComparison.Ordinal));
         var text = new StringBuilder(marked.Length);
         var marks = new List<int[]>();
         var start = -1;

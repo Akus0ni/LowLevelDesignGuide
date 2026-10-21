@@ -27,6 +27,15 @@ public sealed class HighlightedTests
     }
 
     [Fact]
+    public void Snippet_DropsMarkdownMarkersFromNotes()
+    {
+        var snippet = Highlighted.Snippet($"#interview - **Situation:** `{O}airplane{C}` mode");
+
+        snippet.Text.Should().Be("#interview - Situation: airplane mode");
+        snippet.Marks.Select(mark => snippet.Text.Substring(mark[0], mark[1])).Should().Equal("airplane");
+    }
+
+    [Fact]
     public void Snippet_IgnoresAnUnmatchedClose() =>
         Highlighted.Snippet($"x{C}y").Should().BeEquivalentTo(new { Text = "xy", Marks = Array.Empty<int[]>() });
 
