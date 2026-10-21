@@ -14,6 +14,6 @@
 - [x] T12 Visual: `--tone-match` (3 candidates → contrast pick), result rows, match bar, dialog motion + reduced motion (A13)
 - [x] T13 UI pass with the skills: screenshot critique (phone light / dark, desktop) + `break-ui` worst cases; fixes
 - [x] T14 Playwright `e2e/search.spec.ts` on phone + desktop (A5, A6, A7, A9, A13)
-- [ ] T15 (Windows ✅, Android pending) Manual run: Windows + Android (A10 timing log, A11 airplane mode, A12 V6 → V7 upgrade keeps progress / notes / bookmarks); screenshots
+- [x] T15 Manual run: Windows + Android (A10 timing log, A11 airplane mode, A12 V6 → V7 upgrade keeps progress / notes / bookmarks); screenshots
 - [x] T16 Docs: PRD §10 `LessonSearch` row + F6, `docs/plan.md` roadmap, README authoring note for `search.yml`, plan §5 outcomes, progress log
 - [ ] T17 PR with the acceptance-criteria table

@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-21 (spec 009 built; Android manual run pending, then PR)_
+_Last updated: 2026-10-21 (spec 009 done, PR ready for owner review)_
 
 ## Where we are
 | Item | Status |
@@ -20,7 +20,7 @@ _Last updated: 2026-10-21 (spec 009 built; Android manual run pending, then PR)_
 | Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
 | Spec 007 Notes & bookmarks | ✅ Merged (PR #12) |
 | Spec 008 UML | ✅ Merged (PR #13) |
-| Spec 009 Search | 🔨 Built on `spec/009-search` (T1–T14, T16); T15 Windows done, Android run pending; PR not opened yet |
+| Spec 009 Search | 🔍 PR open for owner review (`spec/009-search`) |
 | Decisions by Claude | `docs/claude-decisions.md`: CD-001..CD-008, ⏳ awaiting owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
@@ -36,7 +36,7 @@ _Last updated: 2026-10-21 (spec 009 built; Android manual run pending, then PR)_
 | 006 | GoF + Enterprise patterns content | ✅ merged (PR #8) |
 | 007 | Notes & bookmarks | ✅ merged (PR #12) |
 | 008 | UML content | ✅ merged (PR #13) |
-| 009 | Search | 🔨 in progress |
+| 009 | Search | 🔍 PR, owner review |
 | 010 | Offline sync | planned |
 | 011+ | Case studies (ask owner first each time) | planned |
 | P2 | Admin UI, **Apple builds** (`docs/plan.md` §8), optional cloud | deferred |
@@ -184,20 +184,22 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Web: Search tab (filters in the URL, Best match, module groups, recent searches per owner, suggestions, keyboard),
   marks in the reader (CSS highlights, match bar, folds opened by `beforematch`, recall reveal), quick search
   (`Ctrl+K` / `/`), `--tone-match`; Vitest 346, Playwright `search.spec.ts` 16 (phone + desktop).
-- Windows manual run: upgrade 6 → 7 on the owner DB, bridge p95 18.9 ms for 30 queries. Details: plan §5.
+- Manual run: Windows (owner DB, upgrade 6 → 7, bridge p95 18.9 ms) and Android emulator in airplane mode (upgrade from the
+  spec 008 build keeps progress, the note and bookmark; the note is searchable; bridge p95 120 ms). Details: plan §5.
 
 ## How to resume (next session)
-1. Spec 009 Search on `spec/009-search`: T15 Android run is left (emulator, airplane mode: upgrade from the spec 008
-   build keeps progress / notes and indexes the notes; time the 30-query set over the bridge; screenshots), then T17:
-   push and open the PR with the acceptance table. The Windows run was cut short by a low-memory guard, so close
-   other heavy processes before starting the emulator.
+1. Spec 009 PR is open: apply review changes on `spec/009-search`, push, update the PR (check `gh pr view` first).
+   Next spec after the merge: 010 Offline sync (needs the owner's OK).
+2. Android Debug builds use fast deployment: install with `dotnet build src/Lld.App -f net10.0-android -t:Install`
+   (an `adb install` of the APK keeps the old assemblies). Memory is tight with the emulator up: run
+   `dotnet build-server shutdown` and build with `-m:1 -nodeReuse:false`.
    Still pending: the owner's review of `docs/claude-decisions.md` (CD-001..CD-008).
-2. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
+3. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
    net10.0-windows10.0.19041.0`), then start `bin/.../Lld.App.exe` with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.
-3. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files
+4. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files
    (`adb exec-out run-as com.akus0ni.lldguide cat files/<name>`); without the WAL the old schema shows.
-4. Shell notes: write files that contain backslash escapes with the Write / Edit tools, not Python heredocs. Screenshot
+5. Shell notes: write files that contain backslash escapes with the Write / Edit tools, not Python heredocs. Screenshot
    scripts need `MSYS_NO_PATHCONV=1` and hash routes (`/#/learn/...`).
-5. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
+6. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`. Run one heavy process at a time.
-6. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.
+7. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

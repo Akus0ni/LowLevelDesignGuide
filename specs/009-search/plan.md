@@ -260,6 +260,9 @@ API dev mode, then web data, UI, marks, visuals, tests, manual run and docs.
   result snippets, where the DOM is ours.
 - e2e: search responses are snapshotted from the real engine for a fixed request list (`lld-content snapshot
   --search-requests`); an unlisted request answers 404, so a test can't silently search nothing.
+- Android: Debug builds use fast deployment, so `adb install` of the signed APK keeps the old assemblies on the device;
+  `dotnet build -t:Install` deploys the current ones. Note snippets showed raw Markdown (`**Situation:**`): emphasis and
+  code markers are now dropped from snippets.
 - Known limit: identifiers are one token (`SessionManager`), so `manager` doesn't find them. Code search is out of scope.
 
 ### Measurements
@@ -268,10 +271,11 @@ API dev mode, then web data, UI, marks, visuals, tests, manual run and docs.
 | A10 query → results, 30-query set (`tests/fixtures/search/benchmark-queries.json`), warm | Windows app, real bridge | p50 9.1 ms, p95 18.9 ms, max 33.3 ms (the first query) |
 | Same set, engine only | .NET test (`RealContentSearchTests`, CI bound 100 ms p95) | 3–12 ms per query on the dev PC |
 | Content units loaded | pack load | 794 units, about 216 KB of text, 84 ms in memory |
-| A10 on Android | emulator | ⏳ pending (see T15) |
+| A10 query → results, same 30 queries, warm | Android emulator (Pixel, API 35, 2 GB), real bridge | p50 60.9 ms, p95 120.0 ms, max 129.3 ms (`the`, 597 hits) |
 
 ### T15: manual run
 | Check | Where | Result |
 |---|---|---|
 | A12 upgrade, A10 | Windows (owner DB, backed up first) | ✅ schema 6 → 7, 794 search units, 17 progress rows kept (the one test row removed afterwards); bridge timing above; Search tab, marks and quick search work (`windows-*.png`) |
-| A10, A11, A12 (notes indexed after upgrade) | Android emulator, airplane mode | ⏳ pending: the Windows run was stopped by the session's low-memory guard, so the emulator run waits for the owner |
+| A10, A11, A12 | Android emulator, airplane mode, over the spec 008 build (schema 6: SRP Done, 1 note, 1 bookmark) | ✅ schema 6 → 7, 794 search units, 4 progress rows kept (SRP Done), note and bookmark kept; the note is found offline as «my note» under *Single Responsibility (SRP) › The rule*; timing above |
+| A6 on a device | Android | ✅ marks + match bar (2 of 49), Android Back clears them (`lldBack` → closed, `q` dropped), recall reveals only the matched section (`android-*.png`) |
