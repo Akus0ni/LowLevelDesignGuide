@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Full-text search (spec 009): the query engine shared by the device (MAUI) and the API's browser dev mode.
+       SQLite FTS5 over a content table fed by the content pack and the owner's notes. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lld.Content\Lld.Content.csproj" />
+    <ProjectReference Include="..\Lld.Contracts\Lld.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+  </ItemGroup>
+
+</Project>

@@ -89,4 +89,10 @@ public static class IssueCodes
     public const string LookalikeShape = "lookalike.shape";
     public const string LookalikeUnknownLesson = "lookalike.unknown_lesson";
     public const string LookalikeDuplicate = "lookalike.duplicate";
+
+    public const string SearchShape = "search.shape";
+    public const string SearchKeyFormat = "search.key_format";
+    public const string SearchKeyDuplicate = "search.key_duplicate";
+    public const string SearchAlternativeNotInContent = "search.alternative_not_in_content";
+    public const string SearchSuggestionNoResult = "search.suggestion_no_result";
 }

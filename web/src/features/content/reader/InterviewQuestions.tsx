@@ -2,6 +2,7 @@ import { Collapsible } from '@base-ui/react/collapsible';
 import { createContext, use, useState, type ComponentProps, type ReactNode } from 'react';
 import { cn } from '../../../ui/cn';
 import { Icon } from '../../../ui/Icon';
+import { useSearchableFolds } from './searchFolds';
 
 /**
  * A lesson's interview questions (spec 004 §3.5): the question is visible, the model answer is folded until tapped.
@@ -76,8 +77,9 @@ export function InterviewQuestionHeading({ children, ...props }: ComponentProps<
 }
 
 export function InterviewAnswer({ children }: { children: ReactNode }) {
+  const searchable = useSearchableFolds();
   return (
-    <Collapsible.Panel className="qa-answer">
+    <Collapsible.Panel className="qa-answer" hiddenUntilFound={searchable}>
       <div className="qa-answer-body">{children}</div>
     </Collapsible.Panel>
   );

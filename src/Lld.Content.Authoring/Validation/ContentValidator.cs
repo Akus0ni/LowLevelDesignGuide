@@ -43,6 +43,11 @@ public sealed class ContentValidator(IEnumerable<IContentRule> rules)
         new MistakesStampRule(),
         new CodePairSnippetRule(),
         new DiagramCodeMatchRule(),
+        new SearchVocabularyShapeRule(),
+        new SearchKeyFormatRule(),
+        new SearchKeyUniqueRule(),
+        new SearchAlternativeInContentRule(),
+        new SearchSuggestionHasResultRule(),
     ];
 
     public ContentValidator()

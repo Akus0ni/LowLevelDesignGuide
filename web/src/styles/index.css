@@ -81,6 +81,8 @@
   --category-4: #a3531a;
   /* Spec 007: the learner's own marks (redlines). Only notes use it; AA on --surface. */
   --tone-note: #c2361d;
+  /* Spec 009: search matches, a highlighter swipe under ink text. Only search marks use it. */
+  --tone-match: #fff09a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -101,6 +103,7 @@
     --category-3: #6cc6f0;
     --category-4: #f0a46a;
     --tone-note: #ff8a70;
+    --tone-match: #5b5214;
   }
 }
 
@@ -3480,5 +3483,635 @@
     .note-undo {
       animation: none;
     }
+  }
+}
+
+/*
+ * Search (spec 009 §3.9): results read like the sheet index of a drawing set. Each hit has its reference
+ * (lesson › section) in the mono label style, and matched words are highlighter marks (--tone-match) under ink text.
+ */
+@layer components {
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 1.25rem;
+  }
+
+  .search-box-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .search-box-input {
+    width: 100%;
+    height: 3.25rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 5rem 0 2.9rem;
+    font-size: 17px;
+    color: var(--fg);
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--rule) 60%, transparent);
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    /* The browser's own clear button duplicates ours. */
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+  }
+
+  .search-box-clear {
+    position: absolute;
+    right: 0.4rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    padding: 0 0.9rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  /* One row that scrolls sideways on narrow screens, so results start high on the page. */
+  .search-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.85rem -1.25rem 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 0.1rem 1.25rem;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .search-kinds {
+    display: flex;
+    flex: none;
+    gap: 0.35rem;
+  }
+
+  .search-kind {
+    display: inline-flex;
+    flex: none;
+    white-space: nowrap;
+    min-height: 2.25rem;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 0.8rem;
+    font-size: 14px;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease,
+      border-color 150ms ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &[aria-pressed='true'] {
+      border-color: var(--accent);
+      background: color-mix(in oklab, var(--accent) 10%, var(--surface));
+      color: var(--accent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .search-kind-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+
+    [aria-pressed='true'] > & {
+      color: inherit;
+    }
+  }
+
+  .search-module {
+    min-height: 2.25rem;
+    max-width: 14rem;
+    flex: none;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 0.8rem;
+    font-size: 16px;
+    color: var(--fg);
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .search-status {
+    margin-top: 1.25rem;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .search-also {
+    font-style: italic;
+  }
+
+  .search-clear-filters {
+    min-height: 2.75rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .search-empty {
+    margin-top: 1.5rem;
+    color: var(--muted);
+  }
+
+  /* A hit is one entry of the sheet index: glyph, reference, then the matched lines. */
+  .search-hit {
+    display: flex;
+    gap: 0.75rem;
+    border-radius: 0.6rem;
+    padding: 0.7rem 0.75rem;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease;
+
+    &:hover {
+      background: color-mix(in oklab, var(--surface) 70%, transparent);
+    }
+
+    &:active {
+      transform: scale(0.985);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+  }
+
+  .search-hit-kind {
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    flex: none;
+    place-items: center;
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+    background: var(--surface);
+    color: var(--muted);
+
+    [data-kind='note'] > & {
+      border-color: color-mix(in oklab, var(--tone-note) 40%, var(--rule));
+      color: var(--tone-note);
+    }
+  }
+
+  .search-hit-ref {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+    color: var(--muted);
+  }
+
+  .search-hit-stereotype {
+    color: var(--fg);
+
+    [data-kind='note'] & {
+      color: var(--tone-note);
+    }
+  }
+
+  .search-snippet {
+    display: -webkit-box;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  /* The highlighter: a swipe that sits a little below the cap height, like a real marker stroke. */
+  mark[data-search] {
+    border-radius: 0.2em;
+    background: linear-gradient(to bottom, transparent 18%, var(--tone-match) 18%, var(--tone-match) 92%, transparent 92%);
+    padding: 0 0.08em;
+    color: var(--fg);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .search-hit-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.35rem;
+    font-size: 12px;
+  }
+
+  /* The Best match: the title block of the drawing, drawn like a class box. */
+  .search-best {
+    margin-top: 0.75rem;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 0.9rem 1rem;
+
+    &:hover {
+      border-color: color-mix(in oklab, var(--accent) 45%, var(--rule));
+      background: var(--surface);
+    }
+
+    & .search-hit-kind {
+      width: 2.4rem;
+      height: 2.4rem;
+      color: var(--accent);
+    }
+  }
+
+  .search-best-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .search-best-title {
+    display: block;
+    margin: 0.1rem 0 0.15rem;
+    overflow-wrap: anywhere;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .search-group {
+    margin-top: 1.75rem;
+  }
+
+  .search-group-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    padding: 0 0.75rem 0.4rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .search-group-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+
+  .search-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.25rem;
+  }
+
+  .search-start {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .search-start-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .search-start-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .search-start-clear {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .search-recent {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.25rem;
+  }
+
+  .search-recent-item {
+    display: flex;
+    width: 100%;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.65rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--rule) 60%, transparent);
+    padding: 0 0.25rem;
+    text-align: left;
+    color: var(--fg);
+    transition: transform 120ms var(--ease-out);
+
+    & svg {
+      flex: none;
+      color: var(--muted);
+    }
+
+    &:active {
+      transform: scale(0.985);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  .search-recent-kind {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .search-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+  }
+
+  .search-suggestion {
+    min-height: 2.5rem;
+    border: 1px dashed var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0 0.95rem;
+    font-size: 15px;
+    color: var(--fg);
+    transition: transform 120ms var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+}
+
+/*
+ * Search marks in the reader (spec 009 §3.6): drawn with the CSS Custom Highlight API, so React's DOM is never
+ * touched. The current mark is underlined in ink as well, so it is never told apart by colour alone.
+ */
+::highlight(search) {
+  background-color: var(--tone-match);
+  color: var(--fg);
+}
+
+::highlight(search-current) {
+  background-color: var(--tone-match);
+  color: var(--fg);
+  text-decoration: underline 2px var(--fg);
+  text-underline-offset: 3px;
+}
+
+@layer components {
+  /* Above the tab bar on phones; pinned at the top of the reading column on wider screens. */
+  .match-bar {
+    position: fixed;
+    right: 0.75rem;
+    bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px) + 0.75rem);
+    left: 0.75rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--surface) 92%, transparent);
+    padding: 0.25rem 0.25rem 0.25rem 1rem;
+    box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(12px);
+    transition:
+      opacity 180ms var(--ease-out),
+      transform 180ms var(--ease-out);
+
+    @starting-style {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    @media (min-width: 768px) {
+      position: sticky;
+      top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+      right: auto;
+      bottom: auto;
+      left: auto;
+      width: fit-content;
+      max-width: 100%;
+      margin: 0.75rem 0 0 auto;
+
+      @starting-style {
+        transform: translateY(-8px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: opacity 180ms ease;
+
+      @starting-style {
+        transform: none;
+      }
+    }
+  }
+
+  .match-bar-query {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .match-bar-count {
+    flex: none;
+    border-radius: 999px;
+    background: var(--tone-match);
+    padding: 0.15rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--fg);
+  }
+
+  .match-bar-button {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: none;
+    place-items: center;
+    border-radius: 999px;
+    color: var(--fg);
+    transition:
+      transform 120ms var(--ease-out),
+      background-color 150ms ease;
+
+    &:hover {
+      background: color-mix(in oklab, var(--rule) 50%, transparent);
+    }
+
+    &:active {
+      transform: scale(0.94);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+  }
+}
+
+/* Quick search (spec 009 §3.7): a keyboard palette, so it appears and leaves at once, with no motion. */
+@layer components {
+  .quick-search-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgb(5 10 20 / 0.32);
+  }
+
+  .quick-search {
+    position: fixed;
+    top: 12vh;
+    left: 50%;
+    z-index: 41;
+    display: flex;
+    width: min(40rem, calc(100vw - 2rem));
+    max-height: 70dvh;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: 0 24px 64px -24px rgb(0 0 0 / 0.45);
+    transform: translateX(-50%);
+  }
+
+  .quick-search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    padding: 0 1rem;
+    color: var(--muted);
+  }
+
+  .quick-search-input {
+    min-width: 0;
+    height: 3.5rem;
+    flex: 1;
+    background: transparent;
+    font-size: 17px;
+    color: var(--fg);
+    outline: none;
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
+  }
+
+  .quick-search-key {
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+    padding: 0.05rem 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .quick-search-results {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.4rem;
+  }
+
+  .quick-search-option {
+    display: flex;
+    cursor: pointer;
+    gap: 0.75rem;
+    border-radius: 0.6rem;
+    padding: 0.6rem 0.7rem;
+
+    &[aria-selected='true'] {
+      background: color-mix(in oklab, var(--accent) 9%, var(--surface));
+      box-shadow: inset 2px 0 0 var(--accent);
+    }
+
+    & .search-snippet {
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      font-size: 14px;
+    }
+  }
+
+  .quick-search-all {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
   }
 }

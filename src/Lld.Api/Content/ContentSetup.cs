@@ -9,7 +9,7 @@ internal static class ContentSetup
 
     private const string SolutionFile = "LowLevelDesignGuide.slnx";
 
-    /// <summary>Registers the dev content source, only in Development (the hosted API serves no content).</summary>
+    /// <summary>Registers the dev content source and its search index, only in Development (the hosted API serves no content).</summary>
     public static IServiceCollection AddLldDevContent(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         if (!environment.IsDevelopment())
@@ -24,6 +24,7 @@ internal static class ContentSetup
             ?? throw new InvalidOperationException($"{PathKey} must be a folder inside the repository.");
         var options = new ContentOptions { ContentDirectory = Path.GetFileName(contentFolder) };
         services.AddSingleton(new DevContentCatalog(repositoryRoot, options));
+        services.AddSingleton<DevSearchIndex>();
         return services;
     }
 

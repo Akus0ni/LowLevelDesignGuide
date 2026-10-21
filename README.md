@@ -285,13 +285,33 @@ The interview lesson replaces Notation and Read it with `## Which diagram for wh
 Samples live in `samples/Lld.Samples.Uml/<Lesson>/`. Check that every diagram draws with the real Mermaid:
 `node web/scripts/check-mermaid.mjs [content/uml]`.
 
+### Search vocabulary (spec 009)
+
+`content/search.yml` holds what search can't learn from the text: acronyms and nicknames, and the suggestions shown
+while the box is empty.
+
+```yaml
+synonyms:            # one word → what it also finds (one-way; keys ignore case)
+  SRP: [single responsibility]
+  wrapper: [decorator, adapter, proxy]
+suggestions:
+  - SOLID
+  - sequence diagram
+```
+
+The build fails when a key is more than one word or repeats (ignoring case), when an alternative isn't written in any
+lesson or cheat sheet, or when a suggestion finds nothing. Search indexes headings, prose, lists, tables and callouts
+(folded ones too); code blocks, diagrams and the `#` title line are left out, so write a term in prose if it should be
+found.
+
 Samples live in `samples/Lld.Samples.OopSolid/<Lesson>/{Before,After,Language}` with tests in `tests/Lld.Samples.Tests`
 proving what each design claims. In browser dev mode, editing a quoted `.cs` file shows up on reload too.
 
 ```bash
 dotnet run --project src/Lld.Content.Cli -- validate                       # file:line: reason, exit 1 on any issue
 dotnet run --project src/Lld.Content.Cli -- pack --out <file>              # what the app build runs
-dotnet run --project src/Lld.Content.Cli -- snapshot --out web/e2e/.content  # what Playwright reads
+dotnet run --project src/Lld.Content.Cli -- snapshot --out web/e2e/.content \
+  --search-requests web/e2e/fixtures/search-requests.json                  # what Playwright reads
 ```
 
 Building `Lld.App` validates and packs automatically (an invalid lesson fails the build). In browser dev mode the API

@@ -12,6 +12,7 @@ public sealed class ContentContext
     private readonly Dictionary<string, SourceDocument> _documentsByPath;
     private readonly Dictionary<string, IReadOnlySet<string>> _anchors = new(StringComparer.Ordinal);
     private readonly HashSet<string> _unreadable;
+    private readonly Lazy<SearchableContent> _searchable;
 
     public ContentContext(ContentSet set, IContentFiles files, ContentOptions options, ICodeSnippetSource snippets)
     {
@@ -31,6 +32,7 @@ public sealed class ContentContext
         Documents = [.. Lessons.SelectMany(l => new[] { l.Lesson, l.CheatSheet }).OfType<SourceDocument>()];
         _documentsByPath = Documents.ToDictionary(d => d.Path, StringComparer.Ordinal);
         _unreadable = [.. set.Issues.Select(i => i.Path)];
+        _searchable = new(() => new SearchableContent(Documents));
     }
 
     public ContentSet Set { get; }
@@ -63,6 +65,9 @@ public sealed class ContentContext
 
     /// <summary>Every lesson and cheat sheet that exists.</summary>
     public IReadOnlyList<SourceDocument> Documents { get; }
+
+    /// <summary>The search text of every section, as words, computed once (spec 009 vocabulary rules).</summary>
+    public SearchableContent Searchable => _searchable.Value;
 
     public SourceDocument? FindDocument(string path) => _documentsByPath.GetValueOrDefault(path);
 

@@ -22,6 +22,34 @@ export async function routeContent(page: Page): Promise<void> {
   });
 }
 
+/**
+ * Serves /api/search from the snapshot: only the requests in fixtures/search-requests.json have an answer (the key is
+ * Lld.Content.Cli's SearchSnapshotWriter.KeyOf). Anything else is a 404, so a test using an unlisted search fails clearly.
+ */
+const KEY_SEPARATOR = String.fromCharCode(1);
+
+export async function routeSearch(page: Page): Promise<void> {
+  await page.route('**/api/search?**', (route) => {
+    const params = new URL(route.request().url()).searchParams;
+    const key = Buffer.from(
+      [
+        params.get('q') ?? '',
+        params.get('kind') ?? '',
+        params.get('module') ?? '',
+        params.get('lessonId') ?? '',
+      ].join(KEY_SEPARATOR),
+      'utf8',
+    ).toString('base64url');
+    const file = join(CONTENT_SNAPSHOT, 'search', `${key}.json`);
+    return existsSync(file)
+      ? route.fulfill({ body: readFileSync(file), contentType: 'application/json' })
+      : route.fulfill({
+          status: 404,
+          json: { title: `No snapshot for this search: ${params}`, code: 'e2e.search_missing' },
+        });
+  });
+}
+
 function fileFor(url: string): string {
   const { pathname, searchParams } = new URL(url);
   const path = decodeURIComponent(pathname.replace(/^\/api\/content\//, ''));

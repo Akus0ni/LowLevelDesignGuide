@@ -21,6 +21,8 @@ import {
   type NotesSnapshot,
   type ModuleSummary,
   type ProgressSnapshot,
+  type SearchRequest,
+  type SearchResults,
   type ServerStatus,
   type UserSummary,
 } from './types';
@@ -176,6 +178,21 @@ export class HttpDataSource implements DataSource {
   async getCheatSheets(moduleSlug?: string): Promise<CheatSheetSummary[]> {
     const query = moduleSlug ? `?module=${encodeURIComponent(moduleSlug)}` : '';
     return (await this.send('GET', `${CONTENT}/cheatsheets${query}`)) as CheatSheetSummary[];
+  }
+
+  /**
+   * The dev API's search (Development only, spec 009 §3.8). Signed in, the token goes along so the learner's notes are
+   * searched too; a guest's notes live in this browser and are not searched in dev mode (spec Q7).
+   */
+  async search(request: SearchRequest): Promise<SearchResults> {
+    const params = new URLSearchParams({ q: request.query });
+    for (const key of ['kind', 'module', 'lessonId'] as const) {
+      const value = request[key];
+      if (value) params.set(key, value);
+    }
+    if (request.limit !== undefined) params.set('limit', String(request.limit));
+    const path = `/api/search?${params}`;
+    return ((await this.signedIn()) ? await this.sendAuthorized('GET', path) : await this.send('GET', path)) as SearchResults;
   }
 
   async getCheatSheet(lessonId: string): Promise<CheatSheetDetail> {

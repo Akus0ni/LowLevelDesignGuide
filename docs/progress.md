@@ -3,12 +3,12 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-21 (spec 008 done, PR ready for owner review)_
+_Last updated: 2026-10-21 (spec 009 done, PR ready for owner review)_
 
 ## Where we are
 | Item | Status |
 |---|---|
-| PRD | v0.10 (spec 008 decisions R109–R116) |
+| PRD | v0.11 (spec 009 decisions R117–R124) |
 | Plan | merged (PR #1); Phase 2 Apple findings added in PR #2 (`docs/plan.md` §8) |
 | `main` protection | Ruleset "Protect main": PR + 1 approval (admin bypass in PR), squash only, no direct push; **required checks: `backend`, `web`, `maui-windows-android`** |
 | Spec 000 Foundation | ✅ Merged (PR #2) |
@@ -19,7 +19,8 @@ _Last updated: 2026-10-21 (spec 008 done, PR ready for owner review)_
 | Spec 005 Progress | ✅ Merged (PR #7) |
 | Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
 | Spec 007 Notes & bookmarks | ✅ Merged (PR #12) |
-| Spec 008 UML | 🔍 PR #13 open for owner review (one review on the PR, owner choice) |
+| Spec 008 UML | ✅ Merged (PR #13) |
+| Spec 009 Search | 🔍 PR #14 open for owner review |
 | Decisions by Claude | `docs/claude-decisions.md`: CD-001..CD-008, ⏳ awaiting owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
@@ -34,8 +35,8 @@ _Last updated: 2026-10-21 (spec 008 done, PR ready for owner review)_
 | 005 | Progress | ✅ merged (PR #7) |
 | 006 | GoF + Enterprise patterns content | ✅ merged (PR #8) |
 | 007 | Notes & bookmarks | ✅ merged (PR #12) |
-| 008 | UML content | 🔍 PR #13, owner review |
-| 009 | Search | planned |
+| 008 | UML content | ✅ merged (PR #13) |
+| 009 | Search | 🔍 PR #14, owner review |
 | 010 | Offline sync | planned |
 | 011+ | Case studies (ask owner first each time) | planned |
 | P2 | Admin UI, **Apple builds** (`docs/plan.md` §8), optional cloud | deferred |
@@ -173,16 +174,32 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Manual run: Windows (owner DB; test rows removed afterwards) and Android (airplane mode, upgrade keeps progress,
   notes, bookmarks). Details: `specs/008-uml/plan.md` section 5.
 
+## Spec 009: what was delivered
+- `Lld.Search`: query parser (input never reaches FTS5 as syntax), synonyms, MATCH builder, ranking (`HitRanking`),
+  snippets as ranges; SQLite tables `SearchUnits` + stemmed and unstemmed FTS5 indexes, note triggers; one
+  `ISearchIndex` contract suite on the device database and in memory (101 tests incl. real content and timing).
+- Content: section plain text in the pack (format 4), `content/search.yml` (48 synonyms, 6 suggestions) with 5 rules.
+- Device schema V7; the content load fills the index in its transaction; `DeviceSearch` + bridge `Search`; dev API
+  `GET /api/search` (Development only).
+- Web: Search tab (filters in the URL, Best match, module groups, recent searches per owner, suggestions, keyboard),
+  marks in the reader (CSS highlights, match bar, folds opened by `beforematch`, recall reveal), quick search
+  (`Ctrl+K` / `/`), `--tone-match`; Vitest 346, Playwright `search.spec.ts` 16 (phone + desktop).
+- Manual run: Windows (owner DB, upgrade 6 → 7, bridge p95 18.9 ms) and Android emulator in airplane mode (upgrade from the
+  spec 008 build keeps progress, the note and bookmark; the note is searchable; bridge p95 120 ms). Details: plan §5.
+
 ## How to resume (next session)
-1. Spec 008 PR #13 is open: apply review changes on `spec/008-uml`, push, update the PR. Check `gh pr view` first:
-   pushing to a merged spec branch re-creates it. Ask the owner to review `docs/claude-decisions.md` too.
-   Next spec after the merge: 009 Search (needs the owner's OK).
-2. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
+1. Spec 009 PR #14 is open: apply review changes on `spec/009-search`, push, update the PR (check `gh pr view` first).
+   Next spec after the merge: 010 Offline sync (needs the owner's OK).
+2. Android Debug builds use fast deployment: install with `dotnet build src/Lld.App -f net10.0-android -t:Install`
+   (an `adb install` of the APK keeps the old assemblies). Memory is tight with the emulator up: run
+   `dotnet build-server shutdown` and build with `-m:1 -nodeReuse:false`.
+   Still pending: the owner's review of `docs/claude-decisions.md` (CD-001..CD-008).
+3. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
    net10.0-windows10.0.19041.0`), then start `bin/.../Lld.App.exe` with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.
-3. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files
+4. Device database checks: pull `files/lld-device.db` **and** its `-wal` / `-shm` files
    (`adb exec-out run-as com.akus0ni.lldguide cat files/<name>`); without the WAL the old schema shows.
-4. Shell notes: write files that contain backslash escapes with the Write / Edit tools, not Python heredocs. Screenshot
+5. Shell notes: write files that contain backslash escapes with the Write / Edit tools, not Python heredocs. Screenshot
    scripts need `MSYS_NO_PATHCONV=1` and hash routes (`/#/learn/...`).
-5. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
+6. Run the UI locally: API with `Jwt__SigningKey` and `ConnectionStrings__lld` env vars (`dotnet run --project
    src/Lld.Api --launch-profile http`), Vite with `API_HTTP=http://localhost:5281`. Run one heavy process at a time.
-6. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.
+7. Spec 003 follow-up still open: time first lesson open on a Release build with a real phone.

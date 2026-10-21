@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { AppError, type DataSource, type ServerStatus, type UserSummary } from '../data/types';
+import { AppError, type DataSource, type SearchRequest, type SearchResults, type ServerStatus, type UserSummary } from '../data/types';
 
 export const onlineStatus: ServerStatus = {
   state: 'online',
@@ -14,6 +14,11 @@ export const learner: UserSummary = {
   roles: ['Learner'],
   mustChangePassword: false,
 };
+
+/** What a search that found nothing returns; tests override `search` for real results. */
+export function noResults(query: string, suggestions: string[] = []): SearchResults {
+  return { query, expansions: [], total: 0, countsByKind: { lesson: 0, cheatSheet: 0, note: 0 }, hits: [], words: [], suggestions };
+}
 
 /** In-memory DataSource for component tests; every method is a spy. */
 export function fakeDataSource(overrides: Partial<DataSource> = {}): DataSource {
@@ -44,6 +49,7 @@ export function fakeDataSource(overrides: Partial<DataSource> = {}): DataSource 
     saveNotes: vi.fn().mockResolvedValue(undefined),
     saveBookmarks: vi.fn().mockResolvedValue(undefined),
     exportNotes: vi.fn().mockResolvedValue(undefined),
+    search: vi.fn().mockImplementation(async ({ query }: SearchRequest) => noResults(query)),
     ...overrides,
   };
 }

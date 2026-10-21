@@ -21,8 +21,9 @@ public sealed class SchemaMigratorTests : IDisposable
         await using var connection = await _device.Database.OpenAsync(Ct);
         (await SchemaMigrator.ReadVersionAsync(connection, Ct)).Should().Be(SchemaMigrator.All.Count);
         (await Scalar(connection, "PRAGMA journal_mode;")).Should().Be("wal");
-        (await Scalar(connection, "SELECT group_concat(name, ',') FROM (SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name);"))
-            .Should().Be("ActivityDays,Bookmarks,DeviceMeta,LessonProgress,Lessons,Modules,Notes");
+        // FTS5 shadow tables (SearchStem_data, …) are left out: they belong to SQLite, not to a schema step.
+        (await Scalar(connection, "SELECT group_concat(name, ',') FROM (SELECT name FROM sqlite_master WHERE type = 'table' AND instr(name, '_') = 0 ORDER BY name);"))
+            .Should().Be("ActivityDays,Bookmarks,DeviceMeta,LessonProgress,Lessons,Modules,Notes,SearchRaw,SearchStem,SearchSuggestions,SearchSynonyms,SearchUnits");
     }
 
     [Fact]
@@ -114,7 +115,7 @@ public sealed class SchemaMigratorTests : IDisposable
             await insert.ExecuteNonQueryAsync(Ct);
         }
 
-        (await _device.MigrateAsync(Ct)).Should().Be(1);
+        (await new SchemaMigrator(_device.Database, SchemaMigrator.All.Where(m => m.Version <= 6)).MigrateAsync(Ct)).Should().Be(1);
 
         await using var check = await _device.Database.OpenAsync(Ct);
         (await Scalar(check, "SELECT (SELECT count(*) FROM Notes) || ' ' || (SELECT count(*) FROM Bookmarks);")).Should().Be("0 0");
