@@ -3,7 +3,7 @@
 The single place to see where the project stands and what comes next. Update it at the end
 of every spec (or session) so the next session can pick up without re-reading history.
 
-_Last updated: 2026-10-21 (spec 009 approved; plan + tasks written)_
+_Last updated: 2026-10-21 (spec 009 built; Android manual run pending, then PR)_
 
 ## Where we are
 | Item | Status |
@@ -20,7 +20,7 @@ _Last updated: 2026-10-21 (spec 009 approved; plan + tasks written)_
 | Spec 006 Design patterns | ✅ Merged (PR #8); Android upgrade check done after merge (docs PR) |
 | Spec 007 Notes & bookmarks | ✅ Merged (PR #12) |
 | Spec 008 UML | ✅ Merged (PR #13) |
-| Spec 009 Search | 🔨 Spec approved 2026-10-21 (all Q1-Q10 recommendations); plan + tasks in `specs/009-search/` |
+| Spec 009 Search | 🔨 Built on `spec/009-search` (T1–T14, T16); T15 Windows done, Android run pending; PR not opened yet |
 | Decisions by Claude | `docs/claude-decisions.md`: CD-001..CD-008, ⏳ awaiting owner review |
 | Hosting | ✅ Installed on the owner PC: services `LldGuideApi` + `ngrok` running, `https://doodle-diocese-revenue.ngrok-free.dev/health` OK, signed status on ntfy verified |
 
@@ -174,9 +174,23 @@ account with `C:\LldGuide\admin\lld-admin.exe users create <email> --role admin`
 - Manual run: Windows (owner DB; test rows removed afterwards) and Android (airplane mode, upgrade keeps progress,
   notes, bookmarks). Details: `specs/008-uml/plan.md` section 5.
 
+## Spec 009: what was delivered
+- `Lld.Search`: query parser (input never reaches FTS5 as syntax), synonyms, MATCH builder, ranking (`HitRanking`),
+  snippets as ranges; SQLite tables `SearchUnits` + stemmed and unstemmed FTS5 indexes, note triggers; one
+  `ISearchIndex` contract suite on the device database and in memory (101 tests incl. real content and timing).
+- Content: section plain text in the pack (format 4), `content/search.yml` (48 synonyms, 6 suggestions) with 5 rules.
+- Device schema V7; the content load fills the index in its transaction; `DeviceSearch` + bridge `Search`; dev API
+  `GET /api/search` (Development only).
+- Web: Search tab (filters in the URL, Best match, module groups, recent searches per owner, suggestions, keyboard),
+  marks in the reader (CSS highlights, match bar, folds opened by `beforematch`, recall reveal), quick search
+  (`Ctrl+K` / `/`), `--tone-match`; Vitest 346, Playwright `search.spec.ts` 16 (phone + desktop).
+- Windows manual run: upgrade 6 → 7 on the owner DB, bridge p95 18.9 ms for 30 queries. Details: plan §5.
+
 ## How to resume (next session)
-1. Spec 009 Search on `spec/009-search`: work through `specs/009-search/tasks.md` in order (T1 spike first: FTS5 on
-   Android + timing). Plan §2.2 explains the two FTS5 indexes (stemmed + unstemmed for mid-word prefixes).
+1. Spec 009 Search on `spec/009-search`: T15 Android run is left (emulator, airplane mode: upgrade from the spec 008
+   build keeps progress / notes and indexes the notes; time the 30-query set over the bridge; screenshots), then T17:
+   push and open the PR with the acceptance table. The Windows run was cut short by a low-memory guard, so close
+   other heavy processes before starting the emulator.
    Still pending: the owner's review of `docs/claude-decisions.md` (CD-001..CD-008).
 2. Windows app runs: `-t:Run` only launches the existing build. Build first (`dotnet build src/Lld.App -f
    net10.0-windows10.0.19041.0`), then start `bin/.../Lld.App.exe` with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.

@@ -235,4 +235,43 @@ See [`tasks.md`](./tasks.md). The spike comes first, then the engine (pure code,
 API dev mode, then web data, UI, marks, visuals, tests, manual run and docs.
 
 ## 5. Outcomes
-(Filled in at the end: deviations, measurements, findings.)
+
+### Deviations from this plan
+| Planned | Built | Why |
+|---|---|---|
+| `FoldRegistry` for opening folds | None: folds use Base UI's `hiddenUntilFound` while `?q=` is set, and the current mark sends `beforematch` to its fold | Base UI already opens a panel on `beforematch` (the event find-in-page uses) and calls `onOpenChange`, which also reveals a recall section (Q8). Without `?q=`, closed folds stay unmounted, so normal reading costs nothing |
+| Ranking: a title match first | Three levels: every query word in the title, then some word, the lesson's intro leading; title-only sections of a lesson collapse into its intro | The real content showed every section of a lesson matching through the shared title column, and empty sections (a diagram only) winning on bm25 |
+| Quick search uses the overlay motion | No motion | emil-design-eng: a keyboard palette used many times a day opens and closes at once |
+| `ISearchIndex` contract on the device and the API | Device database and an in-memory database with the dev `Notes` table and triggers | The API's `DevSearchIndex` runs exactly that in-memory setup; its endpoint is covered by `SearchApiTests` |
+| Section text includes everything before the first `##` | The `#` title is left out | It is already the weighted `Title` column; keeping it made every intro snippet repeat the title |
+| Marks start at the first mark | A page opened at its top shows "n matches" with no current mark until the learner steps | Found in the Windows run: "1 of 26" pointed at a mark out of sight |
+
+### Findings
+- FTS5's `porter` tokenizer stems prefix queries too, so a half-typed word (`decorat*`) finds nothing: hence the second,
+  unstemmed index (§2.2), checked while planning.
+- `bm25()` inside a CTE that is aggregated fails ("unable to use function bm25 in the requested context"): SQLite
+  flattens the CTE. `AS MATERIALIZED` keeps it a separate query.
+- The device's notes upsert is `INSERT OR REPLACE`, which deletes the old row without firing delete triggers, so the old
+  note stayed indexed. The insert trigger now removes the note's unit first. The contract suite caught it on the device
+  only (the in-memory fixture used `ON CONFLICT DO UPDATE`): the reason it runs on both.
+- The same heading id appears twice on a lesson page (outline and body), so marks look the heading up inside the text.
+- Go deeper's topic list repeats its `###` headings; it is skipped by the marks (`data-search-skip`).
+- CSS Custom Highlight API: no DOM changes, so React and the reading tracker are unaffected; `<mark>` is still used in
+  result snippets, where the DOM is ours.
+- e2e: search responses are snapshotted from the real engine for a fixed request list (`lld-content snapshot
+  --search-requests`); an unlisted request answers 404, so a test can't silently search nothing.
+- Known limit: identifiers are one token (`SessionManager`), so `manager` doesn't find them. Code search is out of scope.
+
+### Measurements
+| What | Where | Result |
+|---|---|---|
+| A10 query → results, 30-query set (`tests/fixtures/search/benchmark-queries.json`), warm | Windows app, real bridge | p50 9.1 ms, p95 18.9 ms, max 33.3 ms (the first query) |
+| Same set, engine only | .NET test (`RealContentSearchTests`, CI bound 100 ms p95) | 3–12 ms per query on the dev PC |
+| Content units loaded | pack load | 794 units, about 216 KB of text, 84 ms in memory |
+| A10 on Android | emulator | ⏳ pending (see T15) |
+
+### T15: manual run
+| Check | Where | Result |
+|---|---|---|
+| A12 upgrade, A10 | Windows (owner DB, backed up first) | ✅ schema 6 → 7, 794 search units, 17 progress rows kept (the one test row removed afterwards); bridge timing above; Search tab, marks and quick search work (`windows-*.png`) |
+| A10, A11, A12 (notes indexed after upgrade) | Android emulator, airplane mode | ⏳ pending: the Windows run was stopped by the session's low-memory guard, so the emulator run waits for the owner |

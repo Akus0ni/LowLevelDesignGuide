@@ -122,7 +122,10 @@ from real code. It doubles as the owner's self-help guide for deepening .NET/C#.
 - **Acceptance:** notes are created offline and appear on another device after sync.
 
 ### F6. Search
-- Full-text search across lessons, cheat sheets and the user's own notes (SQLite FTS5).
+- Built in spec 009: full-text search across lesson sections, cheat sheet sections and the user's own notes (SQLite
+  FTS5 on the device, offline): prefix as you type, word forms, phrases, acronyms and synonyms from `content/search.yml`;
+  the Search tab (filters, Best match, module groups, recent searches, suggestions), marks in the reader with a match
+  bar, and `Ctrl+K` / `/` quick search on desktop (R117–R124).
 - **Acceptance:** results return in under 200 ms on device for the MVP content set; matches are highlighted.
 
 ### F7. Offline-first sync
@@ -194,7 +197,8 @@ See `docs/plan.md` for diagrams, solution layout and the spec roadmap.
 | `ActivityDay` | Owner, Day (local date) | API + device |
 | `Note` | Id (GUID), Owner (user or device guest), LessonId, Anchor (section heading id, or empty for the whole lesson), Body (Markdown, tags inside), CreatedAt, UpdatedAt, DeletedAt, DeviceId | API + device |
 | `Bookmark` | Owner, Kind (lesson / section / cheat sheet), LessonId, Anchor (sections only), CreatedAt, UpdatedAt, DeletedAt, DeviceId | API + device |
-| `LessonSearch` (FTS5) | Title, Body, CheatSheet, user notes | Device (API copy for browser dev only) |
+| `SearchUnits` + `SearchStem` / `SearchRaw` (FTS5) | Kind (lesson / cheatSheet / note), Owner ('' for content), ModuleSlug, LessonId, Anchor, NoteId, Title, Heading, Text; a stemmed and an unstemmed index over the same rows; notes kept in step by triggers | Device (schema V7); in memory for browser dev |
+| `SearchSynonyms`, `SearchSuggestions` | Word → alternatives; suggestions in order (from `content/search.yml`) | Device; in memory for browser dev |
 
 ## 11. Non-functional requirements
 - **Offline:** all reading, progress and notes work without network.
